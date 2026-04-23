@@ -1,0 +1,10 @@
+# Módulo 1 — ETL
+haystack-ai==2.9.0
+sentence-transformers==3.4.1
+httpx==0.27.0
+beautifulsoup4==4.12.3
+lxml==5.2.1
+
+# Módulo 1 — Parte 4 (produção)
+# qdrant-client==1.11.0
+# haystack-integrations[qdrant]==1.0.0
