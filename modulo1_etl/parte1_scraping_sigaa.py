@@ -1,10 +1,9 @@
 # Projeto: Agente RAG Federado — UFRRJ
 # Módulo 1, Parte 1: scraping do portal público do SIGAA
-"""
-Acessar o portal público do SIGAA, extrair os cards de conteúdo disponíveis na home, 
-e transformá-los em objetos Document do Haystack prontos para as etapas seguintes.
 
-"""
+#Acessar o portal público do SIGAA, extrair os cards de conteúdo disponíveis na home
+#e transformá-los em objetos Document do Haystack prontos para as etapas seguintes.
+
 
 import httpx
 from bs4 import BeautifulSoup

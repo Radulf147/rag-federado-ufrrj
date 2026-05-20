@@ -1,21 +1,20 @@
 # Projeto: Agente RAG Federado — UFRRJ
-# Módulo 1, Parte 4: carga no DocumentStore (ChromaDB)
+# Módulo 1, Parte 5: carga no DocumentStore (ChromaDB)
 
 import logging
 import warnings
+import os
 from pathlib import Path
 from datetime import datetime
 from haystack import Document
 
 # Dependência obrigatória — falha ruidosa é preferível a dado perdido silenciosamente.
-# Se este import falhar, execute: pip install chroma-haystack
 try:
     from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 except ImportError as exc:
     raise ImportError(
         "[STORE] ChromaDB não encontrado. Instale com: pip install chroma-haystack"
     ) from exc
-
 
 Path("logs").mkdir(exist_ok=True)
 
@@ -33,20 +32,15 @@ logging.basicConfig(
 )
 log = logging.info
 
-
 INSTANCIA          = "sigaa"
 CHROMA_PERSIST_DIR = "./chroma_db"
 CHROMA_COLECAO     = f"rag_{INSTANCIA}"
-CHROMA_HOST        = "localhost"   # trocar para o IP da faculdade em produção
-CHROMA_PORT        = 8000
-EMBEDDING_DIM      = 384           # deve coincidir com EMBEDDING_DIM da Parte 3
-
+CHROMA_HOST        = os.getenv("CHROMA_HOST", "localhost")
+CHROMA_PORT        = int(os.getenv("CHROMA_PORT", 8000))
+EMBEDDING_DIM      = 384           # deve coincidir com EMBEDDING_DIM da Parte 4
 
 def conectar_store(remoto: bool = False):
     # Retorna um ChromaDocumentStore pronto para uso.
-    # remoto=True usa ChromaDB via HTTP (máquina da faculdade).
-    # remoto=False persiste localmente em CHROMA_PERSIST_DIR.
-
     if remoto:
         log(f"[STORE] ChromaDB remoto: {CHROMA_HOST}:{CHROMA_PORT}")
         store = ChromaDocumentStore(
@@ -66,17 +60,12 @@ def conectar_store(remoto: bool = False):
     log(f"[STORE] Coleção: '{CHROMA_COLECAO}'")
     return store
 
-
 def carregar_documentos(
     documentos: list[Document],
     store=None,
     limpar_antes: bool = False,
 ) -> int:
-
-    #Grava documentos vetorizados no store.
-    #limpar_antes=True apaga a coleção antes — usar na re-indexação semanal.
-    #Retorna o total de documentos no store após a carga.
-
+    # Grava documentos vetorizados no store.
     if not documentos:
         log("[CARGA] Nenhum documento recebido.")
         return 0
@@ -86,7 +75,7 @@ def carregar_documentos(
 
     sem_embedding = [i for i, d in enumerate(documentos) if not d.embedding]
     if sem_embedding:
-        log(f"[CARGA] erro {len(sem_embedding)} docs sem embedding — execute a Parte 3 primeiro.")
+        log(f"[CARGA] erro {len(sem_embedding)} docs sem embedding — execute a Parte 4 primeiro.")
         return 0
 
     # Remove campo interno do Haystack incompatível com ChromaDB
@@ -95,31 +84,15 @@ def carregar_documentos(
 
     if limpar_antes:
         try:
-            ids_existentes = [d.id for d in store.filter_documents()]
-            if ids_existentes:
-                store.delete_documents(document_ids=ids_existentes)
-                log("[CARGA] Coleção limpa.")
-            else:
-                log("[CARGA] Coleção já estava vazia.")
+            store.delete_documents(document_ids=[d.id for d in store.filter_documents()])
+            log("[CARGA] Coleção limpa.")
         except Exception as e:
             log(f"[CARGA] atenção Não foi possível limpar a coleção: {e}")
 
-    # Chunks com conteúdo idêntico geram o mesmo hash de ID — o ChromaDB rejeita duplicatas.
-    vistos: set[str] = set()
-    unicos: list[Document] = []
-    for doc in documentos:
-        if doc.id not in vistos:
-            vistos.add(doc.id)
-            unicos.append(doc)
-
-    duplicatas = len(documentos) - len(unicos)
-    if duplicatas:
-        log(f"[CARGA] {duplicatas} chunks duplicados removidos antes da carga.")
-
-    log(f"[CARGA] Gravando {len(unicos)} documentos...")
+    log(f"[CARGA] Gravando {len(documentos)} documentos...")
 
     try:
-        store.write_documents(unicos)
+        store.write_documents(documentos)
     except Exception as e:
         log(f"[CARGA] erro Erro ao gravar: {e}")
         return 0
@@ -128,13 +101,8 @@ def carregar_documentos(
     log(f"[CARGA] deu certo {total} documentos no store.")
     return total
 
-
 def validar_carga(store, n_esperado: int) -> bool:
     # Verifica total de documentos e isolamento por instancia_dona.
-    # O check de isolamento usa filter_documents com filtro de metadado —
-    # se o resultado for 0 e n_esperado > 0, o filtro provavelmente não está
-    # funcionando na versão instalada do chroma-haystack (falha silenciosa conhecida).
-    # Nesse caso, troque pela Opção B: buscar todos e filtrar em Python.
     erros = 0
 
     total = store.count_documents()
@@ -176,15 +144,15 @@ def validar_carga(store, n_esperado: int) -> bool:
 
     return erros == 0
 
-
 if __name__ == "__main__":
     log("=" * 60)
-    log("PARTE 4 — CARGA NO DOCUMENTSTORE (ChromaDB)")
+    log("PARTE 5 — CARGA NO DOCUMENTSTORE (ChromaDB)")
     log("=" * 60)
 
-    from parte1_scraping import scrape_sigaa
-    from parte2_inferencia import scrape_docentes, chunkar_documentos
-    from parte3_embedding import embedar_documentos, validar_embeddings, MODELO_EMBEDDING
+    from parte1_scraping_home import scrape_sigaa
+    from parte2_scraping_docentes import scrape_docentes
+    from parte3_chunking import chunkar_documentos
+    from parte4_embedding import embedar_documentos, validar_embeddings, MODELO_EMBEDDING
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -203,7 +171,7 @@ if __name__ == "__main__":
 
     log(f"[SETUP] {len(docs_embedados)} documentos aprovados na validação. Iniciando carga.")
 
-    store = conectar_store(remoto=False)   # trocar para remoto=True na produção
+    store = conectar_store(remoto=False) 
     total = carregar_documentos(docs_embedados, store, limpar_antes=True)
 
     if total == 0:
@@ -212,28 +180,4 @@ if __name__ == "__main__":
 
     validar_carga(store, n_esperado=len(docs_embedados))
 
-    log("\n--- Teste de busca ---")
-    try:
-        from haystack.components.embedders import SentenceTransformersTextEmbedder
-        from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRetriever
-
-        text_embedder = SentenceTransformersTextEmbedder(model=MODELO_EMBEDDING)
-        text_embedder.warm_up()
-
-        query      = "Quais são as áreas de pesquisa dos docentes de computação?"
-        query_vec  = text_embedder.run(text=query)["embedding"]
-        retriever  = ChromaEmbeddingRetriever(document_store=store, top_k=3)
-        resultados = retriever.run(
-            query_embedding=query_vec,
-            filters={"field": "meta.instancia_dona", "operator": "==", "value": INSTANCIA},
-        )["documents"]
-
-        log(f"[BUSCA] '{query}'")
-        for i, doc in enumerate(resultados, 1):
-            log(f"  {i}. [{doc.meta.get('nome_docente', 'home')}] {doc.content[:100]}...")
-
-    except Exception as e:
-        log(f"[BUSCA] atenção Teste falhou: {e}")
-
-    log(f"\n[RESUMO] {total} docs carregados | store: {CHROMA_PERSIST_DIR} | coleção: {CHROMA_COLECAO}")
-    log("[PARTE 4 CONCLUÍDA — MÓDULO 1 ETL COMPLETO]")
+    log("[PARTE 5 CONCLUÍDA]")

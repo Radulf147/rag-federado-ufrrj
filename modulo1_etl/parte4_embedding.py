@@ -1,5 +1,5 @@
 # Projeto: Agente RAG Federado — UFRRJ
-# Módulo 1, Parte 3: embedding dos chunks
+# Módulo 1, Parte 4: embedding dos chunks
 
 import logging
 from pathlib import Path
@@ -23,15 +23,13 @@ logging.basicConfig(
 )
 log = logging.info
 
-
 # Modelo multilingual para português — trocar por rufimelo/bert-large-portuguese-cased-sts em produção
 MODELO_EMBEDDING = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-EMBEDDING_DIM    = 384   # deve coincidir com o store na Parte 4
+EMBEDDING_DIM    = 384   # deve coincidir com o store na Parte 5
 INSTANCIA        = "sigaa"
 
-
 def embedar_documentos(documentos: list[Document]) -> list[Document]:
-    #Vetoriza cada chunk com o modelo de embedding. Retorna docs com campo embedding preenchido.
+    # Vetoriza cada chunk com o modelo de embedding. Retorna docs com campo embedding preenchido.
     if not documentos:
         log("[EMBEDDING] Nenhum documento recebido.")
         return []
@@ -45,15 +43,14 @@ def embedar_documentos(documentos: list[Document]) -> list[Document]:
 
     sem_embedding = [i for i, d in enumerate(docs_embedados) if not d.embedding]
     if sem_embedding:
-        log(f"[EMBEDDING] ⚠ {len(sem_embedding)} docs sem embedding.")
+        log(f"[EMBEDDING] deu erro {len(sem_embedding)} docs sem embedding.")
     else:
         log(f"[EMBEDDING] deu certo {len(docs_embedados)} chunks vetorizados (dim={len(docs_embedados[0].embedding)}).")
 
     return docs_embedados
 
-
 def validar_embeddings(documentos: list[Document]) -> bool:
-    #Verifica embeddings preenchidos, dimensão correta e metadados de governança intactos.
+    # Verifica embeddings preenchidos, dimensão correta e metadados de governança intactos.
     if not documentos:
         log("[VALIDAÇÃO] erro Nenhum documento.")
         return False
@@ -91,14 +88,14 @@ def validar_embeddings(documentos: list[Document]) -> bool:
 
     return erros == 0
 
-
 if __name__ == "__main__":
     log("=" * 60)
-    log("PARTE 3 — EMBEDDING")
+    log("PARTE 4 — EMBEDDING")
     log("=" * 60)
 
-    from parte1_scraping import scrape_sigaa
-    from parte2_inferencia import scrape_docentes, chunkar_documentos
+    from parte1_scraping_home import scrape_sigaa
+    from parte2_scraping_docentes import scrape_docentes
+    from parte3_chunking import chunkar_documentos
 
     chunks = chunkar_documentos(scrape_sigaa() + scrape_docentes())
 
@@ -122,4 +119,4 @@ if __name__ == "__main__":
         log(f"       embedding: [{doc.embedding[0]:.4f}, ..., {doc.embedding[-1]:.4f}] dim={len(doc.embedding)}")
 
     log(f"\n[RESUMO] {len(docs_embedados)} chunks vetorizados | dim={EMBEDDING_DIM} | modelo={MODELO_EMBEDDING}")
-    log("[PARTE 3 CONCLUÍDA]")
+    log("[PARTE 4 CONCLUÍDA]")

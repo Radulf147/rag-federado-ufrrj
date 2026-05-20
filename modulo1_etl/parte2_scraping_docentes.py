@@ -1,5 +1,5 @@
 # Projeto: Agente RAG Federado — UFRRJ
-# Módulo 1, Parte 2: scraping de docentes + chunking
+# Módulo 1, Parte 2: scraping de docentes
 
 """
 Coletar dados de docentes do SIGAA
@@ -8,20 +8,17 @@ Estruturado em três níveis.
 
 Descobrir os departamentos, listar os docentes de cada departamento, acessar cada perfil individualmente.
 """
+
 import re
 import asyncio
 import time
 import logging
 import httpx
-import httpx
-import warnings
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 from pathlib import Path
 from haystack import Document
-from haystack.components.preprocessors import DocumentSplitter
 
-warnings.filterwarnings("ignore", message=".*SSL.*")
 Path("logs").mkdir(exist_ok=True)
 
 logging.basicConfig(
@@ -30,14 +27,13 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
     handlers=[
         logging.FileHandler(
-            f"logs/scraping_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
+            f"logs/scraping_docentes_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
             encoding="utf-8",
         ),
         logging.StreamHandler(),
     ],
 )
 log = logging.info
-
 
 BASE_URL  = "https://sigaa.ufrrj.br"
 INSTANCIA = "sigaa"
@@ -54,27 +50,22 @@ HEADERS = {
 DELAY_ENTRE_REQUISICOES   = 2
 DELAY_ENTRE_DEPARTAMENTOS = 3
 DELAY_NIVEL3              = 1
-MAX_WORKERS               = 8   # reduzir para 4 se o servidor retornar 429/503
+MAX_WORKERS               = 8
 
 MIN_CHARS       = 20
-CHUNK_SENTENCES = 5
-CHUNK_OVERLAP   = 1
 
 PADRAO_SIAPE    = re.compile(r"/docente/portal\.jsf\?siape=(\d+)")
 NOMES_INVALIDOS = {"Sistema Integrado de Gestão de Atividades Acadêmicas"}
 
-#Cria o cliente HTTP sincrono com cookie jar persistente para manter sessão JSF.
 def criar_cliente_sync() -> httpx.Client:
-    #Cookie jar persistente — obrigatório para manter JSESSIONID no fluxo JSF.
+    # Cookie jar persistente — obrigatório para manter JSESSIONID no fluxo JSF.
     return httpx.Client(
         headers=HEADERS,
         timeout=30,
         follow_redirects=True,
         cookies=httpx.Cookies(),
-        verify=False,
     )
 
-#Executa o GET, trata erros e decodifica 'iso-8859-1' ou 'utf-8' conforme necessário.
 def acessar_pagina_sync(cliente: httpx.Client, url: str) -> str | None:
     try:
         r = cliente.get(url)
@@ -93,7 +84,6 @@ def acessar_pagina_sync(cliente: httpx.Client, url: str) -> str | None:
         log(f"  [ERRO] Rede: {e}")
         return None
 
-
 def extrair_campos_formulario(soup: BeautifulSoup) -> dict:
     campos = {}
     form = soup.find("form")
@@ -104,7 +94,6 @@ def extrair_campos_formulario(soup: BeautifulSoup) -> dict:
         if nome:
             campos[nome] = inp.get("value", "")
     return campos
-
 
 def extrair_info_formulario(soup: BeautifulSoup) -> dict:
     form = soup.find("form")
@@ -135,10 +124,8 @@ def extrair_info_formulario(soup: BeautifulSoup) -> dict:
         "valor_btn": valor_btn,
     }
 
-#Nível 1 — Descoberta de departamentos, quais departamentos existem.
 def extrair_departamentos(cliente: httpx.Client) -> list[dict]:
-    #Extrai todos os departamentos do <select> dinamicamente.
-
+    # Extrai todos os departamentos do <select> dinamicamente.
     log("[NÍVEL 1] Descobrindo departamentos...")
     html = acessar_pagina_sync(cliente, URL_BUSCA_DOCENTES)
     if not html:
@@ -163,22 +150,16 @@ def extrair_departamentos(cliente: httpx.Client) -> list[dict]:
     log(f"[NÍVEL 1] {len(departamentos)} departamentos encontrados.")
     return departamentos
 
-#Nível 2 — Coleta de SIAPEs por departamento. Quais docentes pertencem a cada departamento?
 def extrair_siapes_via_post(
     cliente: httpx.Client,
     id_departamento: str,
     nome_departamento: str,
 ) -> list[int]:
     # POST JSF para listar docentes de um departamento.
-    # Sequência de delays: GET → DELAY_ENTRE_REQUISICOES → POST.
-    # O DELAY_ENTRE_DEPARTAMENTOS no orquestrador cobre a pausa entre o POST
-    # deste departamento e o GET do próximo, garantindo ciclo completo consistente.
-
     html_get = acessar_pagina_sync(cliente, URL_BUSCA_DOCENTES)
     if not html_get:
         return []
 
-    # Delay depois do GET — deixa o servidor respirar antes do POST seguinte.
     time.sleep(DELAY_ENTRE_REQUISICOES)
 
     soup_get  = BeautifulSoup(html_get, "lxml")
@@ -216,9 +197,8 @@ def extrair_siapes_via_post(
 
     return sorted(siapes)
 
-
 def _montar_conteudo_docente(soup: BeautifulSoup) -> tuple[str, str, str]:
-    #Parseia HTML do portal de um docente. Separado do I/O para facilitar testes.
+    # Parseia HTML do portal de um docente.
     nome         = "Não informado"
     departamento = "Não informado"
     h3_tags      = soup.find_all("h3")
@@ -258,14 +238,13 @@ def _montar_conteudo_docente(soup: BeautifulSoup) -> tuple[str, str, str]:
 
     return nome, departamento, " ".join(partes)
 
-
 async def extrair_perfil_docente_async(
     cliente_async: httpx.AsyncClient,
     semaforo: asyncio.Semaphore,
     siape: int,
     timestamp: str,
 ) -> Document | None:
-    #Busca e parseia o perfil de um docente. Semáforo limita a MAX_WORKERS requisições.
+    # Busca e parseia o perfil de um docente.
     url = f"{BASE_URL}/sigaa/public/docente/portal.jsf?siape={siape}"
 
     async with semaforo:
@@ -308,9 +287,8 @@ async def extrair_perfil_docente_async(
         }
     )
 
-
 async def coletar_perfis_async(siapes: list[int], timestamp: str) -> list[Document]:
-    #Coleta todos os perfis em paralelo. Deduplica por hash de conteúdo.
+    # Coleta todos os perfis em paralelo.
     semaforo      = asyncio.Semaphore(MAX_WORKERS)
     headers_async = {k: v for k, v in HEADERS.items() if k != "Content-Type"}
 
@@ -318,8 +296,7 @@ async def coletar_perfis_async(siapes: list[int], timestamp: str) -> list[Docume
         headers=headers_async,
         timeout=30,
         follow_redirects=True,
-        verify=False,
-    ) as cliente_async: 
+    ) as cliente_async:
         tarefas    = [
             extrair_perfil_docente_async(cliente_async, semaforo, siape, timestamp)
             for siape in siapes
@@ -348,12 +325,8 @@ async def coletar_perfis_async(siapes: list[int], timestamp: str) -> list[Docume
 
     return documentos
 
-
 def scrape_docentes() -> list[Document]:
-   
-    #Orquestra os 3 níveis de coleta.
-    #Níveis 1 e 2 síncronos (JSF), Nível 3 assíncrono e paralelo.
-    
+    # Orquestra os 3 níveis de coleta.
     timestamp     = datetime.now(timezone.utc).isoformat()
     siapes_vistos: set[int] = set()
 
@@ -371,7 +344,6 @@ def scrape_docentes() -> list[Document]:
             novos  = [s for s in siapes if s not in siapes_vistos]
             siapes_vistos.update(novos)
             log(f"  → {len(siapes)} docente(s) | {len(novos)} novo(s).")
-            # Pausa entre departamentos: cobre o gap POST→GET do próximo ciclo.
             time.sleep(DELAY_ENTRE_DEPARTAMENTOS)
 
     todos_siapes = sorted(siapes_vistos)
@@ -380,35 +352,8 @@ def scrape_docentes() -> list[Document]:
     log(f"\n[SCRAPER] {len(documentos)} perfis extraídos.")
     return documentos
 
-
-def chunkar_documentos(documentos: list[Document]) -> list[Document]:
-    #Divide documentos em chunks de CHUNK_SENTENCES sentenças com overlap.
-    if not documentos:
-        log("[CHUNKING] Nenhum documento recebido.")
-        return []
-
-    log(f"\n[CHUNKING] {len(documentos)} documentos...")
-
-    import warnings
-    splitter = DocumentSplitter(
-        split_by="sentence",
-        split_length=CHUNK_SENTENCES,
-        split_overlap=CHUNK_OVERLAP,
-        language="pt",
-    )
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        splitter.warm_up()
-
-    resultado = splitter.run(documents=documentos)
-    chunks    = resultado["documents"]
-
-    log(f"[CHUNKING] {len(documentos)} docs → {len(chunks)} chunks.")
-    return chunks
-
-
 def validar_documentos(documentos: list[Document]) -> bool:
-    #Verifica presença dos campos de governança obrigatórios.
+    # Verifica presença dos campos de governança obrigatórios.
     if not documentos:
         log("[VALIDAÇÃO] ✗ Nenhum documento.")
         return False
@@ -431,10 +376,9 @@ def validar_documentos(documentos: list[Document]) -> bool:
 
     return erros == 0
 
-
 if __name__ == "__main__":
     log("=" * 60)
-    log("PARTE 2 — SCRAPING DE DOCENTES + CHUNKING")
+    log("PARTE 2 — SCRAPING DE DOCENTES")
     log("=" * 60)
 
     docs_docentes = scrape_docentes()
@@ -449,12 +393,6 @@ if __name__ == "__main__":
     for i, doc in enumerate(docs_docentes[:3]):
         log(f"  [{i+1}] {doc.meta.get('nome_docente')} — {doc.content[:100]}...")
 
-    # Integração com Parte 1:
-    #   from parte1_scraping import scrape_sigaa
-    #   chunks = chunkar_documentos(scrape_sigaa() + docs_docentes)
-    chunks = chunkar_documentos(docs_docentes)
-    validar_documentos(chunks)
-
     log(f"\n[RESUMO] Departamentos: {len(set(d.meta['departamento'] for d in docs_docentes))} | "
-        f"Docentes: {len(docs_docentes)} | Chunks: {len(chunks)}")
+        f"Docentes: {len(docs_docentes)}")
     log("[PARTE 2 CONCLUÍDA]")
