@@ -1,5 +1,11 @@
+# Projeto: Agente RAG Federado — UFRRJ
+# Orquestração: ChromaDB (servidor) + pipeline ETL + agente
+
 services:
 
+  # -------------------------------------------------------------------
+  # ChromaDB — banco de vetores persistente
+  # -------------------------------------------------------------------
   chromadb:
     image: chromadb/chroma:latest
     container_name: rag_chromadb
@@ -7,23 +13,90 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      # Dados persistem em disco na máquina host (invaders)
       - chroma_data:/chroma/chroma
     environment:
-      - IS_PERSISTENT=TRUE
-      - ANONYMIZED_TELEMETRY=FALSE
+      - CHROMA_SERVER_AUTHN_CREDENTIALS_FILE=""
+      - ANONYMIZED_TELEMETRY=false
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # -------------------------------------------------------------------
+  # Pipeline ETL — scraping → chunking → embedding → carga
+  # Roda uma vez e encerra (não é um serviço contínuo)
+  # -------------------------------------------------------------------
   etl:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: rag_etl
     depends_on:
-      - chromadb
+      chromadb:
+        condition: service_healthy
+    volumes:
+      - logs_data:/app/logs
+      - models_cache:/app/models_cache
+    environment:
+      # Aponta para o container do ChromaDB pela rede interna do Docker
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+    # GPU: expõe a placa para aceleração dos embeddings
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # ETL roda e encerra — não reinicia automaticamente
+    restart: "no"
+    command: python parte5_carga.py
+
+  # -------------------------------------------------------------------
+  # Agente RAG — interface de perguntas e respostas
+  # -------------------------------------------------------------------
+  agente:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag_agente
+    depends_on:
+      chromadb:
+        condition: service_healthy
+    volumes:
+      - logs_data:/app/logs
+      - models_cache:/app/models_cache
     environment:
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
-    volumes:
-      - ./logs:/app/logs
-    # restart: "no" — container termina após execução, não reinicia automaticamente
-    restart: "no"
+      # URL do Ollama na máquina host (fora do Docker)
+      - OLLAMA_HOST=http://host-gateway:11434
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # Mantém o container vivo para consultas interativas
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    command: python teste_llm.py
+    # Só sobe se chamado explicitamente: docker compose up agente
+    profiles:
+      - agente
 
+# -------------------------------------------------------------------
+# Volumes nomeados — persistem entre reinicializações
+# -------------------------------------------------------------------
 volumes:
   chroma_data:
+    driver: local
+  logs_data:
+    driver: local
+  models_cache:
+    driver: local

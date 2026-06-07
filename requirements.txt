@@ -1,10 +1,23 @@
-# Módulo 1 — ETL
-haystack-ai==2.9.0
-sentence-transformers==3.4.1
-httpx==0.27.0
-beautifulsoup4==4.12.3
-lxml==5.2.1
+# Projeto: Agente RAG Federado — UFRRJ
+# Dependências Python
 
-# Módulo 1 — Parte 4 (produção)
-# qdrant-client==1.11.0
-# haystack-integrations[qdrant]==1.0.0
+# Framework RAG
+haystack-ai==2.9.0
+
+# Integrações Haystack
+chroma-haystack==2.0.0
+ollama-haystack==2.2.0
+
+# ChromaDB (cliente + servidor embutido)
+chromadb==0.6.3
+
+# Embeddings
+sentence-transformers==3.4.1
+
+# Scraping
+httpx==0.27.2
+beautifulsoup4==4.12.3
+lxml==5.3.0
+
+# NLP para chunking por sentença (DocumentSplitter)
+nltk==3.9.1

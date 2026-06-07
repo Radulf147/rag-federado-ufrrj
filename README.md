@@ -1,87 +1,43 @@
-# RAG Federado UFRRJ
+# 🤖 Agente RAG Federado UFRRJ
 
-Agente de IA baseado em RAG integrado a uma rede social federada (Mastodon/ActivityPub).  
+Agente de Inteligência Artificial baseado em RAG (Retrieval-Augmented Generation) integrado a uma rede social federada (Mastodon/ActivityPub). 
 Projeto de Iniciação Científica — Ciência da Computação, UFRRJ.
 
 **Autor:** Raul Nascimento  
-**Stack:** Python · Haystack v2 · ChromaDB · Mastodon.py
+**Stack:** Python · Haystack v2 · ChromaDB · Docker · Sentence-Transformers · Mastodon.py
 
 ---
 
-## Requisitos
+## 🏗️ Estrutura do Projeto
 
-- Python 3.12 ou superior
-- pip atualizado: `python -m pip install --upgrade pip`
+O pipeline de dados (ETL) e inferência é dividido modularmente:
 
-### Instalação das dependências
-
-```bash
-# Core do pipeline ETL
-pip install haystack-ai
-pip install httpx
-pip install beautifulsoup4
-pip install lxml
-
-# Embedding
-pip install sentence-transformers
-
-# Chunking por sentença
-pip install nltk
-python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab')"
-
-# Banco vetorial
-pip install chromadb
-pip install chroma-haystack
-
-# Módulo 2 — fase futura
-# pip install Mastodon.py
-```
-
-Ou instale tudo de uma vez:
-
-```bash
-pip install -r requirements.txt
-```
+| Módulo / Arquivo | Status | Descrição |
+|------------------|--------|-----------|
+| `parte1_scraping_sigaa.py` | ✅ Concluído | Extração e sanitização do portal público do SIGAA. |
+| `parte2_scraping_docentes.py` | ✅ Concluído | Scraping em 3 níveis dos departamentos e perfis de docentes. |
+| `parte3_chunking.py` | ✅ Concluído | Divisão estrutural de sentenças usando Haystack e NLTK. |
+| `parte4_embedding.py` | ✅ Concluído | Vetorização local com o modelo multilingual `MiniLM-L12-v2`. |
+| `parte5_carga.py` | ✅ Concluído | Consolidação e carga persistente no ChromaDB. |
+| `teste_llm.py` | ✅ Concluído | Interface de inferência do Agente (Perguntas & Respostas). |
+| `rag.sh` | ✅ Concluído | Script wrapper para orquestração simplificada do Docker. |
 
 ---
 
-## Estrutura
+## 🚀 Como Executar (Ambiente Recomendado: Docker)
 
-| Módulo | Status | Descrição |
-|--------|--------|-----------|
-| `modulo1_etl/parte1_scraping.py` | ✅ Concluída | Scraping do SIGAA público |
-| `modulo1_etl/parte2_inferencia.py` | ✅ Concluída | Scraping de docentes + chunking (async) |
-| `modulo1_etl/parte3_embedding.py` | ✅ Concluída | Vetorização com SentenceTransformers |
-| `modulo1_etl/parte4_carga.py` | ✅ Concluída | Carga no ChromaDB com teste de busca |
-| `modulo2_inferencia/` | ⏳ Fase futura | Listener Mastodon + pipeline de resposta |
+O projeto foi empacotado via Docker para garantir que dependências (como bancos vetoriais e caches de modelos de IA) sejam gerenciadas sem conflitos. 
 
----
+**Pré-requisitos:** Docker e Docker Compose instalados na máquina host.
 
-## Como executar
-
-Cada parte pode ser executada de forma standalone ou integrada.  
-Para rodar o pipeline ETL completo (Partes 1 a 4):
+Para operar o projeto, utilize o script de conveniência `rag.sh` fornecido na raiz:
 
 ```bash
-python modulo1_etl/parte4_carga.py
-```
+# 1. Construa a imagem da aplicação (necessário apenas na 1ª vez ou se mudar os requirements)
+./rag.sh build
 
-Para rodar cada parte individualmente:
+# 2. Rode o pipeline de dados completo (Sobe o banco ChromaDB + Scraping → Chunking → Embedding → Carga)
+./rag.sh etl
 
-```bash
-python modulo1_etl/parte1_scraping.py
-python modulo1_etl/parte2_inferencia.py
-python modulo1_etl/parte3_embedding.py
-python modulo1_etl/parte4_carga.py
-```
-
-Logs gerados automaticamente na pasta `logs/` a cada execução.  
-O banco vetorial é persistido localmente em `chroma_db/`.
-
----
-
-## Decisões Arquiteturais
-
-- **ADR-001:** Document Stores separados por instância em produção (isolamento físico)
-- **ADR-002:** Embedding multilingual em português (`paraphrase-multilingual-MiniLM-L12-v2`)
-- **ADR-003:** Haystack v2 como framework RAG principal
+# 3. Interaja com o Agente (Abre um terminal interativo com o RAG e o LLM)
+./rag.sh agente

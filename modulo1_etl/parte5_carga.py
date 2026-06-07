@@ -8,7 +8,6 @@ from pathlib import Path
 from datetime import datetime
 from haystack import Document
 
-# Dependência obrigatória — falha ruidosa é preferível a dado perdido silenciosamente.
 try:
     from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 except ImportError as exc:
@@ -37,10 +36,10 @@ CHROMA_PERSIST_DIR = "./chroma_db"
 CHROMA_COLECAO     = f"rag_{INSTANCIA}"
 CHROMA_HOST        = os.getenv("CHROMA_HOST", "localhost")
 CHROMA_PORT        = int(os.getenv("CHROMA_PORT", 8000))
-EMBEDDING_DIM      = 384           # deve coincidir com EMBEDDING_DIM da Parte 4
+EMBEDDING_DIM      = 384
+
 
 def conectar_store(remoto: bool = False):
-    # Retorna um ChromaDocumentStore pronto para uso.
     if remoto:
         log(f"[STORE] ChromaDB remoto: {CHROMA_HOST}:{CHROMA_PORT}")
         store = ChromaDocumentStore(
@@ -60,12 +59,12 @@ def conectar_store(remoto: bool = False):
     log(f"[STORE] Coleção: '{CHROMA_COLECAO}'")
     return store
 
+
 def carregar_documentos(
     documentos: list[Document],
     store=None,
     limpar_antes: bool = False,
 ) -> int:
-    # Grava documentos vetorizados no store.
     if not documentos:
         log("[CARGA] Nenhum documento recebido.")
         return 0
@@ -84,15 +83,31 @@ def carregar_documentos(
 
     if limpar_antes:
         try:
-            store.delete_documents(document_ids=[d.id for d in store.filter_documents()])
-            log("[CARGA] Coleção limpa.")
+            ids_existentes = [d.id for d in store.filter_documents()]
+            if ids_existentes:
+                store.delete_documents(document_ids=ids_existentes)
+                log("[CARGA] Coleção limpa.")
+            else:
+                log("[CARGA] Coleção já estava vazia.")
         except Exception as e:
             log(f"[CARGA] atenção Não foi possível limpar a coleção: {e}")
 
-    log(f"[CARGA] Gravando {len(documentos)} documentos...")
+    # Chunks com conteúdo idêntico geram o mesmo hash de ID — ChromaDB rejeita duplicatas.
+    vistos: set[str] = set()
+    unicos: list[Document] = []
+    for doc in documentos:
+        if doc.id not in vistos:
+            vistos.add(doc.id)
+            unicos.append(doc)
+
+    duplicatas = len(documentos) - len(unicos)
+    if duplicatas:
+        log(f"[CARGA] {duplicatas} chunks duplicados removidos antes da carga.")
+
+    log(f"[CARGA] Gravando {len(unicos)} documentos...")
 
     try:
-        store.write_documents(documentos)
+        store.write_documents(unicos)
     except Exception as e:
         log(f"[CARGA] erro Erro ao gravar: {e}")
         return 0
@@ -101,8 +116,8 @@ def carregar_documentos(
     log(f"[CARGA] deu certo {total} documentos no store.")
     return total
 
+
 def validar_carga(store, n_esperado: int) -> bool:
-    # Verifica total de documentos e isolamento por instancia_dona.
     erros = 0
 
     total = store.count_documents()
@@ -144,12 +159,13 @@ def validar_carga(store, n_esperado: int) -> bool:
 
     return erros == 0
 
+
 if __name__ == "__main__":
     log("=" * 60)
     log("PARTE 5 — CARGA NO DOCUMENTSTORE (ChromaDB)")
     log("=" * 60)
 
-    from parte1_scraping_home import scrape_sigaa
+    from parte1_scraping_sigaa import scrape_sigaa
     from parte2_scraping_docentes import scrape_docentes
     from parte3_chunking import chunkar_documentos
     from parte4_embedding import embedar_documentos, validar_embeddings, MODELO_EMBEDDING
@@ -171,13 +187,13 @@ if __name__ == "__main__":
 
     log(f"[SETUP] {len(docs_embedados)} documentos aprovados na validação. Iniciando carga.")
 
-    store = conectar_store(remoto=False) 
+    store = conectar_store(remoto=False)
     total = carregar_documentos(docs_embedados, store, limpar_antes=True)
 
     if total == 0:
         log("[RESULTADO] Carga falhou.")
         exit(1)
 
-    validar_carga(store, n_esperado=len(docs_embedados))
+    validar_carga(store, n_esperado=total)
 
     log("[PARTE 5 CONCLUÍDA]")
