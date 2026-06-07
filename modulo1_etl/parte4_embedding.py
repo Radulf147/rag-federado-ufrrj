@@ -25,7 +25,7 @@ log = logging.info
 
 # Modelo multilingual para português — trocar por rufimelo/bert-large-portuguese-cased-sts em produção
 MODELO_EMBEDDING = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-EMBEDDING_DIM    = 384   # deve coincidir com o store na Parte 5
+EMBEDDING_DIM    = 1024    # 1024 para a faculdade, 384 para local pc fraco
 INSTANCIA        = "sigaa"
 
 def embedar_documentos(documentos: list[Document]) -> list[Document]:

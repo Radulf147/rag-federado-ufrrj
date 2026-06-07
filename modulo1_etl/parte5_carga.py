@@ -36,7 +36,7 @@ CHROMA_PERSIST_DIR = "./chroma_db"
 CHROMA_COLECAO     = f"rag_{INSTANCIA}"
 CHROMA_HOST        = os.getenv("CHROMA_HOST", "localhost")
 CHROMA_PORT        = int(os.getenv("CHROMA_PORT", 8000))
-EMBEDDING_DIM      = 384
+EMBEDDING_DIM      = 1024   # 1024 servidor faculdade 384 local pc fraco
 
 
 def conectar_store(remoto: bool = False):
