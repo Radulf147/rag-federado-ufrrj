@@ -8,9 +8,10 @@ from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRe
 from haystack_integrations.components.generators.ollama import OllamaGenerator
 from haystack.components.builders import PromptBuilder
 
-
-MODELO_LLM = "mistral"
-TOP_K      = 5
+MODELO_LLM    = os.getenv("MODELO_LLM", "mistral")
+OLLAMA_HOST   = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+CHROMA_REMOTE = os.getenv("CHROMA_REMOTE", "False").lower() in ("true", "1")
+TOP_K         = 5
 
 TEMPLATE = """
 Você é o assistente oficial da UFRRJ.
@@ -30,11 +31,11 @@ Pergunta: {{ question }}
 Resposta:
 """
 
-store     = conectar_store(remoto=False)
+store     = conectar_store(remoto=CHROMA_REMOTE)
 embedder  = SentenceTransformersTextEmbedder(model=MODELO_EMBEDDING)
 retriever = ChromaEmbeddingRetriever(document_store=store, top_k=TOP_K)
 builder   = PromptBuilder(template=TEMPLATE)
-llm = OllamaGenerator(model=MODELO_LLM, url="http://localhost:9999")
+llm       = OllamaGenerator(model=MODELO_LLM, url=OLLAMA_HOST)
 
 embedder.warm_up()
 

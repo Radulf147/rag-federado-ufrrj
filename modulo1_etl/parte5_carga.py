@@ -36,7 +36,7 @@ CHROMA_PERSIST_DIR = "./chroma_db"
 CHROMA_COLECAO     = f"rag_{INSTANCIA}"
 CHROMA_HOST        = os.getenv("CHROMA_HOST", "localhost")
 CHROMA_PORT        = int(os.getenv("CHROMA_PORT", 8000))
-EMBEDDING_DIM      = 1024   # 1024 servidor faculdade 384 local pc fraco
+EMBEDDING_DIM      = int(os.getenv("EMBEDDING_DIM", 384))
 
 
 def conectar_store(remoto: bool = False):
@@ -187,7 +187,8 @@ if __name__ == "__main__":
 
     log(f"[SETUP] {len(docs_embedados)} documentos aprovados na validação. Iniciando carga.")
 
-    store = conectar_store(remoto=False)
+    CHROMA_REMOTE = os.getenv("CHROMA_REMOTE", "False").lower() in ("true", "1")
+    store = conectar_store(remoto=CHROMA_REMOTE)
     total = carregar_documentos(docs_embedados, store, limpar_antes=True)
 
     if total == 0:

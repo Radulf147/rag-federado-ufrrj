@@ -6,7 +6,7 @@ from pathlib import Path
 from datetime import datetime
 from haystack import Document
 from haystack.components.embedders import SentenceTransformersDocumentEmbedder
-
+import os
 Path("logs").mkdir(exist_ok=True)
 
 logging.basicConfig(
@@ -24,8 +24,8 @@ logging.basicConfig(
 log = logging.info
 
 # Modelo multilingual para português — trocar por rufimelo/bert-large-portuguese-cased-sts em produção
-MODELO_EMBEDDING = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-EMBEDDING_DIM    = 1024    # 1024 para a faculdade, 384 para local pc fraco
+MODELO_EMBEDDING = os.getenv("MODELO_EMBEDDING", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
+EMBEDDING_DIM    = int(os.getenv("EMBEDDING_DIM", 384))
 INSTANCIA        = "sigaa"
 
 def embedar_documentos(documentos: list[Document]) -> list[Document]:
