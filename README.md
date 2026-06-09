@@ -35,7 +35,7 @@ A arquitetura suporta duas configurações de *embedding* e inferência dependen
   
 * **Ambiente de Produção (Servidor DCC com RTX 5070 16GB VRAM):**
   * **Embedding:** `BAAI/bge-m3` (Dimensão: 1024).
-  * **LLM:** `qwen3`.
+  * **LLM:** `qwen3 ou mistral`.
   * *Objetivo:* Modelos de ponta com suporte multilíngue robusto e maior janela de contexto. O setup de produção utiliza a GPU dedicada do laboratório para garantir máxima precisão semântica na recuperação de vetores e respostas mais profundas.
 
 ---
