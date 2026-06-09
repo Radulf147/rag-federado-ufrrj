@@ -18,12 +18,7 @@ services:
     environment:
       - CHROMA_SERVER_AUTHN_CREDENTIALS_FILE=""
       - ANONYMIZED_TELEMETRY=false
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
+ 
   # -------------------------------------------------------------------
   # Pipeline ETL — scraping → chunking → embedding → carga
   # Roda uma vez e encerra (não é um serviço contínuo)
@@ -35,7 +30,7 @@ services:
     container_name: rag_etl
     depends_on:
       chromadb:
-        condition: service_healthy
+        condition: service_started
     volumes:
       - logs_data:/app/logs
       - models_cache:/app/models_cache
@@ -65,7 +60,7 @@ services:
     container_name: rag_agente
     depends_on:
       chromadb:
-        condition: service_healthy
+        condition: service_started
     volumes:
       - logs_data:/app/logs
       - models_cache:/app/models_cache
