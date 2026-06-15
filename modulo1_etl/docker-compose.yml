@@ -7,7 +7,7 @@ services:
   # ChromaDB — banco de vetores persistente
   # -------------------------------------------------------------------
   chromadb:
-    image: chromadb/chroma:latest
+    image: chromadb/chroma:0.5.23
     container_name: rag_chromadb
     restart: unless-stopped
     ports:
