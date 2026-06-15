@@ -34,7 +34,7 @@ services:
     env_file:
       - .env
     volumes:
-      - logs_data:/app/logs
+      - ./logs:/app/logs
       - models_cache:/app/models_cache
     environment:
       # Aponta para o container do ChromaDB pela rede interna do Docker
@@ -66,7 +66,7 @@ services:
     env_file:
       - .env
     volumes:
-      - logs_data:/app/logs
+      - ./logs:/app/logs
       - models_cache:/app/models_cache
     environment:
       - CHROMA_HOST=chromadb
