@@ -31,6 +31,8 @@ services:
     depends_on:
       chromadb:
         condition: service_started
+    env_file:
+      - .env
     volumes:
       - logs_data:/app/logs
       - models_cache:/app/models_cache
@@ -61,6 +63,8 @@ services:
     depends_on:
       chromadb:
         condition: service_started
+    env_file:
+      - .env
     volumes:
       - logs_data:/app/logs
       - models_cache:/app/models_cache
