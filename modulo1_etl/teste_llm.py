@@ -97,21 +97,31 @@ while True:
     # Rota 1: Busca Determinística (JSON)
     if analise["rota"] == "estruturada" and analise["departamento"]:
         print("\n[ROTEADOR] Intenção de listagem detectada.")
-        professores = indice_docentes.get(analise["departamento"], [])
         
-        if not professores:
-            print(f"\nResposta: Não localizei registros para o departamento de {analise['departamento']} no índice estruturado.")
-            continue
+        # Busca tolerante (ignora maiúsculas/minúsculas e aceita nomes parciais)
+        departamento_alvo = analise["departamento"].lower()
+        chave_correta = None
+        
+        for depto_cadastrado in indice_docentes.keys():
+            if departamento_alvo in depto_cadastrado.lower():
+                chave_correta = depto_cadastrado
+                break
+                
+        if chave_correta:
+            professores = indice_docentes[chave_correta]
+            total_professores = len(professores)
             
-        total_professores = len(professores)
-        
-        if total_professores <= LIMITE_EXIBICAO_SOCIAL:
-            lista_formatada = "\n".join(f"- {p}" for p in professores)
-            print(f"\nResposta: O departamento de {analise['departamento']} possui {total_professores} docentes:\n{lista_formatada}")
+            if total_professores <= LIMITE_EXIBICAO_SOCIAL:
+                lista_formatada = "\n".join(f"- {p}" for p in professores)
+                print(f"\nResposta: O {chave_correta} possui {total_professores} docentes:\n{lista_formatada}")
+            else:
+                print(f"\nResposta: O {chave_correta} possui um total de {total_professores} professores cadastrados.")
+                print(f"Para visualizar a relação completa, consulte o portal público: {URL_SIGAA_BUSCA}")
         else:
-            print(f"\nResposta: O departamento de {analise['departamento']} possui um total de {total_professores} professores cadastrados.")
-            print(f"Para visualizar a relação completa e acessar os perfis individuais, consulte o portal público: {URL_SIGAA_BUSCA}")
-            
+            print(f"\nResposta: Não localizei registros exatos para '{analise['departamento']}'.")
+            if indice_docentes:
+                print(f"[DEBUG] O banco possui chaves como: {list(indice_docentes.keys())[:3]}")
+                
         continue
 
     # Rota 2: Busca Semântica (ChromaDB + LLM)
