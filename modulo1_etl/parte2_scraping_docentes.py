@@ -9,6 +9,7 @@ Estruturado em três níveis.
 Descobrir os departamentos, listar os docentes de cada departamento, acessar cada perfil individualmente.
 """
 
+import json
 import re
 import asyncio
 import time
@@ -325,6 +326,27 @@ async def coletar_perfis_async(siapes: list[int], timestamp: str) -> list[Docume
 
     return documentos
 
+def salvar_indice_json(documentos: list[Document], caminho_arquivo: str = "docentes_departamentos.json"):
+    indice = {}
+    
+    for doc in documentos:
+        depto = doc.meta.get("departamento")
+        nome = doc.meta.get("nome_docente")
+        
+        if depto and nome:
+            if depto not in indice:
+                indice[depto] = []
+            if nome not in indice[depto]:
+                indice[depto].append(nome)
+
+    for depto in indice:
+        indice[depto].sort()
+
+    with open(caminho_arquivo, "w", encoding="utf-8") as f:
+        json.dump(indice, f, ensure_ascii=False, indent=4)
+
+    log(f"[ÍNDICE] Arquivo '{caminho_arquivo}' salvo com {len(indice)} departamentos.")
+
 def scrape_docentes() -> list[Document]:
     # Orquestra os 3 níveis de coleta.
     timestamp     = datetime.now(timezone.utc).isoformat()
@@ -350,6 +372,9 @@ def scrape_docentes() -> list[Document]:
     log(f"\n[NÍVEL 3] {len(todos_siapes)} perfis a coletar (workers={MAX_WORKERS})...")
     documentos = asyncio.run(coletar_perfis_async(todos_siapes, timestamp))
     log(f"\n[SCRAPER] {len(documentos)} perfis extraídos.")
+
+    salvar_indice_json(documentos)
+
     return documentos
 
 def validar_documentos(documentos: list[Document]) -> bool:
