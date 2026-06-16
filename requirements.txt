@@ -21,3 +21,5 @@ lxml==5.3.0
 
 # NLP para chunking por sentença (DocumentSplitter)
 nltk==3.9.1
+
+rapidfuzz==3.9.3

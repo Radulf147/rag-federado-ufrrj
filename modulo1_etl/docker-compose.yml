@@ -71,21 +71,12 @@ services:
     environment:
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
-      # URL do Ollama na máquina host (fora do Docker)
-      - OLLAMA_HOST=http://host-gateway:11434
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-    # Mantém o container vivo para consultas interativas
+      # Mantém a comunicação estritamente dentro da máquina do professor
+      - OLLAMA_HOST=http://host-gateway:11434 
     restart: unless-stopped
     stdin_open: true
     tty: true
     command: python teste_llm.py
-    # Só sobe se chamado explicitamente: docker compose up agente
     profiles:
       - agente
 

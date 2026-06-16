@@ -1,6 +1,7 @@
 import os
 import re
 import json
+from rapidfuzz import process, fuzz
 from parte5_carga import conectar_store, INSTANCIA
 from parte4_embedding import MODELO_EMBEDDING
 from haystack.components.embedders import SentenceTransformersTextEmbedder
@@ -9,10 +10,10 @@ from haystack_integrations.components.generators.ollama import OllamaGenerator
 from haystack.components.builders import PromptBuilder
 
 URL_SIGAA_BUSCA = "https://sigaa.ufrrj.br/sigaa/public/docente/busca_docentes.jsf?aba=p-academico"
-LIMITE_EXIBICAO_SOCIAL = 5
+LIMITE_EXIBICAO_SOCIAL = 5  
 MODELO_LLM    = os.getenv("MODELO_LLM", "mistral")
 OLLAMA_HOST   = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-CHROMA_REMOTE = os.getenv("CHROMA_REMOTE", "False").lower() in ("true", "1")
+CHROMA_REMOTE = False  # Força a usar o banco local/docker da mesma rede
 TOP_K         = 30
 ARQUIVO_JSON  = "logs/docentes_departamentos.json"
 
@@ -34,51 +35,80 @@ Pergunta: {{ question }}
 Resposta:
 """
 
-def carregar_indice_estruturado() -> dict:
-    if os.path.exists(ARQUIVO_JSON):
-        with open(ARQUIVO_JSON, "r", encoding="utf-8") as f:
-            return json.load(f)
-    return {}
+class RoteadorSigaa:
+    def __init__(self, dict_path: str):
+        self.indice_docentes = {}
+        if os.path.exists(dict_path):
+            with open(dict_path, "r", encoding="utf-8") as f:
+                self.indice_docentes = json.load(f)
+        
+        self.departamentos_oficiais = list(self.indice_docentes.keys())
+        
+        # Mapeamento determinístico para acrônimos comuns
+        self.sinonimos = {
+            "dcc": "DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM",
+            "dmat": "DEPARTAMENTO DE MATEMÁTICA",
+            "dfis": "DEPARTAMENTO DE FÍSICA",
+            "dqui": "DEPARTAMENTO DE QUÍMICA",
+        }
 
-def classificar_intencao_e_extrair_filtros(pergunta: str) -> dict:
-    rota = "vetorial"
-    departamento_alvo = None
-    filtros = {"field": "meta.instancia_dona", "operator": "==", "value": INSTANCIA}
+    def normalizar_departamento(self, query: str, threshold: int = 70) -> str | None:
+        """Processa a string extraída e retorna a chave oficial do ChromaDB."""
+        query_lower = query.lower().strip()
+        
+        if query_lower in self.sinonimos:
+            return self.sinonimos[query_lower]
 
-    departamentos_conhecidos = {
-        r"(ci[eê]ncia da computa[cç][aã]o|dcc)": "Ciência da Computação",
-        r"(matem[aá]tica|dmat)": "Matemática",
-        r"(f[ií]sica|dfis)": "Física",
-        r"(qu[ií]mica|dqui)": "Química"
-    }
+        match, score, _ = process.extractOne(
+            query_lower, 
+            self.departamentos_oficiais, 
+            scorer=fuzz.WRatio
+        )
+        
+        if score >= threshold:
+            return match
+            
+        return None
 
-    pergunta_limpa = pergunta.lower()
+    def classificar_intencao(self, pergunta: str) -> dict:
+        rota = "vetorial"
+        departamento_exato = None
+        filtros = {"field": "meta.instancia_dona", "operator": "==", "value": INSTANCIA}
 
-    padroes_exaustivos = r"(todos os|lista de|quais s[aã]o os) professores"
-    if re.search(padroes_exaustivos, pergunta_limpa):
-        rota = "estruturada"
+        pergunta_limpa = pergunta.lower()
+        padroes_exaustivos = r"(todos os|lista de|quais s[aã]o os) professores\s+(do|da|de)?\s*(.*)"
+        
+        match_intencao = re.search(padroes_exaustivos, pergunta_limpa)
+        
+        if match_intencao:
+            rota = "estruturada"
+            entidade_bruta = match_intencao.group(3).strip()
+            
+            if entidade_bruta:
+                departamento_exato = self.normalizar_departamento(entidade_bruta)
 
-    for padrao, nome_oficial in departamentos_conhecidos.items():
-        if re.search(padrao, pergunta_limpa):
-            departamento_alvo = nome_oficial
-            filtros = {
-                "operator": "AND",
-                "conditions": [
-                    {"field": "meta.instancia_dona", "operator": "==", "value": INSTANCIA},
-                    {"field": "meta.departamento", "operator": "==", "value": nome_oficial}
-                ]
-            }
-            break
+            if departamento_exato:
+                filtros = {
+                    "operator": "AND",
+                    "conditions": [
+                        {"field": "meta.instancia_dona", "operator": "==", "value": INSTANCIA},
+                        {"field": "meta.departamento", "operator": "==", "value": departamento_exato}
+                    ]
+                }
 
-    return {"rota": rota, "departamento": departamento_alvo, "filtros_chroma": filtros}
+        return {
+            "rota": rota, 
+            "departamento_exato": departamento_exato, 
+            "filtros_chroma": filtros
+        }
 
+roteador = RoteadorSigaa(ARQUIVO_JSON)
 store = conectar_store(remoto=CHROMA_REMOTE)
 embedder = SentenceTransformersTextEmbedder(model=MODELO_EMBEDDING)
 retriever = ChromaEmbeddingRetriever(document_store=store, top_k=TOP_K)
 builder = PromptBuilder(template=TEMPLATE)
 llm = OllamaGenerator(model=MODELO_LLM, url=OLLAMA_HOST)
 
-indice_docentes = carregar_indice_estruturado()
 embedder.warm_up()
 
 print("=" * 60)
@@ -92,36 +122,27 @@ while True:
     if not pergunta:
         continue
 
-    analise = classificar_intencao_e_extrair_filtros(pergunta)
+    analise = roteador.classificar_intencao(pergunta)
 
     # Rota 1: Busca Determinística (JSON)
-    if analise["rota"] == "estruturada" and analise["departamento"]:
+    if analise["rota"] == "estruturada":
         print("\n[ROTEADOR] Intenção de listagem detectada.")
         
-        # Busca tolerante (ignora maiúsculas/minúsculas e aceita nomes parciais)
-        departamento_alvo = analise["departamento"].lower()
-        chave_correta = None
-        
-        for depto_cadastrado in indice_docentes.keys():
-            if departamento_alvo in depto_cadastrado.lower():
-                chave_correta = depto_cadastrado
-                break
-                
-        if chave_correta:
-            professores = indice_docentes[chave_correta]
+        depto = analise["departamento_exato"]
+        if depto:
+            professores = roteador.indice_docentes.get(depto, [])
             total_professores = len(professores)
             
             if total_professores <= LIMITE_EXIBICAO_SOCIAL:
                 lista_formatada = "\n".join(f"- {p}" for p in professores)
-                print(f"\nResposta: O {chave_correta} possui {total_professores} docentes:\n{lista_formatada}")
+                print(f"\nResposta: O {depto} possui {total_professores} docentes:\n{lista_formatada}")
             else:
-                print(f"\nResposta: O {chave_correta} possui um total de {total_professores} professores cadastrados.")
+                print(f"\nResposta: O {depto} possui um total de {total_professores} professores cadastrados.")
                 print(f"Para visualizar a relação completa, consulte o portal público: {URL_SIGAA_BUSCA}")
         else:
-            print(f"\nResposta: Não localizei registros exatos para '{analise['departamento']}'.")
-            if indice_docentes:
-                print(f"[DEBUG] O banco possui chaves como: {list(indice_docentes.keys())[:3]}")
-                
+            print("\nResposta: Não consegui identificar o departamento com precisão para realizar a listagem.")
+            print("Por favor, reformule a pergunta utilizando a sigla ou o nome do curso.")
+            
         continue
 
     # Rota 2: Busca Semântica (ChromaDB + LLM)
