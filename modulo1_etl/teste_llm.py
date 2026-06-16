@@ -14,7 +14,7 @@ MODELO_LLM    = os.getenv("MODELO_LLM", "mistral")
 OLLAMA_HOST   = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 CHROMA_REMOTE = os.getenv("CHROMA_REMOTE", "False").lower() in ("true", "1")
 TOP_K         = 30
-ARQUIVO_JSON  = "docentes_departamentos.json"
+ARQUIVO_JSON  = "logs/docentes_departamentos.json"
 
 TEMPLATE = """
 Você é o assistente oficial da UFRRJ.

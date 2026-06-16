@@ -326,7 +326,7 @@ async def coletar_perfis_async(siapes: list[int], timestamp: str) -> list[Docume
 
     return documentos
 
-def salvar_indice_json(documentos: list[Document], caminho_arquivo: str = "docentes_departamentos.json"):
+def salvar_indice_json(documentos: list[Document], caminho_arquivo: str = "logs/docentes_departamentos.json"):
     indice = {}
     
     for doc in documentos:
