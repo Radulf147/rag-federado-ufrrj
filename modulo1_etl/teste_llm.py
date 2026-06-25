@@ -1,161 +1,175 @@
 import os
-import re
 import json
-from rapidfuzz import process, fuzz
+from db_manager import buscar_entidades_por_campo
 from parte5_carga import conectar_store, INSTANCIA
 from parte4_embedding import MODELO_EMBEDDING
 from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRetriever
-from haystack_integrations.components.generators.ollama import OllamaGenerator
-from haystack.components.builders import PromptBuilder
+from haystack_integrations.components.generators.ollama import OllamaChatGenerator
+from haystack.dataclasses import ChatMessage, ToolCall
 
-URL_SIGAA_BUSCA = "https://sigaa.ufrrj.br/sigaa/public/docente/busca_docentes.jsf?aba=p-academico"
-LIMITE_EXIBICAO_SOCIAL = 5  
+# Configurações Iniciais
 MODELO_LLM    = os.getenv("MODELO_LLM", "mistral")
 OLLAMA_HOST   = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-CHROMA_REMOTE = False  # Força a usar o banco local/docker da mesma rede
-TOP_K         = 30
-ARQUIVO_JSON  = "logs/docentes_departamentos.json"
+CHROMA_REMOTE = False  
+TOP_K         = 10
 
-TEMPLATE = """
-Você é o assistente oficial da UFRRJ.
-Responda EXCLUSIVAMENTE com base nos documentos abaixo.
-Se a informação não estiver nos documentos, diga:
-"Não encontrei essa informação na base de conhecimento."
-Não invente informações.
+print("=" * 60)
+print("Inicializando Motor Agentic RAG (Haystack + Ollama)...")
+print("=" * 60)
 
-Documentos de referência:
-{% for doc in documents %}
----
-{{ doc.content }}
-{% endfor %}
----
-
-Pergunta: {{ question }}
-Resposta:
-"""
-
-class RoteadorSigaa:
-    def __init__(self, dict_path: str):
-        self.indice_docentes = {}
-        if os.path.exists(dict_path):
-            with open(dict_path, "r", encoding="utf-8") as f:
-                self.indice_docentes = json.load(f)
-        
-        self.departamentos_oficiais = list(self.indice_docentes.keys())
-        
-        # Mapeamento determinístico para acrônimos comuns
-        self.sinonimos = {
-            "dcc": "DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM",
-            "dmat": "DEPARTAMENTO DE MATEMÁTICA",
-            "dfis": "DEPARTAMENTO DE FÍSICA",
-            "dqui": "DEPARTAMENTO DE QUÍMICA",
-        }
-
-    def normalizar_departamento(self, query: str, threshold: int = 70) -> str | None:
-        """Processa a string extraída e retorna a chave oficial do ChromaDB."""
-        query_lower = query.lower().strip()
-        
-        if query_lower in self.sinonimos:
-            return self.sinonimos[query_lower]
-
-        match, score, _ = process.extractOne(
-            query_lower, 
-            self.departamentos_oficiais, 
-            scorer=fuzz.WRatio
-        )
-        
-        if score >= threshold:
-            return match
-            
-        return None
-
-    def classificar_intencao(self, pergunta: str) -> dict:
-        rota = "vetorial"
-        departamento_exato = None
-        filtros = {"field": "meta.instancia_dona", "operator": "==", "value": INSTANCIA}
-
-        pergunta_limpa = pergunta.lower()
-        padroes_exaustivos = r"(todos os|lista de|quais s[aã]o os) professores\s+(do|da|de)?\s*(.*)"
-        
-        match_intencao = re.search(padroes_exaustivos, pergunta_limpa)
-        
-        if match_intencao:
-            rota = "estruturada"
-            entidade_bruta = match_intencao.group(3).strip()
-            
-            if entidade_bruta:
-                departamento_exato = self.normalizar_departamento(entidade_bruta)
-
-            if departamento_exato:
-                filtros = {
-                    "operator": "AND",
-                    "conditions": [
-                        {"field": "meta.instancia_dona", "operator": "==", "value": INSTANCIA},
-                        {"field": "meta.departamento", "operator": "==", "value": departamento_exato}
-                    ]
-                }
-
-        return {
-            "rota": rota, 
-            "departamento_exato": departamento_exato, 
-            "filtros_chroma": filtros
-        }
-
-roteador = RoteadorSigaa(ARQUIVO_JSON)
+# Inicializa os componentes de Busca Vetorial
 store = conectar_store(remoto=CHROMA_REMOTE)
 embedder = SentenceTransformersTextEmbedder(model=MODELO_EMBEDDING)
 retriever = ChromaEmbeddingRetriever(document_store=store, top_k=TOP_K)
-builder = PromptBuilder(template=TEMPLATE)
-llm = OllamaGenerator(model=MODELO_LLM, url=OLLAMA_HOST)
-
 embedder.warm_up()
 
-print("=" * 60)
-print("Agente RAG Federado - UFRRJ (Híbrido)")
-print("=" * 60)
+# Inicializa o Gerador de Chat do Haystack (suporta Agentic behavior)
+chat_generator = OllamaChatGenerator(model=MODELO_LLM, url=OLLAMA_HOST)
+
+# =====================================================================
+# 1. DEFINIÇÃO DAS FERRAMENTAS (TOOLS) PARA O LLM
+# =====================================================================
+
+# O esquema JSON que diz ao LLM quais ferramentas ele possui e como usá-las.
+tools_schema = [
+    {
+        "type": "function",
+        "function": {
+            "name": "buscar_docentes_por_departamento",
+            "description": "Utilize esta ferramenta APENAS quando o usuário pedir para contar ou listar os professores/docentes de um departamento específico (ex: Computação, Física). Retorna dados exatos.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "departamento": {
+                        "type": "string",
+                        "description": "Nome ou sigla do departamento que o usuário deseja buscar (ex: Ciência da Computação, Matemática)"
+                    }
+                },
+                "required": ["departamento"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "busca_vetorial_sigaa",
+            "description": "Utilize esta ferramenta para pesquisar descrições, ementas, ou responder perguntas genéricas interpretativas (ex: Quem pesquisa sobre Inteligência Artificial?). Busca em currículos completos.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "pergunta_semantica": {
+                        "type": "string",
+                        "description": "A pergunta otimizada para buscar no banco de dados vetorial."
+                    }
+                },
+                "required": ["pergunta_semantica"]
+            }
+        }
+    }
+]
+
+# =====================================================================
+# 2. IMPLEMENTAÇÃO DAS FUNÇÕES LOCAIS (Executadas pelo Python)
+# =====================================================================
+
+def executar_tool_buscar_docentes(departamento: str) -> str:
+    """Ferramenta Determinística - Consulta o SQLite (Schema-less)"""
+    print(f"🔧 [TOOL EXECUTADA] Consulta estruturada em SQLite pelo departamento: {departamento}")
+    
+    resultados = buscar_entidades_por_campo("docente", "departamento", departamento)
+    
+    if not resultados:
+        return f"Acesso à Base Estruturada: Não encontrei nenhum docente registrado sob o departamento '{departamento}'."
+    
+    nomes = sorted([r["nome"] for r in resultados])
+    total = len(nomes)
+    
+    # Lógica Anti-Poluição Visual implementada dentro da ferramenta
+    if total <= 10:
+        lista = "\n- ".join(nomes)
+        return f"Acesso à Base Estruturada: O departamento '{departamento}' tem {total} docentes. São eles:\n- {lista}"
+    else:
+        return f"Acesso à Base Estruturada: O departamento '{departamento}' tem um total de {total} docentes cadastrados. Não os listarei todos para poupar espaço."
+
+def executar_tool_busca_vetorial(pergunta: str) -> str:
+    """Ferramenta Semântica - Consulta o ChromaDB (Textos Livres)"""
+    print(f"🧠 [TOOL EXECUTADA] Busca semântica em ChromaDB por: {pergunta}")
+    
+    # 1. Transforma o texto em embeddings
+    query_vec = embedder.run(text=pergunta)["embedding"]
+    # 2. Busca no banco
+    docs = retriever.run(query_embedding=query_vec)["documents"]
+    
+    if not docs:
+        return "Acesso à Base Vetorial: Nenhuma informação semântica relevante foi encontrada."
+    
+    # 3. Consolida os textos encontrados
+    contexto = "\n---\n".join([d.content for d in docs])
+    return f"Acesso à Base Vetorial. Documentos recuperados:\n{contexto}"
+
+
+# =====================================================================
+# 3. O LOOP DO AGENTE (A Orquestração)
+# =====================================================================
+
+chat_history = [
+    ChatMessage.from_system(
+        "Você é o Grok Universitário da UFRRJ. "
+        "Você é um agente autônomo. Tem ferramentas à sua disposição. "
+        "Sempre decida qual ferramenta usar antes de responder. "
+        "Responda num tom direto, prestativo e ligeiramente descontraído."
+    )
+]
+
+print("Agente pronto! Pode fazer perguntas estruturadas (ex: 'quantos professores tem a física?') ou interpretativas.")
 
 while True:
-    pergunta = input("\nPergunta: ").strip()
-    if pergunta.lower() in ("sair", "exit", "q"):
+    pergunta_usuario = input("\nVocê: ").strip()
+    if pergunta_usuario.lower() in ("sair", "exit", "q"):
         break
-    if not pergunta:
+    if not pergunta_usuario:
         continue
 
-    analise = roteador.classificar_intencao(pergunta)
+    # Adiciona a pergunta ao histórico
+    chat_history.append(ChatMessage.from_user(pergunta_usuario))
 
-    # Rota 1: Busca Determinística (JSON)
-    if analise["rota"] == "estruturada":
-        print("\n[ROTEADOR] Intenção de listagem detectada.")
-        
-        depto = analise["departamento_exato"]
-        if depto:
-            professores = roteador.indice_docentes.get(depto, [])
-            total_professores = len(professores)
-            
-            if total_professores <= LIMITE_EXIBICAO_SOCIAL:
-                lista_formatada = "\n".join(f"- {p}" for p in professores)
-                print(f"\nResposta: O {depto} possui {total_professores} docentes:\n{lista_formatada}")
-            else:
-                print(f"\nResposta: O {depto} possui um total de {total_professores} professores cadastrados.")
-                print(f"Para visualizar a relação completa, consulte o portal público: {URL_SIGAA_BUSCA}")
-        else:
-            print("\nResposta: Não consegui identificar o departamento com precisão para realizar a listagem.")
-            print("Por favor, reformule a pergunta utilizando a sigla ou o nome do curso.")
-            
-        continue
-
-    # Rota 2: Busca Semântica (ChromaDB + LLM)
-    query_vec = embedder.run(text=pergunta)["embedding"]
-    docs = retriever.run(
-        query_embedding=query_vec,
-        filters=analise["filtros_chroma"]
-    )["documents"]
-
-    print(f"\n[RAG] Rota semântica ativada. {len(docs)} chunks recuperados.")
+    # PASSO A: Deixa o LLM pensar e decidir (Pode responder direto ou pedir uma Tool)
+    resposta_llm = chat_generator.run(messages=chat_history, generation_kwargs={"tools": tools_schema})
+    msg_resposta = resposta_llm["replies"][0]
     
-    prompt = builder.run(documents=docs, question=pergunta)["prompt"]
+    chat_history.append(msg_resposta) # Guardamos a decisão do LLM no histórico
 
-    print("[LLM] Gerando resposta...")
-    resposta = llm.run(prompt=prompt)["replies"][0]
-    print(f"\nResposta: {resposta}")
+    # PASSO B: O LLM decidiu usar uma ferramenta?
+    if msg_resposta.tool_calls:
+        for tool_call in msg_resposta.tool_calls:
+            # Identifica a ferramenta e extrai os argumentos passados pelo LLM
+            nome_tool = tool_call.tool_name
+            argumentos = tool_call.arguments
+            
+            resultado_da_tool = ""
+            
+            if nome_tool == "buscar_docentes_por_departamento":
+                resultado_da_tool = executar_tool_buscar_docentes(argumentos.get("departamento", ""))
+            
+            elif nome_tool == "busca_vetorial_sigaa":
+                resultado_da_tool = executar_tool_busca_vetorial(argumentos.get("pergunta_semantica", pergunta_usuario))
+
+            # Cria a mensagem com o resultado "cru" da ferramenta
+            mensagem_tool = ChatMessage.from_tool(
+                tool_result=resultado_da_tool,
+                origin=tool_call
+            )
+            chat_history.append(mensagem_tool)
+
+        # PASSO C: Manda o resultado da ferramenta de volta para o LLM gerar a resposta final em português bonito
+        print("[LLM] Processando os dados recebidos das ferramentas...")
+        resposta_final = chat_generator.run(messages=chat_history)
+        msg_final = resposta_final["replies"][0]
+        
+        chat_history.append(msg_final)
+        print(f"\nGrok UFRRJ: {msg_final.text}")
+        
+    else:
+        # Se o LLM respondeu diretamente sem usar ferramentas (ex: "Bom dia!")
+        print(f"\nGrok UFRRJ: {msg_resposta.text}")

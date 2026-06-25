@@ -148,7 +148,7 @@ if __name__ == "__main__":
     ok = validar_documentos(docs)
 
     print("\n- Amostra dos primeiros 5 documentos -")
-    for i, doc in enumerate(docs[:5]):
+    for i, doc in enumerate(docs[:68]):
         print(f"\nDocumento {i+1}:")
         print(f"  Conteúdo : {doc.content}")
         print(f"  URL      : {doc.meta['source_url']}")
