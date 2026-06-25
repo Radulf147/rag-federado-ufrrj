@@ -30,6 +30,7 @@ COPY parte3_chunking.py          .
 COPY parte4_embedding.py         .
 COPY parte5_carga.py             .
 COPY teste_llm.py                .
+COPY db_manager.py               .
 
 # Volume para persistência do ChromaDB e logs
 VOLUME ["/app/chroma_db", "/app/logs"]
