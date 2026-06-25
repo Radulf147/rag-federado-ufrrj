@@ -9,19 +9,29 @@ from haystack.components.embedders import SentenceTransformersDocumentEmbedder
 import os
 Path("logs").mkdir(exist_ok=True)
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s  %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-    handlers=[
-        logging.FileHandler(
-            f"logs/embedding_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
-            encoding="utf-8",
-        ),
-        logging.StreamHandler(),
-    ],
+# Cria um logger específico para este arquivo
+logger = logging.getLogger("embedding")
+logger.setLevel(logging.INFO)
+logger.propagate = False # Impede que o log vaze para a Parte 5
+
+# Cria os manipuladores
+arquivo_handler = logging.FileHandler(
+    f"logs/embedding_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log", 
+    encoding="utf-8"
 )
-log = logging.info
+console_handler = logging.StreamHandler()
+
+# Define o padrão de texto do log
+formatador = logging.Formatter("%(asctime)s  %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+arquivo_handler.setFormatter(formatador)
+console_handler.setFormatter(formatador)
+
+# Conecta tudo ao logger
+logger.addHandler(arquivo_handler)
+logger.addHandler(console_handler)
+
+# Mantém a variável 'log' funcionando
+log = logger.info
 
 # Modelo multilingual para português — trocar por rufimelo/bert-large-portuguese-cased-sts em produção
 MODELO_EMBEDDING = os.getenv("MODELO_EMBEDDING", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
