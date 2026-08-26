@@ -1,0 +1,92 @@
+# Projeto: Agente RAG Federado — UFRRJ
+# Orquestração: ChromaDB (servidor) + pipeline ETL + agente
+
+services:
+
+  # -------------------------------------------------------------------
+  # ChromaDB — banco de vetores persistente
+  # -------------------------------------------------------------------
+  chromadb:
+    image: chromadb/chroma:0.5.23
+    container_name: rag_chromadb
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Dados persistem em disco na máquina host (invaders)
+      - chroma_data:/chroma/chroma
+    environment:
+      - CHROMA_SERVER_AUTHN_CREDENTIALS_FILE=""
+      - ANONYMIZED_TELEMETRY=false
+ 
+  # -------------------------------------------------------------------
+  # Pipeline ETL — scraping → chunking → embedding → carga
+  # Roda uma vez e encerra (não é um serviço contínuo)
+  # -------------------------------------------------------------------
+  etl:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag_etl
+    depends_on:
+      chromadb:
+        condition: service_started
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - models_cache:/app/models_cache
+    environment:
+      # Aponta para o container do ChromaDB pela rede interna do Docker
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+    # GPU: expõe a placa para aceleração dos embeddings
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    # ETL roda e encerra — não reinicia automaticamente
+    restart: "no"
+    command: python parte5_carga.py
+
+  # -------------------------------------------------------------------
+  # Agente RAG — interface de perguntas e respostas
+  # -------------------------------------------------------------------
+  agente:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag_agente
+    depends_on:
+      chromadb:
+        condition: service_started
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - models_cache:/app/models_cache
+    environment:
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      # Mantém a comunicação estritamente dentro da máquina do professor
+      - OLLAMA_HOST=http://host-gateway:11434 
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    command: python teste_llm.py
+    profiles:
+      - agente
+
+# -------------------------------------------------------------------
+# Volumes nomeados — persistem entre reinicializações
+# -------------------------------------------------------------------
+volumes:
+  chroma_data:
+    driver: local
+  logs_data:
+    driver: local
+  models_cache:
+    driver: local

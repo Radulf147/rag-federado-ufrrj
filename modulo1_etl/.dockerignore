@@ -1,0 +1,26 @@
+# Projeto: Agente RAG Federado — UFRRJ
+# Arquivos excluídos do build Docker
+
+# Dados gerados localmente
+chroma_db/
+logs/
+models_cache/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Ambiente virtual local (se houver)
+venv/
+.venv/
+env/
+
+# Editor e controle de versão
+.git/
+.gitignore
+.vscode/
+.idea/
+
+# Documentação e arquivos auxiliares
+*.md
+*.txt.bak
