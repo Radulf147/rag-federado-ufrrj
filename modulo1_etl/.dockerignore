@@ -1,5 +1,8 @@
 # Projeto: Agente RAG Federado — UFRRJ
 # Arquivos excluídos do build Docker
+#
+# NOTA (fix pós-refactor Set/2026): relocado de modulo1_etl/.dockerignore
+# para a raiz, já que o build context agora é a raiz do projeto.
 
 # Dados gerados localmente
 chroma_db/
@@ -22,5 +25,6 @@ env/
 .idea/
 
 # Documentação e arquivos auxiliares
+docs/
 *.md
 *.txt.bak

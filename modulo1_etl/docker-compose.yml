@@ -1,5 +1,10 @@
 # Projeto: Agente RAG Federado — UFRRJ
 # Orquestração: ChromaDB (servidor) + pipeline ETL + agente
+#
+# NOTA (fix pós-refactor Set/2026): arquivo movido da raiz de modulo1_etl/
+# para a raiz do projeto. O build context agora é "." = raiz do projeto,
+# o que dá ao Dockerfile acesso a requirements.txt, config.py,
+# modulo2_inferencia/ e interfaces/.
 
 services:
 
@@ -13,12 +18,12 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # Dados persistem em disco na máquina host (invaders)
+      # Dados persistem em disco na máquina host
       - chroma_data:/chroma/chroma
     environment:
       - CHROMA_SERVER_AUTHN_CREDENTIALS_FILE=""
       - ANONYMIZED_TELEMETRY=false
- 
+
   # -------------------------------------------------------------------
   # Pipeline ETL — scraping → chunking → embedding → carga
   # Roda uma vez e encerra (não é um serviço contínuo)
@@ -50,7 +55,7 @@ services:
               capabilities: [gpu]
     # ETL roda e encerra — não reinicia automaticamente
     restart: "no"
-    command: python parte5_carga.py
+    command: python modulo1_etl/parte5_carga.py
 
   # -------------------------------------------------------------------
   # Agente RAG — interface de perguntas e respostas
@@ -71,12 +76,21 @@ services:
     environment:
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
-      # Mantém a comunicação estritamente dentro da máquina do professor
-      - OLLAMA_HOST=http://host-gateway:11434 
+      # Mantém a comunicação estritamente dentro da máquina do professor.
+      # FIX: "host-gateway" não é um hostname resolvível — é o valor
+      # especial usado em extra_hosts (abaixo) para mapear
+      # host.docker.internal ao gateway do host, inclusive em Linux.
+      - OLLAMA_HOST=http://host.docker.internal:11434
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: unless-stopped
     stdin_open: true
     tty: true
-    command: python teste_llm.py
+    # FIX: teste_llm.py não existe mais. Entrypoint atual é interfaces/cli.py,
+    # chamado como módulo (-m) para que os imports qualificados
+    # (modulo2_inferencia.llm_setup, modulo1_etl.db_manager) resolvam a
+    # partir da raiz /app.
+    command: python -m interfaces.cli
     profiles:
       - agente
 

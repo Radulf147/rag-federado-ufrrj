@@ -1,6 +1,10 @@
 #!/bin/bash
 # Projeto: Agente RAG Federado — UFRRJ
 # Script de conveniência para operação via Docker
+#
+# NOTA (fix pós-refactor Set/2026): script movido de modulo1_etl/ para a
+# raiz do projeto — precisa ficar ao lado do docker-compose.yml, que
+# também foi movido pra raiz. Nenhuma lógica interna mudou.
 
 set -e
 
