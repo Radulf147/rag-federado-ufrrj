@@ -14,12 +14,17 @@ da Silva.
 
 ## ▶ Estado atual (4 set 2026) — leia isto primeiro
 
-A primeira bateria real de comparação dos três pipelines rodou e expôs sete
-defeitos; um oitavo — o mais grave — apareceu em 4 set 2026 ao auditar os
-perfis. Os sete primeiros estão documentados em dois artefatos publicados:
+A primeira bateria real de comparação dos três pipelines expôs sete defeitos.
+Ao corrigi-los e auditar os perfis em 4 set 2026 apareceram mais três — e os
+três novos são os mais graves de todos.
 
-- **Diagnóstico:** https://claude.ai/code/artifact/0b5cee19-318b-4008-b29c-80c8c0d873dc
-- **Plano de correção:** https://claude.ai/code/artifact/3a32e6dc-cc5b-4453-9408-af8d1a124413
+**Este arquivo é a única fonte da verdade do projeto.** Houve dois artefatos
+publicados (diagnóstico e plano) linkados aqui; os links saíram em 4 set porque
+descreviam o estado anterior aos achados 08, 09 e 10 e afirmavam, com toda a
+confiança, números que deixaram de valer — 704 docentes quando são 1302, e
+"duplicatas do SIGAA" como causa do que era corrida de sessão do nosso próprio
+scraper. Documento paralelo aqui só cria uma segunda versão da verdade para
+manter em dia, e uma das duas acaba errada.
 
 A coluna de estado foi **dividida em duas** (Set/2026): antes havia só "Estado",
 e escrever "aguarda recarga" num achado cujo **código ainda não foi corrigido**
@@ -409,10 +414,6 @@ da fonte. Os próximos ganhos só podem vir de:
 2. **As outras abas do SIGAA** (achado 05), que exigem requisições novas e
    arquitetura própria.
 
-> ⚠️ Os dois artefatos publicados linkados no topo deste guia (diagnóstico e
-> plano de correção) são de 3–4 set e **não contêm os achados 08, 09 e 10**, que
-> são os mais graves. Tratar este arquivo como a fonte da verdade; os artefatos
-> ficaram históricos.
 
 ## Armadilhas conhecidas
 
