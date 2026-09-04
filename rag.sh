@@ -15,6 +15,8 @@ mostrar_ajuda() {
     echo "  build     Constrói a imagem Docker do projeto"
     echo "  etl       Sobe o ChromaDB e roda o pipeline ETL completo"
     echo "  agente    Sobe o ChromaDB e abre o agente interativo"
+    echo "  comparar  Roda a comparação dos 3 pipelines (gera docs/testes_pipelines.md)"
+    echo "  tunel     Gerencia o túnel SSH até o Ollama (./tunel.sh up|status|down)"
     echo "  chroma    Sobe apenas o ChromaDB em background"
     echo "  logs      Exibe logs do ETL em tempo real"
     echo "  limpar    Remove containers e volumes (APAGA o banco)"
@@ -45,10 +47,27 @@ case "$1" in
         echo "[ETL] Pipeline concluído. Verifique os logs em ./logs/"
         ;;
 
+    tunel)
+        shift
+        ./tunel.sh "$@"
+        ;;
+
     agente)
         echo "[AGENTE] Subindo ChromaDB e abrindo agente interativo..."
         docker compose up -d chromadb
+        # O agente é inútil sem o Ollama da invaders. Levantar o túnel aqui é o
+        # que permite disparar tudo remotamente, sem abrir terminal à mão.
+        # Não aborta se falhar: o REPL ainda sobe, e a mensagem de erro do
+        # túnel é mais informativa que um timeout lá dentro.
+        ./tunel.sh up || echo "[AVISO] Sem túnel — o agente vai subir, mas não conseguirá responder."
         docker compose --profile agente run --rm agente
+        ;;
+
+    comparar)
+        echo "[COMPARAR] Rodando a bateria dos 3 pipelines..."
+        docker compose up -d chromadb
+        ./tunel.sh up || echo "[AVISO] Sem túnel — os pipelines 1 e 3 vão falhar."
+        docker compose --profile agente run --rm agente python -m interfaces.comparar
         ;;
 
     logs)

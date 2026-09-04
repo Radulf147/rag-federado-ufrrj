@@ -37,11 +37,22 @@ services:
     env_file:
       - .env
     volumes:
+      # dados/ montado para o sigaa.db sobreviver ao --rm. Sem isto o
+      # SQLite era escrito em /app dentro do container e destruido junto
+      # com ele — o lado estruturado do RAG ficava sem dado nenhum.
+      - ./dados:/app/dados
       - ./logs:/app/logs
+      # docs/ tambem no etl, nao so no agente. Sem isto qualquer relatorio
+      # escrito por um script do modulo 1 (ex.: modulo1_etl/auditoria_perfis.py)
+      # e destruido junto com o container no --rm — mesmo defeito que o
+      # sigaa.db teve, e que ja custou uma auditoria de 40 requisicoes.
+      - ./docs:/app/docs
       - models_cache:/app/models_cache
     environment:
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
+      # caminho de container, por isso vive aqui e nao no .env
+      - DB_PATH=/app/dados/sigaa.db
     deploy:
       resources:
         reservations:
@@ -72,12 +83,23 @@ services:
     env_file:
       - .env
     volumes:
+      # docs/ montado para o relatorio de interfaces/comparar.py sair do
+      # container e aterrissar no repositorio (CLAUDE.md 3)
+      - ./docs:/app/docs
+      # dados/ montado para o sigaa.db sobreviver ao --rm. Sem isto o
+      # SQLite era escrito em /app dentro do container e destruido junto
+      # com ele — o lado estruturado do RAG ficava sem dado nenhum.
+      - ./dados:/app/dados
       - ./logs:/app/logs
       - models_cache:/app/models_cache
     environment:
       - CHROMA_HOST=chromadb
       - CHROMA_PORT=8000
-      - OLLAMA_HOST=http://host-gateway:11434
+      # caminho de container, por isso vive aqui e nao no .env
+      - DB_PATH=/app/dados/sigaa.db
+      # OLLAMA_HOST sai do .env de proposito: aqui no environment ele
+      # sobrepunha o .env e apontava para host-gateway:11434 — host nao
+      # resolvivel e porta errada (o tunel escuta na 9999).
     restart: unless-stopped
     stdin_open: true
     tty: true

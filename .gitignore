@@ -208,3 +208,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Banco estruturado gerado pelo ETL. Binario de ~220KB reescrito a cada
+# recarga, e reconstruivel a partir do Chroma (modulo1_etl/reconstruir_sqlite.py).
+# Versiona-lo so produziria ruido de diff.
+dados/
