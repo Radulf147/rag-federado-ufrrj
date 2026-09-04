@@ -165,14 +165,21 @@ if __name__ == "__main__":
     log("PARTE 5 — CARGA NO DOCUMENTSTORE (ChromaDB)")
     log("=" * 60)
 
-    from parte1_scraping_sigaa import scrape_sigaa
     from parte2_scraping_docentes import scrape_docentes
     from parte3_chunking import chunkar_documentos
     from parte4_embedding import embedar_documentos, validar_embeddings, MODELO_EMBEDDING
 
+    # ESCOPO: só docentes. scrape_sigaa() (parte1, varredura ampla do SIGAA)
+    # está fora de propósito nesta fase — misturar as duas fontes fazia o vetor
+    # store conter material que a base estruturada não enxerga, o que invalida
+    # a comparação entre os pipelines. Reativar aqui quando a varredura ampla
+    # entrar em escopo.
+    #
+    # A deduplicação de docentes acontece dentro de scrape_docentes(), que é o
+    # único ponto que alimenta o SQLite e o vetor store ao mesmo tempo.
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        chunks = chunkar_documentos(scrape_sigaa() + scrape_docentes())
+        chunks = chunkar_documentos(scrape_docentes())
 
     docs_embedados = embedar_documentos(chunks)
 

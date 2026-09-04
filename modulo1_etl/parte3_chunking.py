@@ -44,6 +44,25 @@ def chunkar_documentos(documentos: list[Document]) -> list[Document]:
 
     log(f"\n[CHUNKING] {len(documentos)} documentos...")
 
+    # ACHADO 02: perfil de docente NÃO é fatiado.
+    #
+    # O perfil é uma unidade semântica curta e autocontida, e só a primeira
+    # sentença carrega "Docente: X. Departamento: Y.". Fatiando de 5 em 5
+    # sentenças, todo pedaço a partir do segundo perdia o nome da pessoa —
+    # medido: 38% dos chunks do corpus não continham o docente a que se
+    # referiam. Recuperar um desses chunks devolvia texto sobre alguém sem
+    # dizer sobre quem, e o LLM ou omitia a atribuição ou a inventava.
+    #
+    # Manter inteiro resolve na origem e cabe folgado no bge-m3 (8192 tokens).
+    # O splitter continua aqui para quando o corpus voltar a ter documentos
+    # longos — as outras abas do SIGAA, do achado 05.
+    perfis = [d for d in documentos if d.meta.get("content_type") == "docente_perfil"]
+    longos = [d for d in documentos if d.meta.get("content_type") != "docente_perfil"]
+
+    if not longos:
+        log(f"[CHUNKING] {len(perfis)} perfis mantidos inteiros; nada a fatiar.")
+        return perfis
+
     import warnings
     splitter = DocumentSplitter(
         split_by="sentence",
@@ -55,11 +74,11 @@ def chunkar_documentos(documentos: list[Document]) -> list[Document]:
         warnings.simplefilter("ignore")
         splitter.warm_up()
 
-    resultado = splitter.run(documents=documentos)
+    resultado = splitter.run(documents=longos)
     chunks    = resultado["documents"]
 
-    log(f"[CHUNKING] {len(documentos)} docs → {len(chunks)} chunks.")
-    return chunks
+    log(f"[CHUNKING] {len(perfis)} perfis inteiros + {len(longos)} docs longos → {len(chunks)} chunks.")
+    return perfis + chunks
 
 if __name__ == "__main__":
     log("=" * 60)
