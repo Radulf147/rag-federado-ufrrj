@@ -30,7 +30,14 @@ CHROMA_PORT = int(os.getenv("CHROMA_PORT", 8000))
 CHROMA_REMOTE = os.getenv("CHROMA_REMOTE", "False").lower() in ("true", "1")
 
 # --- SQLite (Document Store genérico) ---
-DB_PATH = os.getenv("DB_PATH", "sigaa.db")
+# O default aponta para dados/sigaa.db, que e onde o banco de fato vive no
+# repositorio. Era so "sigaa.db", relativo ao diretorio de trabalho: rodando
+# fora do Docker a partir da raiz, o SQLite ABRIA UM ARQUIVO NOVO E VAZIO em
+# vez de reclamar, e a busca estruturada respondia, com toda a honestidade,
+# que nao havia docentes. Dentro do container o docker-compose sobrepoe com
+# /app/dados/sigaa.db, entao la nunca deu problema — e por isso passou tanto
+# tempo sem ser notado.
+DB_PATH = os.getenv("DB_PATH", "dados/sigaa.db")
 
 # --- LLM / Ollama ---
 MODELO_LLM = os.getenv("MODELO_LLM", "mistral")

@@ -115,3 +115,52 @@ class TestReasoningEffort:
 
         with pytest.raises(ValueError):
             _valor_de_think("altissimo")
+
+
+class TestOsDoisZeros:
+    """
+    ARMADILHA 4 — "nao ha docentes" tem duas causas muito diferentes.
+
+    Nenhum docente naquele departamento e resposta legitima. Base vazia e falha
+    de infraestrutura. Ate 5 set 2026 as duas saiam com o mesmo texto, e a
+    segunda virava a resposta errada mais convincente que este sistema sabe dar:
+    dita com seguranca, verificavel, e completamente falsa.
+    """
+
+    def test_base_vazia_denuncia_infraestrutura(self, tmp_path, monkeypatch):
+        # PATCH NO MODULO CERTO. `import db_manager` (plano) e
+        # `modulo1_etl.db_manager` (qualificado) sao DOIS objetos de modulo
+        # distintos para o mesmo arquivo, cada um com seus proprios globais —
+        # consequencia da convencao de imports mista. tools.py usa o
+        # qualificado, entao e nele que o DB_PATH precisa ser trocado.
+        import modulo1_etl.db_manager as dbm_qualificado
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setattr(dbm_qualificado, "DB_PATH", str(tmp_path / "vazio.db"))
+        resposta = tools.buscar_docentes_por_departamento("Matemática")
+
+        assert "FALHA" in resposta
+        assert "não foi carregado" in resposta or "caminho está errado" in resposta
+        # O ponto todo: nao pode soar como ausencia real de docentes.
+        assert "Não encontrei nenhum docente registrado" not in resposta
+
+    def test_base_populada_e_departamento_inexistente_responde_ausencia(self, tmp_path, monkeypatch):
+        import json
+        import sqlite3
+
+        import modulo2_inferencia.tools as tools
+
+        import modulo1_etl.db_manager as dbm_qualificado
+
+        caminho = tmp_path / "cheio.db"
+        monkeypatch.setattr(dbm_qualificado, "DB_PATH", str(caminho))
+        dbm_qualificado.init_db()
+        with sqlite3.connect(caminho) as conn:
+            conn.execute(
+                "INSERT INTO entidades_sigaa (tipo_entidade, dados_brutos) VALUES (?, ?)",
+                ("docente", json.dumps({"nome": "FULANO", "departamento": "DEPARTAMENTO DE FISICA"})),
+            )
+
+        resposta = tools.buscar_docentes_por_departamento("Veterinária")
+        assert "FALHA" not in resposta
+        assert "Não encontrei nenhum docente" in resposta

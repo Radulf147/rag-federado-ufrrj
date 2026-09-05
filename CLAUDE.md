@@ -152,6 +152,15 @@ O ETL roda pela primeira forma — daí nenhum arquivo do Módulo 1 poder usar o
 com `reconstruir_sqlite.py --help`, que importa `config` no topo: antes falhava
 como script e funcionava com `-m`; agora funciona nas duas.
 
+> ⚠️ **O mesmo arquivo pode virar DOIS módulos.** `import db_manager` e
+> `from modulo1_etl.db_manager import ...` carregam o mesmo arquivo sob nomes
+> diferentes, e o Python cria **dois objetos de módulo independentes**, cada um
+> com seus próprios globais. Descoberto em 5 set 2026 ao escrever um teste: o
+> `monkeypatch` em `db_manager.DB_PATH` não afetava o `tools.py`, que usa a
+> forma qualificada. Hoje isso não produz bug — os dois calculam o mesmo valor a
+> partir do `config.py` — mas qualquer estado mutável no nível do módulo
+> (cache, conexão, contador) existiria em duas cópias que não conversam.
+>
 > Este guia afirmou por muito tempo que o `PYTHONPATH` já existia. Não existia —
 > o que fazia funcionar era acidental. Agora a afirmação é verdadeira.
 
@@ -539,13 +548,26 @@ indistinguível de dado ruim.
 Agora todos leem de `config.py`. Só foi possível depois do `ENV PYTHONPATH`
 (acima); antes, a forma como o ETL é invocado não enxergava a raiz do projeto.
 
-### 4. `DB_PATH` fora do Docker aponta para um banco que não existe
+### 4. ~~`DB_PATH` fora do Docker~~ — RESOLVIDA (5 set 2026)
 
-O default em `config.py` é `"sigaa.db"`, caminho **relativo ao diretório de
-trabalho**. O `docker-compose.yml` sobrepõe com `/app/dados/sigaa.db` nos dois
-serviços, então dentro do container está certo. Rodando na mão fora do Docker,
-sem `DB_PATH` no ambiente, o SQLite abre um arquivo vazio novo — e a busca
-estruturada responde, com toda a honestidade, que **não há docentes**.
+O default era `"sigaa.db"`, relativo ao diretório de trabalho. Rodando fora do
+Docker, o SQLite **abria um arquivo novo e vazio** em vez de reclamar, e a busca
+estruturada respondia, com toda a honestidade, que não havia docentes. Dentro do
+container o compose sobrepõe com `/app/dados/sigaa.db` — por isso passou tanto
+tempo sem ser notado.
+
+Duas correções, e a segunda importa mais que a primeira:
+
+1. O default virou `dados/sigaa.db`, que é onde o banco de fato vive.
+2. **A tool passou a distinguir dois "zero" muito diferentes.** Não achar docente
+   naquele departamento é resposta legítima; base vazia é falha de
+   infraestrutura. As duas saíam com o mesmo texto, e a segunda virava a
+   resposta errada mais convincente que este sistema sabe dar — dita com
+   segurança, verificável, e completamente falsa. Agora a base vazia devolve
+   `FALHA` dizendo o `DB_PATH` e mandando explicitamente **não** responder como
+   se não houvesse docentes.
+
+Coberto por `testes/test_busca_e_deduplicacao.py::TestOsDoisZeros`.
 
 ### 5. Este guia não é carregado se a sessão abrir na pasta errada
 

@@ -74,6 +74,26 @@ def normalizar(texto) -> str:
     return "".join(c for c in decomposto if not unicodedata.combining(c)).casefold()
 
 
+def total_de_entidades(tipo_entidade: str) -> int:
+    """
+    Quantos registros daquele tipo existem na base.
+
+    Existe para separar dois "zero" que sao muito diferentes: nao achei o que
+    voce pediu, e nao tenho dado nenhum. O segundo e problema de
+    infraestrutura, e apresenta-lo como o primeiro produz a resposta errada
+    mais convincente que este sistema sabe dar — "nao ha docentes nesse
+    departamento", dita com seguranca sobre um banco vazio.
+    """
+    init_db()
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT COUNT(*) FROM entidades_sigaa WHERE tipo_entidade = ?",
+            (tipo_entidade,),
+        )
+        return cursor.fetchone()[0]
+
+
 def buscar_entidades_por_campo(tipo_entidade: str, campo_json: str, valor_busca: str) -> list[dict]:
     """
     Busca entidades de forma tolerante dentro do JSON armazenado.

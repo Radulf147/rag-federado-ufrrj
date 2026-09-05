@@ -15,7 +15,8 @@ import os
 
 from haystack.tools import Tool
 
-from modulo1_etl.db_manager import buscar_entidades_por_campo
+from modulo1_etl.db_manager import buscar_entidades_por_campo, total_de_entidades
+import config
 
 TOOLS_SCHEMA = [
     {
@@ -74,6 +75,20 @@ def buscar_docentes_por_departamento(departamento: str) -> str:
     resultados = buscar_entidades_por_campo("docente", "departamento", departamento)
 
     if not resultados:
+        # DOIS ZEROS DIFERENTES. Nenhum docente naquele departamento e uma
+        # resposta legitima; base vazia e falha de infraestrutura. Ate 5 set
+        # 2026 as duas saiam com o mesmo texto, e a segunda virava a resposta
+        # errada mais convincente possivel — dita com seguranca, verificavel,
+        # e completamente falsa. Tipicamente acontecia rodando fora do Docker,
+        # onde o DB_PATH default abria um banco novo e vazio.
+        if total_de_entidades("docente") == 0:
+            return (
+                "Acesso à Base Estruturada: FALHA — a base não contém docente "
+                f"nenhum (DB_PATH={config.DB_PATH}). Isto não significa que o "
+                "departamento esteja vazio: significa que o banco não foi "
+                "carregado ou que o caminho está errado. Rode o ETL, ou "
+                "verifique DB_PATH. Não responda como se não houvesse docentes."
+            )
         return (
             f"Acesso à Base Estruturada: Não encontrei nenhum docente "
             f"registrado sob o departamento '{departamento}'."
