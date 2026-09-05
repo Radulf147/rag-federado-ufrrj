@@ -592,6 +592,102 @@ documento cujo *nome de departamento* casa com a consulta é genuinamente curta.
 
 ---
 
+# ⚠️ CASO CENTRAL: a `amb-02` responde duas coisas contraditórias, e as duas passam
+
+Mesma pergunta — *"Quais docentes de Ciências Sociais trabalham com movimentos
+sociais?"* — mesmo corpus, mesma configuração, execuções diferentes.
+
+**Repetição 1:**
+
+> *"De acordo com a consulta no SIGAA da UFRRJ, **nenhum docente específico do
+> DEPARTAMENTO DE CIÊNCIAS SOCIAIS apareceu** diretamente associado ao tema de
+> movimentos sociais. No entanto, encontrei diversos docentes vinculados ao
+> 'DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE' que
+> trabalham com essa temática:"* — seguido de 10 nomes, nenhum de Ciências
+> Sociais.
+
+**Repetição 3:**
+
+> *"Para responder à sua pergunta [...] primeiramente **identifiquei os docentes
+> vinculados ao Departamento de Ciências Sociais**. No entanto, ao buscar
+> especificamente por 'movimentos sociais', encontrei resultados para o
+> Departamento de Educação do Campo, Movim[entos Sociais e Diversidade]..."* —
+> seguido de **35 nomes, todos de Ciências Sociais**.
+
+Uma diz que **nenhum** docente do departamento apareceu. A outra lista **o
+departamento inteiro**. São afirmações factuais contraditórias sobre o mesmo
+corpus, e **ambas são APROVADAS sob v2a** — porque as duas acertam toda
+atribuição departamental que fazem.
+
+É a demonstração concreta do que motivou renomear a categoria. `precisão de
+atribuição departamental` é literalmente tudo o que está sendo medido, e duas
+respostas que se contradizem podem ambas ter precisão perfeita.
+
+## Evidência temática: o filtro semântico não está funcionando em nenhuma das duas
+
+Teste idêntico nas duas — remover o nome do departamento do perfil antes de
+procurar o tema:
+
+| | citados | com evidência própria | sem nenhuma | veredito v2a |
+|---|---|---|---|---|
+| `amb-02#1` | 10 | 1 | 9 | ✅ aprovada |
+| `amb-02#3` | **35 de 35** | 10 | **25** | ✅ aprovada |
+
+Os perfis sem evidência na `#3` vão de 114 a 782 caracteres, mediana **166** —
+nome, departamento, contato, e nada mais.
+
+## O incentivo perverso, e ele não é hipotético: foi observado
+
+Sob **precisão pura**, a estratégia ótima é **listar o departamento inteiro e
+mais ninguém**. Isso garante zero intrusos, portanto 100%, e produz a resposta
+menos útil possível — o despejo do departamento sem filtro nenhum, para uma
+pergunta que pedia um recorte temático.
+
+**A `amb-02#3` é exatamente essa estratégia, executada.** 35 de 35, nota
+perfeita, 25 dos citados sem uma palavra sobre o tema.
+
+A métrica não é apenas silenciosa quanto a recall. **Ela premia o despejo.** Uma
+resposta que citasse corretamente os 3 docentes certos e errasse 1 seria punida;
+uma que despeja os 35 é impecável. Esta é a razão mais forte para a v2b existir,
+e a razão mais forte para não tratar a subida da condicional como sinal de
+qualidade do agente.
+
+## Auditoria de atribuição interna — feita, e não achou nada
+
+Nomes **dentro** do elenco nunca eram checados pela regra (a cláusula do rótulo
+só se aplica a nomes de fora). Auditados os 21 itens à procura de atribuição
+falsa sobre gente de dentro:
+
+```
+nomes de dentro com atribuição departamental explícita ....  3
+destes, divergentes da base ...............................  0
+```
+
+**Não há instância real do terceiro braço escondida ali.** A limitação
+permanece como escrita — a regra não tem dentes *nestes dados* —, e não a versão
+mais grave ("tem dentes e não alcança onde a mordida existe"). O ponto cego
+existe por desenho e continua registrado; ele simplesmente não está ocupado.
+
+# Pré-registro do reporte da v2b — fixado ANTES de rodar
+
+A v2b em listagem é o único caminho pelo qual um `passa` pode virar `reprova`.
+Se ela derrubar itens, o relatório fica com *"métrica oficial passa, métrica
+exploratória reprova"*, e a tentação de enterrar a segunda é óbvia. Portanto,
+comprometido por escrito antes de ver o número:
+
+1. **O resultado da v2b entra no texto com o mesmo destaque, qualquer que
+   seja** — inclusive, e principalmente, se derrubar as 6/6 de listagem.
+2. Ela **não julga a fase 3**: o veredito oficial continua sendo o da v2a, pelo
+   motivo já registrado (construto novo, critério calibrado sobre outro
+   construto).
+3. Se a v2b reprovar, isso **não** reabre a fase 3 — e **não** é apresentado
+   como "defeito exploratório sem importância". É reportado como o que é: uma
+   competência que o instrumento oficial nunca mediu, e sobre a qual o sistema
+   não tem nota.
+4. Se as 6 sobreviverem, isso também é reportado explicitamente, e **não** como
+   confirmação de qualidade — 6 itens é amostra pequena e a v2b em listagem tem
+   as mesmas limitações de qualquer checagem por casamento de nome.
+
 # Protocolo do gold set (Fase 3)
 
 **Meus rótulos manuais não são confiáveis como asserção.** Duas das quatro
