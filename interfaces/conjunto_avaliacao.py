@@ -332,6 +332,46 @@ CONJUNTO: list[Pergunta] = [
 ]
 
 
+# COMO JULGAR A RESPOSTA — instrumento, NÃO gabarito.
+#
+# Emenda de 5 set 2026, registrada explicitamente. Os rótulos de rota acima
+# não mudaram; o que faltava era dizer o que conta como resposta certa em cada
+# tipo de pergunta. A primeira bateria exigia que o TOTAL do departamento
+# aparecesse em toda resposta com verdade-base, e reprovou "quem da Matemática
+# pesquisa estatística?" por não conter o número 44 — que a resposta certa não
+# tem por que conter, já que o pedido é um subconjunto. A acurácia condicional
+# saiu em 66,7% medindo isso.
+#
+#   contagem     o total precisa aparecer; em departamento homônimo, os dois,
+#                e a soma indevida reprova
+#   listagem     os nomes precisam aparecer, não o número
+#   vinculo      o departamento da pessoa precisa aparecer
+#   subconjunto  não dá para saber quem deveria estar, mas dá para saber quem
+#                NÃO poderia: todo docente citado tem de pertencer ao
+#                departamento pedido. É o que pega o caso de responder sobre
+#                o departamento errado.
+#   ""           sem verificação automática de conteúdo — vale a checagem de
+#                atribuição, que é comum a todas
+CHECAGEM = {
+    "est-01": "contagem",
+    "est-02": "contagem",
+    "est-03": "listagem",
+    "est-04": "contagem",
+    "est-05": "contagem",
+    "est-06": "listagem",
+    "est-07": "vinculo",
+    "est-08": "contagem",
+    "est-09": "contagem",
+    "amb-01": "subconjunto",
+    "amb-02": "subconjunto",
+    "amb-03": "subconjunto",
+    "amb-04": "subconjunto",
+    "amb-05": "subconjunto",
+    "amb-06": "subconjunto",
+    "amb-07": "subconjunto",
+}
+
+
 def validar() -> None:
     """Falha alto se o conjunto estiver malformado, antes de gastar uma bateria."""
     vistos = set()
@@ -341,6 +381,11 @@ def validar() -> None:
         if pergunta.id in vistos:
             raise ValueError(f"id duplicado: {pergunta.id}")
         vistos.add(pergunta.id)
+        checagem = CHECAGEM.get(pergunta.id, "")
+        if checagem and pergunta.verdade is None:
+            raise ValueError(f"{pergunta.id}: checagem {checagem!r} sem verdade-base")
+        if pergunta.verdade is not None and not checagem:
+            raise ValueError(f"{pergunta.id}: tem verdade-base e nenhuma checagem")
         if not pergunta.porque.strip():
             raise ValueError(f"{pergunta.id}: sem justificativa de rota")
 

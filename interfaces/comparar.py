@@ -49,7 +49,7 @@ from pathlib import Path
 import httpx
 
 import config
-from interfaces.conjunto_avaliacao import CONJUNTO, _docentes, validar
+from interfaces.conjunto_avaliacao import CHECAGEM, CONJUNTO, _docentes, validar
 from modulo2_inferencia.agent import SYSTEM_PROMPT
 from modulo2_inferencia.llm_setup import NUM_CTX, REASONING_EFFORT, montar_componentes
 from modulo2_inferencia.pipelines import PIPELINES, ResultadoPipeline
@@ -144,14 +144,91 @@ def nomes_afirmados(resposta: str) -> list[str]:
     return encontrados
 
 
+def _conferir(checagem, verdade, resposta, afirmados) -> dict:
+    """
+    Confere a resposta conforme o TIPO da pergunta.
+
+    A primeira versão exigia o total do departamento em toda resposta com
+    verdade-base, e reprovava "quem da Matemática pesquisa estatística?" por não
+    conter o número 44 — que a resposta certa não tem por que conter. Media a
+    coisa errada e devolvia 66,7% de acurácia condicional.
+    """
+    numeros = {int(n) for n in re.findall(r"\d+", resposta)}
+    resposta_norm = _normalizar(resposta)
+
+    if checagem == "contagem":
+        esperados = list(verdade["contagens"].values())
+        faltando = [v for v in esperados if v not in numeros]
+        # Somar departamentos homônimos é o defeito do achado 06: a soma
+        # aparecer no lugar das parcelas é justamente o erro a flagrar.
+        soma_indevida = bool(
+            verdade["ambiguo"] and sum(esperados) in numeros and faltando
+        )
+        return {
+            "tipo": checagem,
+            "esperado": verdade["contagens"],
+            "faltando": faltando,
+            "soma_indevida": soma_indevida,
+            "ok": not faltando and not soma_indevida,
+        }
+
+    if checagem == "listagem":
+        esperados = [n for nomes in verdade["departamentos"].values() for n in nomes]
+        faltando = [n for n in esperados if _normalizar(n) not in resposta_norm]
+        return {
+            "tipo": checagem,
+            "esperados": len(esperados),
+            "faltando": faltando,
+            "ok": not faltando,
+        }
+
+    if checagem == "vinculo":
+        faltando = [
+            d for d in verdade["departamentos"] if _normalizar(d) not in resposta_norm
+        ]
+        return {
+            "tipo": checagem,
+            "esperado": verdade["departamentos"],
+            "faltando": faltando,
+            "ok": not faltando,
+        }
+
+    if checagem == "subconjunto":
+        # Não dá para saber quem DEVERIA estar na resposta — isso exigiria um
+        # gabarito semântico. Dá para saber quem não poderia: todo docente
+        # citado tem de pertencer ao departamento pedido. É o que pega a
+        # resposta sobre o departamento errado.
+        #
+        # LIMITE HONESTO: um agente que responda sempre "não encontrei" passa
+        # nesta checagem. Por isso `citados` vai no registro — sem ele, zero
+        # intrusos seria indistinguível de zero esforço.
+        elenco = {
+            _normalizar(n) for nomes in verdade["departamentos"].values() for n in nomes
+        }
+        intrusos = [n for n in afirmados if n not in elenco]
+        return {
+            "tipo": checagem,
+            "elenco": len(elenco),
+            "citados": len(afirmados),
+            "intrusos": intrusos,
+            "ok": not intrusos,
+        }
+
+    return {"tipo": checagem, "ok": None}
+
+
 def avaliar(pergunta, resultado: ResultadoPipeline) -> dict:
     """
     Verificações COMPUTÁVEIS sobre uma resposta. Nada de nota de qualidade.
 
-    Tudo aqui é fato verificável por terceiro a partir do registro bruto — que é
-    o padrão que este projeto passou a exigir depois de descobrir que inspeção
-    no olho não pega defeito estrutural.
+    FALHA DE EXECUÇÃO NÃO É DECISÃO DE ROTEAMENTO. Um ReadTimeout devolve
+    fontes=[], e a primeira versão pontuava isso como "o agente escolheu não
+    usar ferramenta nenhuma". Quatro timeouts na bateria de 5 set derrubaram o
+    roteamento de 93,0% para 88,9% e a estabilidade de 100% para 86,7% — queda
+    de rede contada como escolha do modelo, que é exatamente o tipo de
+    contaminação que esta bateria existe para evitar.
     """
+    falha = resultado.detalhe == "exceção durante a execução"
     rota_escolhida = ROTA_POR_FONTES.get(frozenset(resultado.fontes), "outra")
 
     contexto = _normalizar(resultado.contexto)
@@ -159,40 +236,20 @@ def avaliar(pergunta, resultado: ResultadoPipeline) -> dict:
     sem_respaldo = [n for n in afirmados if n not in contexto]
 
     avaliacao = {
+        "falha_execucao": falha,
         "rota_esperada": pergunta.rota,
-        "rota_escolhida": rota_escolhida,
-        "rota_correta": rota_escolhida == pergunta.rota,
+        "rota_escolhida": None if falha else rota_escolhida,
+        "rota_correta": (not falha) and rota_escolhida == pergunta.rota,
         "nomes_afirmados": len(afirmados),
         "nomes_sem_respaldo": sem_respaldo,
         "atribuicao_ok": not sem_respaldo,
     }
 
-    # Verdade-base: os valores que o SQLite diz, conferidos contra o texto.
-    if pergunta.verdade:
-        verdade = pergunta.verdade()
-        numeros = {int(n) for n in re.findall(r"\d+", resultado.resposta)}
-        if verdade["tipo"] == "departamentos":
-            esperados = list(verdade["contagens"].values())
-            avaliacao["verdade"] = {
-                "ambiguo": verdade["ambiguo"],
-                "contagens_esperadas": verdade["contagens"],
-                "presentes": [v for v in esperados if v in numeros],
-                "faltando": [v for v in esperados if v not in numeros],
-            }
-            if verdade["ambiguo"]:
-                # Somar departamentos homônimos é o defeito do achado 06. Se a
-                # soma aparece e as parcelas não, o agente somou o que não devia.
-                soma = sum(esperados)
-                avaliacao["verdade"]["soma_indevida"] = (
-                    soma in numeros and not all(v in numeros for v in esperados)
-                )
-        else:
-            esperados = [_normalizar(d) for d in verdade["departamentos"]]
-            resposta_norm = _normalizar(resultado.resposta)
-            avaliacao["verdade"] = {
-                "departamentos_esperados": verdade["departamentos"],
-                "presentes": [d for d in esperados if d in resposta_norm],
-            }
+    checagem = CHECAGEM.get(pergunta.id, "")
+    if checagem and pergunta.verdade and not falha:
+        avaliacao["verdade"] = _conferir(
+            checagem, pergunta.verdade(), resultado.resposta, afirmados
+        )
 
     return avaliacao
 
@@ -232,40 +289,55 @@ def _rodar(componentes, pergunta, nome_pipeline: str) -> ResultadoPipeline:
 
 
 def calcular_metricas(registros: list[dict]) -> dict:
-    """As três métricas do CLAUDE.md §3, sobre as execuções do agente."""
+    """
+    As três métricas do CLAUDE.md §3, sobre as execuções do agente.
+
+    Execuções que FALHARAM por infraestrutura ficam de fora de tudo e são
+    contadas à parte. Um ReadTimeout não é uma decisão de roteamento, e
+    tratá-lo como tal contamina a medida com um problema que não é do modelo.
+    """
     do_agente = [r for r in registros if r["pipeline"] == "3-agente"]
+    falhas = [r for r in do_agente if r["avaliacao"].get("falha_execucao")]
+    validas = [r for r in do_agente if not r["avaliacao"].get("falha_execucao")]
 
     # 1. Acurácia de roteamento — por execução, não por pergunta.
-    acertos = sum(1 for r in do_agente if r["avaliacao"]["rota_correta"])
-    roteamento = acertos / len(do_agente) if do_agente else 0.0
+    acertos = sum(1 for r in validas if r["avaliacao"]["rota_correta"])
+    roteamento = acertos / len(validas) if validas else 0.0
 
-    # 2. Estabilidade — a pergunta roteou igual em TODAS as repetições?
+    # 2. Estabilidade — a pergunta roteou igual em TODAS as repetições válidas?
     por_pergunta = defaultdict(list)
-    for r in do_agente:
+    for r in validas:
         por_pergunta[r["pergunta_id"]].append(r["avaliacao"]["rota_escolhida"])
     estaveis = sum(1 for rotas in por_pergunta.values() if len(set(rotas)) == 1)
     estabilidade = estaveis / len(por_pergunta) if por_pergunta else 0.0
 
     # 3. Acurácia condicional — dado roteamento certo, a resposta se sustenta?
     #    Separa erro de roteamento de erro de resposta, que é o ponto da métrica.
-    corretas = [r for r in do_agente if r["avaliacao"]["rota_correta"]]
-    objetivas = [r for r in corretas if "verdade" in r["avaliacao"]]
-    ok_objetivas = sum(
-        1 for r in objetivas
-        if not r["avaliacao"]["verdade"].get("faltando")
-        and not r["avaliacao"]["verdade"].get("soma_indevida")
-    )
-    interpretativas = [r for r in corretas if "verdade" not in r["avaliacao"]]
+    corretas = [r for r in validas if r["avaliacao"]["rota_correta"]]
+    objetivas = [r for r in corretas if r["avaliacao"].get("verdade")]
+    ok_objetivas = sum(1 for r in objetivas if r["avaliacao"]["verdade"]["ok"])
+    interpretativas = [r for r in corretas if not r["avaliacao"].get("verdade")]
     ok_interpretativas = sum(1 for r in interpretativas if r["avaliacao"]["atribuicao_ok"])
+
+    # Detalhe por tipo de checagem: um agregado esconde qual classe quebrou.
+    por_tipo = defaultdict(lambda: [0, 0])
+    for r in objetivas:
+        tipo = r["avaliacao"]["verdade"]["tipo"]
+        por_tipo[tipo][1] += 1
+        if r["avaliacao"]["verdade"]["ok"]:
+            por_tipo[tipo][0] += 1
 
     return {
         "execucoes_do_agente": len(do_agente),
+        "falhas_de_infraestrutura": len(falhas),
+        "execucoes_validas": len(validas),
         "roteamento": roteamento,
         "estabilidade": estabilidade,
         "perguntas": len(por_pergunta),
         "objetivas_avaliadas": len(objetivas),
         "objetivas_corretas": ok_objetivas,
         "condicional_objetivas": ok_objetivas / len(objetivas) if objetivas else None,
+        "por_tipo": dict(por_tipo),
         "interpretativas_avaliadas": len(interpretativas),
         "interpretativas_sem_afirmacao_solta": ok_interpretativas,
         "condicional_interpretativas": (
@@ -273,7 +345,7 @@ def calcular_metricas(registros: list[dict]) -> dict:
         ),
         "matriz": Counter(
             (r["avaliacao"]["rota_esperada"], r["avaliacao"]["rota_escolhida"])
-            for r in do_agente
+            for r in validas
         ),
     }
 
@@ -293,6 +365,9 @@ def _renderizar(registros, metricas, execucao, esperas, abortou) -> str:
         f"- Conjunto pré-registrado: **{metricas['perguntas']}** perguntas "
         "(`interfaces/conjunto_avaliacao.py`, commitado antes desta execução)",
         f"- Repetições do agente: **{REPETICOES}** · Registro bruto: `{REGISTRO}`",
+        f"- Execuções do agente: **{metricas['execucoes_validas']}** válidas · "
+        f"**{metricas['falhas_de_infraestrutura']}** descartadas por falha de "
+        "infraestrutura (timeout de rede não é decisão de roteamento)",
         f"- Modelo `{config.MODELO_LLM}` · embedding `{config.MODELO_EMBEDDING}` · "
         f"TOP_K {config.TOP_K} · limiar {os.getenv('LIMIAR_DISTANCIA') or 'desligado'}",
         "",
@@ -326,6 +401,12 @@ def _renderizar(registros, metricas, execucao, esperas, abortou) -> str:
         "A última linha é o critério de tolerância zero do CLAUDE.md, verificado "
         "automaticamente: todo docente que a resposta afirma tem de aparecer no "
         "contexto que as ferramentas devolveram.",
+        "",
+        "### Condicional por tipo de checagem",
+        "",
+        "| Tipo | Corretas |",
+        "|---|---|",
+        *[f"| {t} | {v[0]} de {v[1]} |" for t, v in sorted(metricas["por_tipo"].items())],
         "",
         "## Matriz de roteamento",
         "",

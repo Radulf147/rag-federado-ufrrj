@@ -174,6 +174,7 @@ def responder_estruturado(componentes, pergunta: str) -> ResultadoPipeline:
 # dizer objetivamente de onde o agente tirou a resposta.
 FONTE_POR_TOOL = {
     "buscar_docentes_por_departamento": "sqlite",
+    "buscar_docente_por_nome": "sqlite",
     "busca_vetorial_sigaa": "chromadb",
 }
 

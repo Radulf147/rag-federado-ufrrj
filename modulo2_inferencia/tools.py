@@ -65,6 +65,31 @@ TOOLS_SCHEMA = [
             },
         },
     },
+    {
+        "type": "function",
+        "function": {
+            "name": "buscar_docente_por_nome",
+            "description": (
+                "Utilize esta ferramenta quando o usuário perguntar sobre UM "
+                "docente específico pelo nome — em que departamento ele está, "
+                "se ele existe na base, qual o vínculo dele. Retorna dados "
+                "exatos do cadastro, não texto de perfil."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string",
+                        "description": (
+                            "Nome, ou parte do nome, do docente procurado "
+                            "(ex: Marcel William Rocha da Silva)"
+                        ),
+                    }
+                },
+                "required": ["nome"],
+            },
+        },
+    },
 ]
 
 
@@ -120,16 +145,30 @@ def buscar_docentes_por_departamento(departamento: str) -> str:
     nomes = sorted(nomes)
     total = len(nomes)
 
-    if total <= 10:
-        lista = "\n- ".join(nomes)
+    # TETO DE LISTAGEM, nunca recusa de listar.
+    #
+    # O corte era `total <= 10`, e acima disso a tool respondia "não os listarei
+    # todos para poupar espaço" — o que torna "quais docentes pertencem ao
+    # Departamento de Bioquímica?" (11 pessoas) impossível de responder. A
+    # bateria de 5 set 2026 reprovou est-06 por isso, e a culpa não era do
+    # agente: era a ferramenta se recusando a fazer o que foi pedido.
+    #
+    # Agora sempre lista, com teto e dizendo quantos ficaram de fora. O total
+    # continua exato em qualquer caso, e o que foi omitido fica declarado —
+    # omissão silenciosa é o que produz resposta incompleta com cara de
+    # completa.
+    TETO_LISTAGEM = 40
+    lista = "\n- ".join(nomes[:TETO_LISTAGEM])
+    if total > TETO_LISTAGEM:
         return (
             f"Acesso à Base Estruturada: O departamento '{nome_exato}' tem "
-            f"{total} docentes. São eles:\n- {lista}"
+            f"{total} docentes. Os {TETO_LISTAGEM} primeiros em ordem alfabética "
+            f"são:\n- {lista}\n(os outros {total - TETO_LISTAGEM} não foram "
+            f"listados; o total acima é exato)"
         )
     return (
-        f"Acesso à Base Estruturada: O departamento '{nome_exato}' tem um "
-        f"total de {total} docentes cadastrados. Não os listarei todos para "
-        f"poupar espaço."
+        f"Acesso à Base Estruturada: O departamento '{nome_exato}' tem "
+        f"{total} docentes. São eles:\n- {lista}"
     )
 
 
@@ -194,6 +233,57 @@ def busca_vetorial_sigaa(pergunta: str, embedder, retriever) -> str:
     return f"Acesso à Base Vetorial. Documentos recuperados:\n{contexto}"
 
 
+def buscar_docente_por_nome(nome: str) -> str:
+    """
+    Ferramenta determinística — em que departamento está um docente.
+
+    POR QUE EXISTE: a bateria de 5 set 2026 expôs que a pergunta "em qual
+    departamento trabalha o professor X?" NÃO TINHA caminho estruturado.
+    `buscar_docentes_por_departamento` recebe um departamento, não um nome, e
+    a única saída do agente era procurar a pessoa na busca semântica — que
+    acerta por recuperação, não por cadastro. Vínculo docente-departamento é
+    dado exato e merece resposta exata.
+    """
+    print(f"🔧 [TOOL EXECUTADA] Consulta estruturada em SQLite pelo nome: {nome}")
+
+    resultados = buscar_entidades_por_campo("docente", "nome", nome)
+
+    if not resultados:
+        # Os dois zeros, de novo: base vazia não é o mesmo que pessoa ausente.
+        if total_de_entidades("docente") == 0:
+            return (
+                "Acesso à Base Estruturada: FALHA — a base não contém docente "
+                f"nenhum (DB_PATH={config.DB_PATH}). Não responda como se a "
+                "pessoa não existisse."
+            )
+        return (
+            f"Acesso à Base Estruturada: Nenhum docente cadastrado com o nome "
+            f"'{nome}'."
+        )
+
+    if len(resultados) > 1:
+        # Teto na listagem: "Silva" casa com 130 docentes, e despejar todos no
+        # contexto do LLM custa mais do que informa. O total continua exato.
+        TETO = 15
+        # Mesma disciplina do achado 06: mais de um casamento é ambiguidade a
+        # relatar, não algo a resolver escolhendo o primeiro.
+        linhas = "\n".join(
+            f"- {r.get('nome')}: {r.get('departamento')}" for r in resultados[:TETO]
+        )
+        if len(resultados) > TETO:
+            linhas += "\n" + f"... e mais {len(resultados) - TETO} docentes."
+        return (
+            f"Acesso à Base Estruturada: o nome '{nome}' casa com "
+            f"{len(resultados)} docentes. Não escolhi por você:\n{linhas}"
+        )
+
+    unico = resultados[0]
+    return (
+        f"Acesso à Base Estruturada: {unico.get('nome')} pertence ao "
+        f"{unico.get('departamento')}."
+    )
+
+
 def criar_dispatcher(embedder, retriever) -> dict:
     """
     Monta o dicionário nome_da_tool -> função executável.
@@ -203,6 +293,7 @@ def criar_dispatcher(embedder, retriever) -> dict:
     tocar em agent.py, só registrar aqui.
     """
     return {
+        "buscar_docente_por_nome": lambda nome="": buscar_docente_por_nome(nome),
         "buscar_docentes_por_departamento": lambda departamento="": buscar_docentes_por_departamento(
             departamento
         ),
