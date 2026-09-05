@@ -53,6 +53,14 @@ services:
       - CHROMA_PORT=8000
       # caminho de container, por isso vive aqui e nao no .env
       - DB_PATH=/app/dados/sigaa.db
+      # O bge-m3 ja esta em models_cache (4,3 GB). Sem estas duas, o transformers
+      # faz uma chamada a huggingface.co durante o warm_up so para decidir se o
+      # tokenizer precisa de um patch de regex do Mistral — e a chamada falha aqui,
+      # porque o DNS do container resolve huggingface.co apenas para IPv6 e nao ha
+      # rota IPv6. Resultado: o embedding morria por dependencia de rede que nem
+      # deveria existir, ja que o modelo esta em disco.
+      - HF_HUB_OFFLINE=1
+      - HF_HUB_CACHE=/app/models_cache
     deploy:
       resources:
         reservations:
@@ -97,6 +105,14 @@ services:
       - CHROMA_PORT=8000
       # caminho de container, por isso vive aqui e nao no .env
       - DB_PATH=/app/dados/sigaa.db
+      # O bge-m3 ja esta em models_cache (4,3 GB). Sem estas duas, o transformers
+      # faz uma chamada a huggingface.co durante o warm_up so para decidir se o
+      # tokenizer precisa de um patch de regex do Mistral — e a chamada falha aqui,
+      # porque o DNS do container resolve huggingface.co apenas para IPv6 e nao ha
+      # rota IPv6. Resultado: o embedding morria por dependencia de rede que nem
+      # deveria existir, ja que o modelo esta em disco.
+      - HF_HUB_OFFLINE=1
+      - HF_HUB_CACHE=/app/models_cache
       # OLLAMA_HOST sai do .env de proposito: aqui no environment ele
       # sobrepunha o .env e apontava para host-gateway:11434 — host nao
       # resolvivel e porta errada (o tunel escuta na 9999).

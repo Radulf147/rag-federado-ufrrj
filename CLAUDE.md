@@ -36,7 +36,7 @@ e um achado só está encerrado quando as duas colunas estão verdes.
 |---|---|---|---|
 | 01 | Campo "Áreas de interesse" nunca capturado — 0 de 704 perfis. Causa confirmada no HTML real em 4 set 2026: o `<dt>` desse campo é o único com um `<span class="info">` aninhado, e `get_text(strip=True)` junta os nós **sem separador**, produzindo `áreas de interesse(áreas…`. O espaço **existe** na página; some no parser. | ✅ feito — casamento por prefixo normalizado (`CAMPOS_DO_PERFIL`) | ❌ exige recarga |
 | 02 | 38% dos chunks não continham o nome do docente; a tool semântica descartava os metadados | ✅ feito — perfil não é mais fatiado (`parte3_chunking`) e `busca_vetorial_sigaa` devolve nome, departamento e fonte | ❌ exige recarga |
-| 03 | Recuperação não discrimina (os 10 primeiros para "IA" não continham IA) | ✅ boilerplate `"não informada"` fora do texto indexado; ⚠️ limiar de distância implementado mas **desligado** — calibrar depois da recarga | ❌ exige recarga |
+| 03 | Recuperação não discrimina (os 10 primeiros para "IA" não continham IA) | ✅ boilerplate fora do índice + limiar calibrado e **ligado** em 1.24 | ✅ recarregado e verificado |
 | 04 | Quanto do corpus vazio é falha nossa vs. ausência real no SIGAA | ✅ `modulo1_etl/auditoria_perfis.py` | ✅ **respondido: 0% é falha nossa** — 192 campos com conteúdo real na página, 192 no store |
 | 05 | Abas não coletadas + arquitetura de mapeamento assistido por LLM | ✅ **campos grátis feitos** — Currículo Lattes, Sala e E-mail entraram em `CAMPOS_DO_PERFIL`; ❌ as outras abas continuam a desenhar (fase própria) | ❌ exige recarga |
 | 06 | SIAPE inválida devolvia a home do portal com HTTP 200 | ✅ feito | ❌ os perfis coletados antes da correção só são revalidados na recarga |
@@ -415,6 +415,59 @@ da fonte. Os próximos ganhos só podem vir de:
    arquitetura própria.
 
 
+## O limiar de distância — calibrado e ligado em 1.24 (4 set 2026)
+
+`modulo2_inferencia/calibrar_limiar.py`, relatório em `docs/calibracao_limiar.md`.
+Reproduzível: os termos de teste saem dos campos *Áreas de interesse* mais
+frequentes do corpus, não de uma lista escolhida a dedo.
+
+**Sem limiar a busca semântica nunca diz "não achei".** Ela devolve sempre os
+`TOP_K` menos distantes, por mais distantes que estejam — "culinária japonesa
+medieval" recuperava dez perfis de docentes e os entregava ao LLM como contexto.
+
+### O que a medição mostrou
+
+```
+1º resultado, consultas de dentro do dominio ....... 0.786 a 1.192
+1º resultado, consultas de puro ruido ............. 1.170 a 1.417
+```
+
+**As faixas se sobrepõem**, por um termo: "politica" (110 docentes no corpus)
+tem 1º resultado a 1.192, pior que "letra da música que toca no rádio" a 1.170.
+Não existe corte que cale todo o ruído sem emudecer alguma consulta legítima.
+
+| Limiar | Consultas legítimas vivas | Relevantes perdidos | Ruído calado |
+|---|---|---|---|
+| 1.14 | 11 de 12 | 5 | 6 de 6 |
+| **1.24** | **12 de 12** | **0** | **4 de 6** |
+
+Escolhido **1.24**: o maior ganho que sai de graça.
+
+### Por que não o corte agressivo
+
+A assimetria é deliberada. Emudecer consulta legítima produz "não encontrei"
+para pergunta que **tem** resposta — erro invisível, com cara de cautela, e o
+usuário não tem como perceber. Deixar passar ruído entrega documentos
+irrelevantes a um agente que recebe nome e departamento de cada um (achado 02) e
+está autorizado a dizer que não sabe (achado 07): é a camada que julga
+pertinência semanticamente, coisa que aritmética de distância não faz.
+
+Verificado depois de ligado: as duas consultas de ruído passaram a devolver
+"nenhuma informação relevante"; "agroecologia" e "política" seguem devolvendo 10
+documentos.
+
+> ⚠️ **A primeira versão do script mediu a coisa errada** e recomendou 1.10.
+> Ela calculava precisão sobre os 1302 documentos filtrados por distância,
+> ignorando que em produção o retriever devolve `TOP_K=10` e o limiar corta
+> **dentro** desses 10. O número saía (precisão 0.108) e descrevia um sistema
+> que não existe. Qualquer recalibração futura tem de medir sobre o `TOP_K`.
+
+> ⚠️ **Um corte relativo** — descartar o que estiver muito além do 1º resultado —
+> responderia melhor à pergunta "estes documentos são comparáveis entre si?" do
+> que um corte absoluto, que não distingue *pergunta sem resposta* de *pergunta
+> legítima sobre tema pouco representado*. Registrado como alternativa, não
+> implementado.
+
 ## Armadilhas conhecidas
 
 Cada uma destas já produziu — ou produziria — um resultado **plausível e
@@ -682,6 +735,7 @@ TOP_K=10
 NUM_CTX=8192              # janela de contexto; default do Ollama (4096) é apertado para TOP_K=10
 REASONING_EFFORT=auto     # auto | off | low | medium | high — só afeta modelos com raciocínio
 DCC_USUARIO=seu.usuario   # usado por tunel.sh
+LIMIAR_DISTANCIA=1.24     # corte da busca semantica; vazio desliga. Ver secao propria
 ```
 
 **Pendência de código — RESOLVIDA (Set/2026).** `llm_setup.py` agora passa
