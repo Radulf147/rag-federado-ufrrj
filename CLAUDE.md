@@ -516,14 +516,24 @@ Havia zero `test_*.py` e `pytest` fora do `requirements`. Rodar `pytest`
 coletava zero testes e saía com sucesso — que se lê facilmente como "está tudo
 passando". Não estava: não havia o que passar.
 
-Agora há **39 testes** em `testes/`, e cada um é a memória de um defeito que de
+Agora há **44 testes** em `testes/`, e cada um é a memória de um defeito que de
 fato aconteceu:
 
 | Arquivo | Cobre |
 |---|---|
 | `test_extracao_perfil.py` | achados 01, 03 e 09 — prefixo normalizado, placeholder do SIGAA, perfil esparso |
 | `test_busca_e_deduplicacao.py` | busca cega a acentos, chave de dedup, tradução de `REASONING_EFFORT` |
-| `test_avaliacao.py` | o instrumento da fase 3 — pré-registro, rota deduzida, atribuição, soma indevida |
+| `test_avaliacao.py` | o instrumento da fase 3 — pré-registro, rota deduzida, atribuição, soma indevida, execução que falha |
+
+> ⚠️ **Testar o que MEDE é tão necessário quanto testar o que É medido.** Em
+> 5 set a bateria morreu na célula 53 de 150, meia hora depois de começar, num
+> `print` de progresso: `f"{None:12}"` levanta `TypeError`, e `rota_escolhida`
+> passou a ser `None` justamente por causa da correção que parou de contar
+> `ReadTimeout` como rota "nenhuma". `calcular_metricas` aprendeu a lidar com o
+> `None`; a formatação da tela não. **O conserto da medição abriu um caminho de
+> morte acionado pela mesma condição que ele existia para tratar.** Passou
+> porque os testes exercitavam `avaliar` e as métricas, nunca o laço inteiro
+> com uma execução falhando. Hoje exercitam.
 
 São todos de funções **puras**: sem rede, sem banco, sem container. Rodam em
 segundos e falham por um motivo só. O que exige infraestrutura continua coberto

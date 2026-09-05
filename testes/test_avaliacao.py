@@ -8,6 +8,8 @@ Estes testes existem para que a bateria que decide o fim da fase 3 não sofra do
 mesmo mal.
 """
 
+import json
+
 from interfaces.comparar import ROTA_POR_FONTES, avaliar, nomes_afirmados
 from interfaces.conjunto_avaliacao import CONJUNTO, ROTAS_VALIDAS, validar
 from modulo2_inferencia.pipelines import ResultadoPipeline
@@ -147,3 +149,77 @@ class TestVerdadeBaseDeDepartamento:
     def test_o_caso_de_geografia_e_mesmo_ambiguo(self):
         """Se o corpus mudar e deixar de ser ambíguo, este teste avisa."""
         assert POR_ID["est-08"].verdade()["ambiguo"]
+
+
+class TestExecucaoQueFalhaNaoDerrubaABateria:
+    """
+    REGRESSÃO — a bateria de 5 set morreu na célula 53 de 150, meia hora depois
+    de começar, num `print` de progresso.
+
+    A correção que parou de contar ReadTimeout como rota "nenhuma" passou a
+    gravar `rota_escolhida: None`. `calcular_metricas` aprendeu a lidar com o
+    None em todos os pontos; a formatação da tela não, e `f"{None:12}"` levanta
+    TypeError. Ou seja: o conserto da medição abriu um caminho de morte
+    acionado pela mesma condição que ele existia para tratar.
+
+    O teste exercita o LAÇO INTEIRO com todas as execuções falhando — que é o
+    que o `print` recebia e ninguém nunca tinha rodado.
+    """
+
+    @staticmethod
+    def _preparar(monkeypatch, tmp_path, pergunta):
+        import interfaces.comparar as comparar
+
+        def explode(componentes, texto):
+            raise TimeoutError("timed out")
+
+        monkeypatch.setattr(comparar, "CONJUNTO", [pergunta])
+        monkeypatch.setattr(comparar, "validar", lambda: None)
+        monkeypatch.setattr(comparar, "PIPELINES", dict.fromkeys(comparar.PIPELINES, explode))
+        monkeypatch.setattr(comparar, "montar_componentes", lambda: None)
+        monkeypatch.setattr(comparar, "_aguardar_ollama", lambda: 0.0)
+        monkeypatch.setattr(comparar, "REPETICOES", 2)
+        monkeypatch.setattr(comparar, "SAIDA", tmp_path / "relatorio.md")
+        monkeypatch.setattr(comparar, "REGISTRO", tmp_path / "registro.jsonl")
+        return comparar
+
+    def test_o_laco_termina_com_todas_as_execucoes_falhando(self, tmp_path, monkeypatch):
+        comparar = self._preparar(monkeypatch, tmp_path, POR_ID["sem-01"])
+
+        comparar.executar_comparacao()  # antes: TypeError na primeira repetição
+
+        registro = (tmp_path / "registro.jsonl").read_text(encoding="utf-8")
+        assert registro.count("\n") == 4, "2 pipelines de base + 2 repetições"
+        assert (tmp_path / "relatorio.md").exists()
+
+    def test_o_relatorio_diz_FALHOU_e_nao_escreve_None(self, tmp_path, monkeypatch):
+        """
+        `None` no relatório não quebra nada — e é pior por isso: fica
+        indistinguível de uma rota que o agente tivesse escolhido.
+        """
+        comparar = self._preparar(monkeypatch, tmp_path, POR_ID["sem-01"])
+        comparar.executar_comparacao()
+
+        relatorio = (tmp_path / "relatorio.md").read_text(encoding="utf-8")
+        assert "FALHOU" in relatorio
+        assert "`None`" not in relatorio
+
+    def test_falha_de_infraestrutura_fica_fora_das_metricas(self, tmp_path, monkeypatch):
+        """
+        O ponto da correção original: timeout não é decisão de roteamento.
+        Com todas as execuções falhando, não sobra nada para medir — e o
+        relatório tem de dizer isso em vez de exibir 0%.
+        """
+        comparar = self._preparar(monkeypatch, tmp_path, POR_ID["sem-01"])
+        comparar.executar_comparacao()
+
+        registros = [
+            json.loads(linha)
+            for linha in (tmp_path / "registro.jsonl").read_text(encoding="utf-8").splitlines()
+        ]
+        metricas = comparar.calcular_metricas(
+            [{**r, "pipeline": r["pipeline"]} for r in registros]
+        )
+        assert metricas["execucoes_validas"] == 0
+        assert metricas["falhas_de_infraestrutura"] == 2
+        assert metricas["condicional_objetivas"] is None

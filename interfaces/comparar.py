@@ -435,7 +435,10 @@ def _renderizar(registros, metricas, execucao, esperas, abortou) -> str:
         ]
         do_agente = [r for r in registros_p if r["pipeline"] == "3-agente"]
         if do_agente:
-            escolhidas = [r["avaliacao"]["rota_escolhida"] for r in do_agente]
+            # Mesma armadilha do print de progresso: None aqui não quebra, mas
+            # escreveria a palavra `None` no relatório, indistinguível de uma
+            # rota que o agente tivesse escolhido.
+            escolhidas = [r["avaliacao"]["rota_escolhida"] or "FALHOU" for r in do_agente]
             linhas.append(f"- **Rotas escolhidas ({len(escolhidas)} execuções):** "
                           + ", ".join(f"`{r}`" for r in escolhidas))
             soltos = {n for r in do_agente for n in r["avaliacao"]["nomes_sem_respaldo"]}
@@ -500,8 +503,15 @@ def executar_comparacao() -> None:
             _gravar(execucao, pergunta, repeticao, resultado, avaliacao)
             registros.append({"pergunta_id": pergunta.id, "repeticao": repeticao,
                               **asdict(resultado), "avaliacao": avaliacao})
+            # `rota_escolhida` é None quando a execução falhou por
+            # infraestrutura — e `f"{None:12}"` levanta TypeError. Foi assim que
+            # a bateria de 5 set morreu na célula 53 de 150, no print de
+            # progresso, meia hora depois de começar. O None veio da correção
+            # que parou de contar timeout como rota "nenhuma"; a formatação da
+            # tela não foi avisada.
+            rota = avaliacao["rota_escolhida"] or "FALHOU"
             marca = "ok" if avaliacao["rota_correta"] else "ERRO"
-            print(f"      rep {repeticao}: {avaliacao['rota_escolhida']:12} [{marca}]")
+            print(f"      rep {repeticao}: {rota:12} [{marca}]")
 
     metricas = calcular_metricas(registros)
     SAIDA.parent.mkdir(parents=True, exist_ok=True)

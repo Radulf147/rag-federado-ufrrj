@@ -28,6 +28,9 @@ import config
 # TOP_K=10 perfis de docente.
 NUM_CTX = int(os.getenv("NUM_CTX", 8192))
 
+# TIMEOUT_LLM: segundos de espera por chamada ao Ollama. Ver montar_componentes.
+TIMEOUT_LLM = int(os.getenv("TIMEOUT_LLM", 300))
+
 # REASONING_EFFORT: "auto" | "off" | "low" | "medium" | "high".
 #
 # Corrigido em Set/2026: antes isto ia dentro de generation_kwargs, que a
@@ -132,9 +135,16 @@ def montar_componentes() -> ComponentesInferencia:
     # generation_kwargs vira o dict "options" da chamada ao Ollama, e vale para
     # todos os turnos. Só entram parâmetros de geração aqui: schemas de tool vão
     # pelo parâmetro `tools=` do .run(), em agent.py (ver criar_tools).
+    # timeout: segundos que esperamos UMA chamada, não a resposta inteira — o
+    # tool calling iterativo faz até MAX_RODADAS_TOOL chamadas, cada uma com seu
+    # próprio prazo. O padrão da integração é 120s, e ele estourava: um 32B q4
+    # numa GPU compartilhada, com uma listagem de 44 docentes no contexto,
+    # passa disso sem dificuldade. Custou ~4% das células das baterias de 5 set.
+    # Isto muda quanto esperamos, não o que o modelo decide.
     chat_generator = OllamaChatGenerator(
         model=config.MODELO_LLM,
         url=config.OLLAMA_HOST,
+        timeout=TIMEOUT_LLM,
         generation_kwargs={"num_ctx": NUM_CTX},
     )
 
