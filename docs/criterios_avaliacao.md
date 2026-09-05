@@ -829,6 +829,41 @@ comprometido por escrito antes de ver o número:
    confirmação de qualidade — 6 itens é amostra pequena e a v2b em listagem tem
    as mesmas limitações de qualquer checagem por casamento de nome.
 
+## Critério de aceite da validação cega — fixado ANTES de executar
+
+Concordância reportada como **fração bruta**, nunca percentual: com n=10 cada
+discordância vale 10 pontos, e ponto decimal ali é falsa precisão.
+
+As duas metades da amostra são reportadas **em separado**, porque medem coisas
+diferentes:
+
+- **10 institucionais** — a parte **fácil**. Não há texto onde procurar; qualquer
+  classificador acerta. Concordância aqui não é evidência de nada e não entra no
+  critério.
+- **10 substantivos** — onde a decisão entre COM RESPALDO e INCONCLUSIVO exige
+  julgar conteúdo. **É só isto que conta.**
+
+### O critério tem de bater a linha de base trivial, e ela é alta
+
+Entre os 10 substantivos, meus rótulos cegos deram **8 COM RESPALDO e 2
+INCONCLUSIVO**. Logo um classificador que respondesse "COM RESPALDO" para tudo,
+sem ler nada, acertaria **8 de 10**. Essa é a linha de base do inútil, e
+qualquer critério abaixo dela mede a distribuição da amostra, não o
+classificador.
+
+> **MEDIDA** — entra no texto como medição se, e somente se:
+> **(a) ≥ 9 de 10** nos substantivos, **E**
+> **(b) os DOIS casos INCONCLUSIVO identificados corretamente.**
+>
+> **LIMITAÇÃO** — em qualquer outro caso, inclusive 9 de 10 obtido errando um
+> INCONCLUSIVO. Errar os dois INCONCLUSIVO com 8 de 10 é exatamente o
+> classificador trivial, e ele não vira medida por acidente aritmético.
+
+A condição (b) existe porque as duas classes não têm o mesmo peso probatório: os
+INCONCLUSIVO são a razão de a classificação ter três classes em vez de duas. Um
+classificador que nunca os produz não implementou a regra — implementou a versão
+de duas classes que foi explicitamente rejeitada.
+
 # PRÉ-REGISTRO DAS PROJEÇÕES — escrito antes de rodar a Fase 4
 
 Se o resultado divergir, a divergência aparece contra previsão registrada, e não
@@ -882,6 +917,69 @@ Previsão adicional, mais arriscada e por isso mais informativa: **a maioria dos
 tamanho semelhante indicam perfis sem campo descritivo. Se muitos caírem em
 INCONCLUSIVO, o casamento de palavra é que está grosseiro, e a métrica entra no
 texto como limitação em vez de medida.
+
+# ⚠️ O hedge não é avaliado em direção nenhuma
+
+Dois casos opostos, nenhum dos dois capturado por qualquer instrumento deste
+projeto.
+
+**Hedge honesto, invisível.** Na `amb-06`, sobre `HENRIQUE VIEIRA DE MENDONCA`,
+o agente escreveu que os temas dele *"podem ter conexões indiretas com a
+agroecologia"*. Está **certo**: o perfil, lido inteiro (978 caracteres), fala de
+tratamento de resíduos, microalgas, bioenergia e wetlands, e não menciona
+agroecologia. **O agente sinalizou corretamente a própria incerteza.** Sob v2a a
+resposta é impecável — a atribuição departamental está certa. Sob
+`respaldo_de_citacao` ele cai em INCONCLUSIVO. Em nenhuma das duas o acerto de
+calibração aparece.
+
+**Hedge vazio, também invisível.** Na `amb-02#1` o agente ressalvou que *"nenhum
+docente específico do Departamento de Ciências Sociais apareceu"* e ofereceu dez
+substitutos — dos quais **1 de 10** tem evidência própria do tema, contra 10 de
+35 da `#3` que não ressalvou nada. A resposta que **soa** mais criteriosa é a
+**menos ancorada**, e nenhum instrumento registra isso tampouco.
+
+## A conclusão é sobre o escopo do instrumento inteiro
+
+**O sistema não é avaliado pela calibração das próprias ressalvas — nem quando
+elas são honestas, nem quando são vazias.** Um agente que hedgeia corretamente e
+um que hedgeia para se cobrir recebem a mesma nota, e um que não hedgeia nunca
+também.
+
+Isto **não é limitação de uma métrica**; é limitação de escopo de todas elas.
+Roteamento mede a ferramenta escolhida; atribuição mede o departamento;
+cobertura mede a omissão; respaldo mede a fonte. **Nenhuma mede a relação entre
+a confiança expressa e a evidência disponível** — que é, num sistema cujo
+princípio 3 proíbe afirmar sem respaldo explícito, provavelmente a competência
+mais próxima do que o projeto diz querer.
+
+Vai para o **pré-registro da próxima bateria**, junto com os marcadores de
+negação e anáfora. Não é implementado aqui.
+
+# ⚠️ Decisão sobre texto parcial — característica do ambiente, não descuido
+
+**Quatro ocorrências do mesmo modo de falha nesta fase**, todas minhas:
+
+| # | onde | o que produziu |
+|---|---|---|
+| 1 | li ~620 dos 898 chars da `amb-04` | previsão pré-registrada errada |
+| 2 | medi a `amb-06` por proximidade em texto normalizado | segunda previsão errada |
+| 3 | regex de extração capturando prefixo de nome | falso alarme do `LEANDRO` |
+| 4 | dump de perfis truncado em 520 chars | `MARCOS BACIS CEDDIA` quase rotulado errado |
+
+Quatro vezes não é descuido isolado — é **característica do ambiente**. Os textos
+aqui (respostas de 800 a 2000 caracteres, perfis de até 2400) estão sempre perto
+do tamanho em que se corta para caber na tela, e a evidência decisiva tem o
+hábito de ficar depois do corte. Nos quatro casos o trecho que mudava a conclusão
+estava fora do que eu tinha lido.
+
+> **Regra daqui em diante:** todo script de medição declara, junto do resultado,
+> **o tamanho do texto lido e se houve truncamento**. Se o dado for maior que o
+> lido, o resultado sai marcado como parcial.
+
+O caso 3 mostra que isso vale também para o inverso: a regex leu texto **demais**
+no sentido errado — capturou um pedaço de um nome maior — e produziu um achado
+inexistente que consumiu um turno inteiro. Truncar e transbordar são o mesmo
+erro: decidir sobre um recorte que não é a coisa.
 
 # Protocolo do gold set (Fase 3)
 
