@@ -7,6 +7,7 @@ from datetime import datetime
 from haystack import Document
 from haystack.components.embedders import SentenceTransformersDocumentEmbedder
 import os
+import config
 Path("logs").mkdir(exist_ok=True)
 
 # Cria um logger específico para este arquivo
@@ -34,9 +35,17 @@ logger.addHandler(console_handler)
 log = logger.info
 
 # Modelo multilingual para português — trocar por rufimelo/bert-large-portuguese-cased-sts em produção
-MODELO_EMBEDDING = os.getenv("MODELO_EMBEDDING", "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2")
-EMBEDDING_DIM    = int(os.getenv("EMBEDDING_DIM", 384))
-INSTANCIA        = "sigaa"
+# Vem de config.py, e nao de os.getenv proprio. Ate 5 set 2026 estes valores
+# eram relidos aqui com defaults escritos a mao — o do embedding era
+# paraphrase-multilingual-MiniLM (dim 384) enquanto o projeto usa bge-m3 (1024).
+# Iguais por enquanto e divergentes na primeira vez que alguem mexesse num lado
+# so: o ETL vetorizaria com o modelo errado, na dimensao errada, sem erro
+# nenhum — visivel so como recuperacao ruim, indistinguivel de dado ruim.
+# So passou a ser possivel importar config aqui depois do ENV PYTHONPATH no
+# Dockerfile; antes, a forma como o ETL e invocado nao enxergava a raiz.
+MODELO_EMBEDDING = config.MODELO_EMBEDDING
+EMBEDDING_DIM    = config.EMBEDDING_DIM
+INSTANCIA        = config.INSTANCIA
 
 def embedar_documentos(documentos: list[Document]) -> list[Document]:
     # Vetoriza cada chunk com o modelo de embedding. Retorna docs com campo embedding preenchido.

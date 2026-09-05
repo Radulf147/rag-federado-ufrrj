@@ -3,11 +3,15 @@ import unicodedata
 import json
 import os
 import logging
+import config
 
 log = logging.getLogger(__name__)
 
 # O banco de dados ficará na raiz do projeto (ou na pasta que definir)
-DB_PATH = os.getenv("DB_PATH", "sigaa.db")
+# Vem de config.py. O default ("sigaa.db", relativo ao diretorio de trabalho)
+# e o mesmo dos dois lados, mas manter duas leituras independentes e como a
+# armadilha 3 nasceu: iguais hoje, divergentes na primeira alteracao de um lado so.
+DB_PATH = config.DB_PATH
 
 def init_db():
     """

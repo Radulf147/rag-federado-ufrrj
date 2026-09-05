@@ -100,6 +100,7 @@ docker-compose.yml           # serviços: chromadb, etl, agente
 rag.sh                       # entrypoint de tudo: build | etl | agente | comparar | tunel | logs
 tunel.sh                     # túnel SSH via ControlMaster: up | manter | status | down | ajuda
 requirements.txt
+.env.example                 # molde do .env, versionado; o .env de verdade nao e
 
 modulo1_etl/                 # scraping → dedup → chunking → embedding → carga
   parte1_scraping_sigaa.py    # varredura ampla do SIGAA — FORA DE ESCOPO na fase atual (§4)
@@ -126,32 +127,32 @@ docs/                        # volume montado; saída da comparação vai para c
 logs/                        # saída do ETL (fora do versionamento)
 ```
 
-### ⚠️ Convenção de imports mista — não "corrigir" sem entender
+### Convenção de imports mista — resolvida pelo PYTHONPATH (5 set 2026)
 
-`modulo1_etl/` foi mantido intocado no refactor e usa imports **planos**
-entre seus próprios arquivos (ex: `parte2_scraping_docentes.py` faz
-`from db_manager import salvar_entidades`).
+`modulo1_etl/` usa imports **planos** entre seus próprios arquivos
+(`from db_manager import salvar_entidades`). `modulo2_inferencia/` e
+`interfaces/` usam imports **qualificados a partir da raiz**
+(`from modulo1_etl.db_manager import ...`). As duas convenções coexistem.
 
-`modulo2_inferencia/tools.py` usa import **qualificado a partir da raiz**
-(ex: `from modulo1_etl.db_manager import buscar_entidades_por_campo`).
+O que fazia isso doer é que cada forma só funcionava numa maneira de invocar:
 
-As duas convenções coexistem de propósito.
+```
+python modulo1_etl/x.py    sys.path[0] = /app/modulo1_etl
+                           planos OK, "import config" QUEBRA
+python -m modulo1_etl.x    sys.path[0] = /app
+                           qualificados OK, planos QUEBRAM
+```
 
-> ⚠️ Corrigido em Set/2026: este guia dizia que a coexistência era resolvida
-> por `PYTHONPATH=/app:/app/modulo1_etl` no Dockerfile. **O Dockerfile não
-> define `PYTHONPATH` nenhum** — verificado. O que faz funcionar é acidental:
-> `python modulo1_etl/parte5_carga.py` põe a pasta do script no `sys.path`
-> (daí os imports planos funcionarem), e o `WORKDIR /app` cobre os
-> qualificados quando se roda com `-m` a partir da raiz.
->
-> Consequência prática: um script novo em `modulo1_etl/` que importe
-> `config` ou `modulo1_etl.algo` **falha** se rodado como
-> `python modulo1_etl/script.py` — precisa de `python -m modulo1_etl.script`.
-> Foi exatamente o que aconteceu com `reconstruir_sqlite.py`.
->
-> Adicionar de fato o `ENV PYTHONPATH=/app:/app/modulo1_etl` no Dockerfile
-> continua em aberto — faria as duas formas funcionarem e alinharia o
-> comportamento com o que este guia sempre afirmou.
+O ETL roda pela primeira forma — daí nenhum arquivo do Módulo 1 poder usar o
+`config.py`, e daí a armadilha 3.
+
+**Corrigido:** o `Dockerfile` agora define
+`ENV PYTHONPATH=/app:/app/modulo1_etl`, e as duas formas funcionam. Verificado
+com `reconstruir_sqlite.py --help`, que importa `config` no topo: antes falhava
+como script e funcionava com `-m`; agora funciona nas duas.
+
+> Este guia afirmou por muito tempo que o `PYTHONPATH` já existia. Não existia —
+> o que fazia funcionar era acidental. Agora a afirmação é verdadeira.
 
 ## Comandos
 
@@ -505,21 +506,19 @@ que se lê facilmente como "está tudo passando". Não está: não há o que pas
 A verificação hoje é manual, pelo relatório da comparação e pela inspeção dos
 achados.
 
-### 3. `config.py` não governa o Módulo 1
+### 3. ~~`config.py` não governa o Módulo 1~~ — RESOLVIDA (5 set 2026)
 
-Apesar do docstring de `config.py` dizer que centraliza tudo, o ETL relê as
-mesmas variáveis por conta própria, com **defaults diferentes dos do `.env`**:
+O ETL relia `MODELO_EMBEDDING`, `EMBEDDING_DIM`, `CHROMA_*` e `DB_PATH` por
+conta própria, com defaults escritos à mão em `parte4_embedding.py`,
+`parte5_carga.py` e `db_manager.py`. Eram **iguais** aos do `config.py` — e
+teriam divergido na primeira vez que alguém mexesse num lado só. O default
+embutido do embedding era `paraphrase-multilingual-MiniLM` (dim 384) contra o
+`bge-m3` (1024) que o projeto usa: o ETL vetorizaria com o modelo errado, na
+dimensão errada, **sem erro nenhum** — visível apenas como recuperação ruim,
+indistinguível de dado ruim.
 
-```
-parte4_embedding.py:37-38   MODELO_EMBEDDING, EMBEDDING_DIM
-parte5_carga.py:37-39,197   CHROMA_HOST, CHROMA_PORT, EMBEDDING_DIM, CHROMA_REMOTE
-```
-
-O default embutido é `paraphrase-multilingual-MiniLM-L12-v2` com `dim=384`,
-enquanto o projeto usa `BAAI/bge-m3` com `dim=1024`. Se o `.env` não for
-carregado, o ETL vetoriza com o modelo errado, numa dimensão errada, **sem
-erro** — e o resultado só aparece como recuperação ruim, indistinguível de um
-problema de qualidade de dado.
+Agora todos leem de `config.py`. Só foi possível depois do `ENV PYTHONPATH`
+(acima); antes, a forma como o ETL é invocado não enxergava a raiz do projeto.
 
 ### 4. `DB_PATH` fora do Docker aponta para um banco que não existe
 
@@ -536,7 +535,20 @@ O `CLAUDE.md` está em `ufrrj/rag-federado-ufrrj/`. Abrir a sessão em
 lido** — a sessão começa sem nenhuma das decisões registradas aqui. Aconteceu em
 4 set 2026. Abra sempre em `rag-federado-ufrrj/`.
 
-### 6. `dados/` não está versionado nem ignorado
+### 6. Um departamento com nome estranho — é da fonte, não nosso
+
+Um docente (DILERMANDO MORAES COSTA, siape 2360095) aparece em
+`COLEGIO TECNICO (12.28.01.30) (12.28.01.30)`, com o código repetido. Verificado
+no HTML ao vivo em 5 set 2026: o `<h3 class="departamento">` do SIGAA contém
+exatamente esse texto, num único nó, já duplicado na origem.
+
+**Não corrigir.** Pelo princípio 1, o SIGAA é a fonte da verdade e nosso papel é
+lidar com o que existe, não compensar. Limpar o nome faria o dado divergir da
+página e quebraria a verificação contra o `source_url`. Registrado aqui para
+ninguém "consertar" isso mais tarde achando que é bug de parser — que é
+exatamente o que ele parece.
+
+### 7. `dados/` não está versionado nem ignorado
 
 O `.gitignore` cobre `logs/` mas não `dados/`, que aparece como
 `untracked`. Um `git add -A` distraído commita o `sigaa.db` binário.

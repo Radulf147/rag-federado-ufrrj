@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 from haystack import Document
+import config
 
 try:
     from haystack_integrations.document_stores.chroma import ChromaDocumentStore
@@ -31,12 +32,20 @@ logging.basicConfig(
 )
 log = logging.info
 
-INSTANCIA          = "sigaa"
-CHROMA_PERSIST_DIR = "./chroma_db"
-CHROMA_COLECAO     = f"rag_{INSTANCIA}"
-CHROMA_HOST        = os.getenv("CHROMA_HOST", "localhost")
-CHROMA_PORT        = int(os.getenv("CHROMA_PORT", 8000))
-EMBEDDING_DIM      = int(os.getenv("EMBEDDING_DIM", 384))
+# Vem de config.py, e nao de os.getenv proprio. Ate 5 set 2026 estes valores
+# eram relidos aqui com defaults escritos a mao — o do embedding era
+# paraphrase-multilingual-MiniLM (dim 384) enquanto o projeto usa bge-m3 (1024).
+# Iguais por enquanto e divergentes na primeira vez que alguem mexesse num lado
+# so: o ETL vetorizaria com o modelo errado, na dimensao errada, sem erro
+# nenhum — visivel so como recuperacao ruim, indistinguivel de dado ruim.
+# So passou a ser possivel importar config aqui depois do ENV PYTHONPATH no
+# Dockerfile; antes, a forma como o ETL e invocado nao enxergava a raiz.
+INSTANCIA          = config.INSTANCIA
+CHROMA_PERSIST_DIR = config.CHROMA_PERSIST_DIR
+CHROMA_COLECAO     = config.CHROMA_COLECAO
+CHROMA_HOST        = config.CHROMA_HOST
+CHROMA_PORT        = config.CHROMA_PORT
+EMBEDDING_DIM      = config.EMBEDDING_DIM
 
 
 def conectar_store(remoto: bool = False):
@@ -194,8 +203,7 @@ if __name__ == "__main__":
 
     log(f"[SETUP] {len(docs_embedados)} documentos aprovados na validação. Iniciando carga.")
 
-    CHROMA_REMOTE = os.getenv("CHROMA_REMOTE", "False").lower() in ("true", "1")
-    store = conectar_store(remoto=CHROMA_REMOTE)
+    store = conectar_store(remoto=config.CHROMA_REMOTE)
     total = carregar_documentos(docs_embedados, store, limpar_antes=True)
 
     if total == 0:

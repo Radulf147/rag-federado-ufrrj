@@ -14,6 +14,24 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 WORKDIR /app
 
+# As duas convencoes de import do projeto coexistem por causa desta linha.
+#
+# modulo1_etl/ usa imports PLANOS entre seus arquivos (from db_manager import
+# ...), enquanto modulo2_inferencia/ e interfaces/ usam imports QUALIFICADOS a
+# partir da raiz (from modulo1_etl.db_manager import ...). Sem PYTHONPATH, cada
+# forma so funcionava numa maneira de invocar:
+#
+#   python modulo1_etl/x.py    -> sys.path[0] = /app/modulo1_etl
+#                                 planos OK, "import config" QUEBRA
+#   python -m modulo1_etl.x    -> sys.path[0] = /app
+#                                 qualificados OK, planos QUEBRAM
+#
+# O ETL roda pela primeira forma, e era por isso que nenhum arquivo do modulo 1
+# podia usar config.py — dai parte4 e parte5 relerem os.getenv por conta
+# propria, com defaults que podiam divergir do .env sem ninguem notar.
+# Com as duas pastas no path, as duas formas funcionam.
+ENV PYTHONPATH=/app:/app/modulo1_etl
+
 # Dependências de sistema mínimas (lxml precisa de libxml2)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libxml2-dev \
