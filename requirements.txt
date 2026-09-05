@@ -25,3 +25,8 @@ nltk==3.9.1
 rapidfuzz==3.9.3
 # Validação de schema das tools (haystack.tools.Tool importa jsonschema)
 jsonschema==4.23.0
+
+# Suite de testes (armadilha 2 do CLAUDE.md). Ate 5 set 2026 nao existia
+# nenhum test_*.py, e rodar pytest coletava zero testes saindo com sucesso —
+# que se le facilmente como "esta tudo passando".
+pytest==8.3.4

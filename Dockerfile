@@ -50,6 +50,9 @@ COPY config.py             .
 COPY modulo1_etl/          ./modulo1_etl/
 COPY modulo2_inferencia/   ./modulo2_inferencia/
 COPY interfaces/           ./interfaces/
+# A suite vai para a imagem porque e de la que o codigo roda (ver armadilha 1
+# do CLAUDE.md). Custo desprezivel, e e a unica forma de rodar pytest aqui.
+COPY testes/               ./testes/
 
 # Volume para persistência do ChromaDB e logs
 VOLUME ["/app/chroma_db", "/app/logs"]

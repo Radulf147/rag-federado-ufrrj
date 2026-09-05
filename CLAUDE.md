@@ -122,6 +122,7 @@ interfaces/
   cli.py                      # REPL — entrypoint do agente interativo
   comparar.py                 # runner em lote da comparação dos 3 pipelines
 
+testes/                      # suite de pytest; funcoes puras, sem rede nem banco
 dados/sigaa.db               # banco estruturado; volume montado, senão o --rm o destrói
 docs/                        # volume montado; saída da comparação vai para cá
 logs/                        # saída do ETL (fora do versionamento)
@@ -173,6 +174,7 @@ forma `python modulo1_etl/x.py` quebra o `import config` (ver a convenção de
 imports acima):
 
 ```bash
+docker compose run --rm --no-deps etl python -m pytest testes/ -q
 docker compose run --rm etl python -m modulo1_etl.deduplicacao
 docker compose run --rm etl python -m modulo1_etl.reconstruir_sqlite --dedup
 ```
@@ -498,13 +500,30 @@ dado em que todo mundo confiaria.
 > que os comandos passem a reconstruir sozinhos. Tempo de build é irrelevante
 > neste projeto; rodar código velho não é.
 
-### 2. Não existe suíte de testes
+### 2. ~~Não existe suíte de testes~~ — RESOLVIDA (5 set 2026)
 
-Não há nenhum `test_*.py` no repositório e `pytest` **não está** no
-`requirements.txt`. Rodar `pytest` coleta zero testes e sai com sucesso — o
-que se lê facilmente como "está tudo passando". Não está: não há o que passar.
-A verificação hoje é manual, pelo relatório da comparação e pela inspeção dos
-achados.
+Havia zero `test_*.py` e `pytest` fora do `requirements`. Rodar `pytest`
+coletava zero testes e saía com sucesso — que se lê facilmente como "está tudo
+passando". Não estava: não havia o que passar.
+
+Agora há **39 testes** em `testes/`, e cada um é a memória de um defeito que de
+fato aconteceu:
+
+| Arquivo | Cobre |
+|---|---|
+| `test_extracao_perfil.py` | achados 01, 03 e 09 — prefixo normalizado, placeholder do SIGAA, perfil esparso |
+| `test_busca_e_deduplicacao.py` | busca cega a acentos, chave de dedup, tradução de `REASONING_EFFORT` |
+| `test_avaliacao.py` | o instrumento da fase 3 — pré-registro, rota deduzida, atribuição, soma indevida |
+
+São todos de funções **puras**: sem rede, sem banco, sem container. Rodam em
+segundos e falham por um motivo só. O que exige infraestrutura continua coberto
+pela auditoria e pela bateria, que é o lugar certo para isso.
+
+```bash
+docker compose run --rm --no-deps etl python -m pytest testes/ -q
+```
+
+> O `--no-deps` evita subir o ChromaDB à toa: nenhum teste precisa dele.
 
 ### 3. ~~`config.py` não governa o Módulo 1~~ — RESOLVIDA (5 set 2026)
 
