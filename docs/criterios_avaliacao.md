@@ -263,25 +263,127 @@ citar ninguém de fora. A v2b passa a medir também cobertura: citar quem devia.
 precision-only; aplicá-lo a um construto que soma recall compararia coisas
 diferentes. A v2b é reportada em separado, como exploração.
 
-## Onde a v2b se aplica: `listagem`, não `subconjunto`
+## ⛔ A v2b-como-recall-em-listagem MORREU: é no-op
 
-Em **subconjunto** o recall não faz sentido. O elenco é o **departamento
-inteiro** — 44 docentes na `amb-01`, 35 na `amb-02`, 31 na `amb-06` — mas a
-pergunta é *"quem do Departamento de Matemática pesquisa estatística?"*, cuja
-resposta certa é um punhado. Exigir os 44 reprovaria toda resposta correta.
+**A premissa era falsa, e o erro é meu.** Escrevi na Fase 0 que *"o checker
+nunca penalizou omissão"* depois de ler apenas o ramo `subconjunto`, e
+generalizei para o instrumento inteiro. O ramo `listagem` sempre puniu:
 
-Em **listagem** o elenco **é** a resposta: *"quais docentes pertencem à
-Bioquímica?"* pede os 11, e omitir um é erro. É ali que a v2b tem sentido, e
-ali ela será rodada na Fase 5 — reportada em separado, sem julgar a fase 3.
+```python
+esperados = [n for nomes in verdade["departamentos"].values() for n in nomes]
+faltando  = [n for n in esperados if _normalizar(n) not in resposta_norm]
+ok        = not faltando
+```
 
-⚠️ **Isto é a auditoria simétrica que faltava neste trabalho.** Até aqui todas as
-mudanças de checagem só podiam transformar `reprova` em `passa`. A v2b em
-listagem é o **único caminho pelo qual um `passa` pode virar `reprova`** —
-listagem está hoje em 6/6 sob uma regra que nunca puniu omissão, e essas 6
-nunca foram testadas contra o critério de cobertura. O resultado será reportado
-explicitamente, **inclusive se as 6 sobreviverem**.
+Isso é recall puro. Rodar uma "v2b" ali produziria os mesmos números com outro
+`checker_sha1` e nenhuma informação nova.
+
+**A frase "a auditoria simétrica que faltava neste trabalho" está retirada.** Ela
+não faltava: já existia e já passou.
+
+### O que ficou subvalorizado por causa do meu erro
+
+**6/6 em listagem significa zero omissões em 63 nomes exigidos** — `est-03` pede
+10, `est-06` pede 11, três repetições cada. E o salto foi de **3/6 → 6/6**, pelo
+conserto da corrupção de nomes. **A métrica tem sensibilidade real e demonstrada:
+ela reprovou quando o agente errava a grafia e aprovou quando parou.** Eu a
+tratei como se nunca tivesse mordido; ela mordeu, e o registro mostra a mordida.
+
+## Cegueiras espelhadas — achado
+
+Conferido o ramo `listagem` inteiro: ele calcula `faltando` e **nada mais**. Não
+confere intrusos.
+
+| categoria | mede | é cega para |
+|---|---|---|
+| `precisao_de_atribuicao_departamental` | quem foi citado indevidamente | quem faltou |
+| `cobertura_de_listagem` | quem faltou | quem foi citado a mais |
+
+Cada uma é exatamente cega para o que a outra mede. **Uma resposta que listasse a
+universidade inteira passaria em `cobertura_de_listagem`** — espelho exato do
+despejo dos 35 da `amb-02#3`, que passa em precisão.
+
+Por consistência com a renomeação já feita, `listagem` →
+**`cobertura_de_listagem`**. O nome antigo sugeria uma avaliação completa da
+listagem; o que existe é metade dela.
+
+## Em `subconjunto` o recall continua não fazendo sentido
+
+O elenco de pergunta ambígua é o **departamento inteiro** — 44 na `amb-01`, 35 na
+`amb-02`, 31 na `amb-06` — mas a pergunta pede um recorte temático. Exigir os 44
+reprovaria toda resposta correta. Isto permanece válido.
 
 ---
+
+---
+
+# `respaldo_de_citacao` — métrica nova, exploratória
+
+## O nome, e por que não "precisão temática"
+
+"Precisão temática" prometeria julgar se o docente **de fato** pesquisa o tema —
+o que exigiria gabarito semântico que não existe. `respaldo_de_citacao` diz o
+que é medido: **existe, no corpus, respaldo para esta citação?** É pergunta
+sobre a fonte, não sobre a pessoa.
+
+## Três classes, não duas
+
+Classificar em "tem o tema / não tem" seria repetir o erro que originou este
+trabalho, um nível acima: cobrar forma e chamar de verdade. Ausência de casamento
+de palavra tem duas causas incompatíveis, e juntá-las inventa um número.
+
+| classe | definição |
+|---|---|
+| **SEM RESPALDO** | o perfil não tem conteúdo substantivo. Não há o que casar — não é falso negativo, é ausência. |
+| **COM RESPALDO** | perfil substantivo **e** evidência do tema encontrada. |
+| **INCONCLUSIVO** | perfil substantivo, evidência não encontrada. **Não conta como falha** — é onde a crueza do casamento de palavra pode estar agindo. |
+
+Reportado como **intervalo `[com respaldo ; com respaldo + inconclusivo]`**, a
+mesma disciplina aplicada aos AMBÍGUOS: o que o instrumento não consegue decidir
+aparece como largura, não como veredito.
+
+## O corte de "conteúdo substantivo" é ESTRUTURAL, fixado antes de rodar
+
+Não é limiar de caracteres calibrado no dado. É a presença de campo descritivo,
+e os campos vêm de `CAMPOS_DO_PERFIL` no ETL:
+
+```
+DESCRITIVOS (substantivo)    Perfil · Formação · Áreas de interesse
+INSTITUCIONAIS (não conta)   Docente · Departamento · Currículo Lattes
+                             Telefone · E-mail · Sala · CEP · Endereço
+```
+
+> Um perfil tem **conteúdo substantivo** se, e somente se, contém pelo menos um
+> dos três campos descritivos.
+
+Exemplo de SEM RESPALDO, real e integral:
+
+```
+Docente: ROBSON MARIANO DA SILVA. Departamento: DEPARTAMENTO DE COMPUTAÇÃO.
+Currículo Lattes: link não informado Telefone: 26821469 E-mail: robsonms@ufrrj.br
+```
+
+Não há afirmação possível sobre a pesquisa dessa pessoa a partir deste documento.
+Que ele seja recuperado por uma consulta temática é o defeito; que nenhuma
+palavra do tema case com ele não é surpresa nem erro de medição.
+
+`Currículo Lattes` é institucional apesar de soar acadêmico: aparece em 52,3% dos
+perfis, e quando vazio traz o literal `link não informado`. É ponteiro, não
+conteúdo.
+
+## Este NÃO é o contrapeso da v2a
+
+Dito claramente para ninguém vender como tal: `respaldo_de_citacao` mede **outra
+coisa**. A afirmação honesta sobre a v2a permanece intacta — relaxamento
+estrito, contrapeso interno impossível, e o veredito da fase 3 repousa sobre
+ela.
+
+O que esta métrica é: **proxy parcial e offline de `nomes_sem_respaldo`**, a
+verificação de tolerância zero que ficou congelada por falta do contexto
+persistido. Parcial porque `nomes_sem_respaldo` perguntava "este nome estava no
+contexto recuperado?" e esta pergunta "o corpus sustenta esta citação?" — a
+segunda é mais fraca, porque o documento existir no corpus não prova que ele
+chegou ao agente.
 
 # Previsões registradas antes de codificar
 
@@ -354,8 +456,29 @@ Projeção final sobre os 21 itens, depois de medir todos os casos:
 
 **Nenhuma das quatro falhas do v1 sobrevive como reprovação.** A célula
 `passa → reprova` da matriz de transição estará vazia, e a célula
-`reprova → passa` terá duas. A mudança é **inteiramente unidirecional** neste
-conjunto de dados.
+`reprova → passa` terá duas.
+
+### E ela é IMPOSSÍVEL, não empiricamente vazia
+
+A formulação anterior — *"vazia, e não por acaso de construção"* — estava
+errada. É **exatamente** por construção.
+
+O v2a é **relaxamento estrito** do v1. Demonstração em duas linhas:
+
+1. O v1 reprova um item se, e somente se, ele tem ao menos um nome fora do
+   elenco. Logo **todo item que passou no v1 tem zero nomes fora do elenco.**
+2. O v2a só examina nomes fora do elenco. Num item sem nenhum, não há o que
+   examinar, e ele passa necessariamente.
+
+As reprovações do v2a são **subconjunto próprio** das do v1. `passa → reprova`
+não é raro: é impossível. Nenhuma resposta, nenhum corpus, nenhuma configuração
+produz essa transição.
+
+**Consequência que precisa estar escrita: nenhum contrapeso pode existir dentro
+da v2a.** Não é questão de faltar caso real — é impossibilidade estrutural. Se
+houver contrapeso neste trabalho, ele vem de **outra métrica**, medindo outra
+coisa. O veredito da fase 3 repousa sobre um relaxamento estrito, e isso é dito
+sem atenuação.
 
 *"A regra poderia reprovar"* é afirmação teórica. O terceiro braço existe no
 texto e nenhum caso real o aciona. Um capítulo de avaliação **não se sustenta
@@ -705,6 +828,60 @@ comprometido por escrito antes de ver o número:
 4. Se as 6 sobreviverem, isso também é reportado explicitamente, e **não** como
    confirmação de qualidade — 6 itens é amostra pequena e a v2b em listagem tem
    as mesmas limitações de qualquer checagem por casamento de nome.
+
+# PRÉ-REGISTRO DAS PROJEÇÕES — escrito antes de rodar a Fase 4
+
+Se o resultado divergir, a divergência aparece contra previsão registrada, e não
+contra explicação construída depois de ver o número.
+
+## Projeção da v2a nos 21 itens de atribuição
+
+```
+19 APROVA · 0 REPROVA · 2 AMBÍGUO (amb-01, amb-04)
+```
+
+Item a item, contra o v1:
+
+| item | v1 | v2a previsto | por quê |
+|---|---|---|---|
+| `amb-01` ×2 | passa | **APROVA** | sem nomes fora do elenco |
+| `amb-01` #3 | reprova | **AMBÍGUO** | 2 departamentos na mesma frase (negação) |
+| `amb-02` ×2 | passa | **APROVA** | sem nomes fora / todos de dentro |
+| `amb-02` #1 | reprova | **APROVA** | Nível 2, declaração governa os 10 |
+| `amb-03` ×3 | passa | **APROVA** | sem nomes fora |
+| `amb-04` ×2 | passa | **APROVA** | sem nomes fora |
+| `amb-04` #3 | reprova | **AMBÍGUO** | 2 em escopo, nada intervém |
+| `amb-05` ×3 | passa | **APROVA** | sem nomes fora |
+| `amb-06` ×2 | passa | **APROVA** | sem nomes fora |
+| `amb-06` #1 | reprova | **APROVA** | 3 nomes de fora, parêntese imediato, os 3 batem |
+| `amb-07` ×3 | passa | **APROVA** | sem nomes fora |
+
+**Intervalos de robustez previstos:**
+
+```
+categoria     [90,48% ; 100%]     atravessa 95% -> NÃO CONCLUSIVA
+condicional   [95,83% ; 100%]     ambas acima   -> ROBUSTA, passa
+```
+
+Na variante com desempate anafórico, `amb-04#3` vira APROVA e a categoria fica
+`20 APROVA · 0 REPROVA · 1 AMBÍGUO`.
+
+## Projeção do `respaldo_de_citacao` na `amb-02`
+
+Com base no que já foi medido por casamento de palavra — e a classificação em
+três só pode **mover casos de "sem tema" para SEM RESPALDO ou INCONCLUSIVO**,
+nunca criar COM RESPALDO novo:
+
+| | citados | COM RESPALDO previsto | o resto |
+|---|---|---|---|
+| `amb-02#1` | 10 | **1** | 9 divididos entre SEM RESPALDO e INCONCLUSIVO |
+| `amb-02#3` | 35 | **10** | 25 divididos entre SEM RESPALDO e INCONCLUSIVO |
+
+Previsão adicional, mais arriscada e por isso mais informativa: **a maioria dos
+9 e dos 25 cai em SEM RESPALDO, não em INCONCLUSIVO** — as medianas de 166 e de
+tamanho semelhante indicam perfis sem campo descritivo. Se muitos caírem em
+INCONCLUSIVO, o casamento de palavra é que está grosseiro, e a métrica entra no
+texto como limitação em vez de medida.
 
 # Protocolo do gold set (Fase 3)
 
