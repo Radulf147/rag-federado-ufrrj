@@ -144,6 +144,91 @@ def nomes_afirmados(resposta: str) -> list[str]:
     return encontrados
 
 
+_NUCLEOS_DEPARTAMENTO: dict[str, set[str]] | None = None
+
+# O corpus tem exatamente dois sufixos de departamento — medido em 5 set 2026:
+# /IM em 11 dos 67, /ITR em 4. Cada um aceita a sigla ou o nome por extenso,
+# porque a resposta certa pode escrever qualquer um dos dois e as duas formas
+# identificam o mesmo lugar.
+_QUALIFICADORES = {
+    "IM": ("IM", "INSTITUTO DE MATEMATICA"),
+    "ITR": ("ITR", "INSTITUTO TRES RIOS", "TRES RIOS"),
+}
+
+
+def _nucleo(departamento: str) -> str:
+    """`DEPARTAMENTO DE GEOGRAFIA/IM` -> `GEOGRAFIA`."""
+    base = _normalizar(departamento).split("/")[0]
+    for prefixo in ("DEPARTAMENTO DE ", "DEPARTAMENTO DO ", "DEPARTAMENTO "):
+        if base.startswith(prefixo):
+            return base[len(prefixo):].strip()
+    return base
+
+
+def _nucleos_do_corpus() -> dict[str, set[str]]:
+    """Núcleo -> nomes completos que o compartilham. Mais de um = homônimo."""
+    global _NUCLEOS_DEPARTAMENTO
+    if _NUCLEOS_DEPARTAMENTO is None:
+        mapa = defaultdict(set)
+        for registro in _docentes():
+            departamento = registro.get("departamento") or ""
+            if departamento:
+                mapa[_nucleo(departamento)].add(_normalizar(departamento))
+        _NUCLEOS_DEPARTAMENTO = dict(mapa)
+    return _NUCLEOS_DEPARTAMENTO
+
+
+def _tem_token(texto: str, termo: str) -> bool:
+    """Casamento com fronteira: "IM" não pode casar dentro de "IMPORTANTE"."""
+    return re.search(rf"(?<![A-Z0-9]){re.escape(termo)}(?![A-Z0-9])", texto) is not None
+
+
+def _departamento_nomeado(resposta_norm: str, esperado: str) -> bool:
+    """
+    A resposta identifica ESTE departamento, escrito como ela quiser?
+
+    A versão anterior exigia o nome do banco como substring literal, e reprovava
+    a resposta certa do est-07 nas três repetições: o store guarda
+    `DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM` e o agente escreveu "Departamento
+    de Ciência da Computação do Instituto de Matemática (IM)". Mesma classe do
+    bug que exigia o total do departamento em toda resposta — a checagem cobrava
+    uma forma, não um fato.
+
+    O substring ingênuo pelo núcleo também não serve, e erraria para o lado
+    pior: `COMPUTACAO` está contido em `CIENCIA DA COMPUTACAO`, que é OUTRO
+    departamento (Seropédica e IM). Aprovaria a resposta errada.
+    """
+    nucleos = _nucleos_do_corpus()
+    alvo = _nucleo(esperado)
+
+    presentes = {n for n in nucleos if n and n in resposta_norm}
+    # Núcleo contido em outro que também casou é subsumido: "COMPUTACAO" dentro
+    # de "CIENCIA DA COMPUTACAO" não conta como uma segunda menção.
+    maximais = {n for n in presentes if not any(n != m and n in m for m in presentes)}
+    if alvo not in maximais:
+        return False
+
+    if len(nucleos.get(alvo, ())) < 2:
+        return True
+
+    # Núcleo homônimo (Geografia, Ciências Econômicas, Ciências Jurídicas): sem
+    # o qualificador a resposta não decidiu entre dois departamentos reais, que
+    # é justamente o erro do achado 06.
+    sufixo = _normalizar(esperado).split("/")[-1] if "/" in esperado else ""
+    if sufixo:
+        return any(
+            _tem_token(resposta_norm, forma)
+            for forma in _QUALIFICADORES.get(sufixo, (sufixo,))
+        )
+    # O esperado é o SEM sufixo: a resposta não pode apontar para o irmão.
+    return not any(
+        _tem_token(resposta_norm, forma)
+        for nome in nucleos[alvo]
+        if "/" in nome
+        for forma in _QUALIFICADORES.get(nome.split("/")[-1], ())
+    )
+
+
 def _conferir(checagem, verdade, resposta, afirmados) -> dict:
     """
     Confere a resposta conforme o TIPO da pergunta.
@@ -184,7 +269,9 @@ def _conferir(checagem, verdade, resposta, afirmados) -> dict:
 
     if checagem == "vinculo":
         faltando = [
-            d for d in verdade["departamentos"] if _normalizar(d) not in resposta_norm
+            d
+            for d in verdade["departamentos"]
+            if not _departamento_nomeado(resposta_norm, d)
         ]
         return {
             "tipo": checagem,

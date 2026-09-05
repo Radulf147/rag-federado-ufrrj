@@ -223,3 +223,111 @@ class TestExecucaoQueFalhaNaoDerrubaABateria:
         assert metricas["execucoes_validas"] == 0
         assert metricas["falhas_de_infraestrutura"] == 2
         assert metricas["condicional_objetivas"] is None
+
+
+class TestChecagemDeVinculo:
+    """
+    A checagem de vínculo cobrava uma FORMA, não um fato.
+
+    O store guarda `DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM`; a versão
+    anterior exigia essa string literal dentro da resposta. O agente escreveu
+    "Departamento de Ciência da Computação do Instituto de Matemática (IM)" —
+    certo, e idêntico nas três repetições — e reprovou nas três. Zero de 3 numa
+    pergunta que o sistema acertava.
+
+    O conserto não pode ser um substring pelo núcleo: `COMPUTACAO` está contido
+    em `CIENCIA DA COMPUTACAO`, que é OUTRO departamento. Isso trocaria um falso
+    negativo por um falso positivo, que é estritamente pior.
+    """
+
+    CORPUS = {
+        "CIENCIA DA COMPUTACAO": {"DEPARTAMENTO DE CIENCIA DA COMPUTACAO/IM"},
+        "COMPUTACAO": {"DEPARTAMENTO DE COMPUTACAO"},
+        "GEOGRAFIA": {"DEPARTAMENTO DE GEOGRAFIA", "DEPARTAMENTO DE GEOGRAFIA/IM"},
+        "MATEMATICA": {"DEPARTAMENTO DE MATEMATICA"},
+    }
+
+    @staticmethod
+    def _nomeado(monkeypatch, resposta, esperado):
+        import interfaces.comparar as comparar
+
+        monkeypatch.setattr(
+            comparar, "_NUCLEOS_DEPARTAMENTO", TestChecagemDeVinculo.CORPUS
+        )
+        return comparar._departamento_nomeado(comparar._normalizar(resposta), esperado)
+
+    def test_a_resposta_real_do_est_07_passa(self, monkeypatch):
+        assert self._nomeado(
+            monkeypatch,
+            "O professor Marcel William Rocha da Silva trabalha no Departamento "
+            "de Ciência da Computação do Instituto de Matemática (IM).",
+            "DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM",
+        )
+
+    def test_a_forma_do_banco_tambem_passa(self, monkeypatch):
+        """Quem responder copiando a fonte não pode ser punido por isso."""
+        assert self._nomeado(
+            monkeypatch,
+            "Ele é do DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM.",
+            "DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM",
+        )
+
+    def test_departamento_errado_reprova(self, monkeypatch):
+        assert not self._nomeado(
+            monkeypatch,
+            "Ele trabalha no Departamento de Matemática.",
+            "DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM",
+        )
+
+    def test_o_irmao_de_seropedica_nao_serve_pelo_do_IM(self, monkeypatch):
+        """
+        O FALSO POSITIVO que um substring ingênuo deixaria passar ao contrário:
+        "Ciência da Computação" contém "Computação", mas são departamentos
+        diferentes. Quem é do de Seropédica não pode ser dado como do IM.
+        """
+        assert not self._nomeado(
+            monkeypatch,
+            "Ele trabalha no Departamento de Computação.",
+            "DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM",
+        )
+
+    def test_e_o_do_IM_nao_serve_pelo_de_seropedica(self, monkeypatch):
+        assert not self._nomeado(
+            monkeypatch,
+            "Ele trabalha no Departamento de Ciência da Computação.",
+            "DEPARTAMENTO DE COMPUTACAO",
+        )
+
+    def test_homonimo_sem_qualificador_reprova(self, monkeypatch):
+        """
+        ACHADO 06 — "Departamento de Geografia" existe duas vezes. Responder só
+        o núcleo não decidiu entre os dois, e não decidir é errar.
+        """
+        assert not self._nomeado(
+            monkeypatch,
+            "Ele é do Departamento de Geografia.",
+            "DEPARTAMENTO DE GEOGRAFIA/IM",
+        )
+
+    def test_homonimo_com_qualificador_passa(self, monkeypatch):
+        for forma in ("do Departamento de Geografia/IM",
+                      "do Departamento de Geografia do Instituto de Matemática"):
+            assert self._nomeado(monkeypatch, forma, "DEPARTAMENTO DE GEOGRAFIA/IM"), forma
+
+    def test_homonimo_sem_sufixo_reprova_se_a_resposta_aponta_o_irmao(self, monkeypatch):
+        assert not self._nomeado(
+            monkeypatch,
+            "Ele é do Departamento de Geografia do IM.",
+            "DEPARTAMENTO DE GEOGRAFIA",
+        )
+        assert self._nomeado(
+            monkeypatch, "Ele é do Departamento de Geografia.", "DEPARTAMENTO DE GEOGRAFIA"
+        )
+
+    def test_sigla_nao_casa_dentro_de_palavra(self, monkeypatch):
+        """"IM" em "IMPORTANTE" não é o Instituto de Matemática."""
+        assert not self._nomeado(
+            monkeypatch,
+            "É importante dizer: ele é do Departamento de Geografia.",
+            "DEPARTAMENTO DE GEOGRAFIA/IM",
+        )
