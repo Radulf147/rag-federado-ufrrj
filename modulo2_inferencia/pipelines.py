@@ -39,6 +39,12 @@ class ResultadoPipeline:
     resposta: str
     fontes: list[str] = field(default_factory=list)
     detalhe: str = ""
+    # O texto que o pipeline de fato entregou ao LLM. Existe para a bateria
+    # poder checar ATRIBUIÇÃO automaticamente: todo docente que a resposta
+    # afirma tem de aparecer aqui. Sem guardar o contexto, a única forma de
+    # verificar isso seria ler resposta por resposta no olho — e a lição do
+    # achado 08 é que inspeção no olho não pega o que importa.
+    contexto: str = ""
 
 
 # --- Pipeline 1: busca semântica pura -------------------------------------
@@ -77,6 +83,7 @@ def responder_vetorial(componentes, pergunta: str) -> ResultadoPipeline:
         resposta=resposta["replies"][0].text,
         fontes=["chromadb"],
         detalhe=f"{len(docs)} chunks recuperados: {', '.join(nomes)}",
+        contexto=contexto,
     )
 
 
@@ -157,6 +164,7 @@ def responder_estruturado(componentes, pergunta: str) -> ResultadoPipeline:
         resposta=resposta,
         fontes=["sqlite"],
         detalhe=f"departamento casado por fuzzy: '{departamento}' (score {score:.0f})",
+        contexto=resposta,
     )
 
 
@@ -191,6 +199,14 @@ def responder_agente(componentes, pergunta: str) -> ResultadoPipeline:
     ]
     fontes = sorted({FONTE_POR_TOOL.get(t, t) for t in tools_usadas})
 
+    # Tudo que as ferramentas devolveram, na ordem. É contra isto que a
+    # checagem de atribuição confere os nomes afirmados na resposta.
+    contexto = "\n---\n".join(
+        str(resultado.result)
+        for msg in historico
+        for resultado in (msg.tool_call_results or [])
+    )
+
     return ResultadoPipeline(
         pipeline="3-agente",
         pergunta=pergunta,
@@ -201,6 +217,7 @@ def responder_agente(componentes, pergunta: str) -> ResultadoPipeline:
             if tools_usadas
             else "nenhuma tool chamada — o LLM respondeu de cabeça"
         ),
+        contexto=contexto,
     )
 
 
