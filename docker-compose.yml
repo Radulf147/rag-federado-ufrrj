@@ -98,6 +98,10 @@ services:
       # SQLite era escrito em /app dentro do container e destruido junto
       # com ele — o lado estruturado do RAG ficava sem dado nenhum.
       - ./dados:/app/dados
+      # resultados/ montado pelo mesmo motivo que docs/: a repontuacao
+      # (interfaces/repontuar.py) escreve aqui, e sem o volume o arquivo
+      # morreria com o --rm.
+      - ./resultados:/app/resultados
       - ./logs:/app/logs
       - models_cache:/app/models_cache
     environment:
