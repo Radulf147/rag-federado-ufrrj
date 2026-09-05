@@ -82,3 +82,34 @@ virar erro. Um checker de atribuição nunca poderá flagrá-lo.
 Nesta rodada não mudou veredito — o docente pertence ao departamento perguntado,
 então nem seria intruso. Mas o mecanismo é o do achado 07: afirmar um nome que a
 fonte não contém.
+
+## 5. Perfis esparsos — linha de investigação própria (5 set 2026)
+
+**Não é limitação da avaliação. É limite do SISTEMA de recuperação.**
+
+Docentes com perfil mínimo — nome, departamento, contato, **mediana de 166
+caracteres** — atravessam três achados distintos, sempre pelo mesmo mecanismo:
+
+1. **Colisão com o nome do departamento.** O único texto substantivo no
+   documento é o nome do departamento, então a similaridade da consulta é
+   dominada por ele. Nove dos dez citados na `amb-02#1` são assim.
+2. **Despejo premiado.** São eles que engordam a listagem completa do
+   departamento sem custo de precisão: 25 dos 35 da `amb-02#3`.
+3. **Evidência ausente.** Não há como o agente afirmar nada sobre a pesquisa
+   deles sem violar o princípio 3 — e o sistema afirma mesmo assim, porque o
+   documento foi recuperado e o LLM lê o nome do departamento como conteúdo.
+
+A recuperação para docentes com perfil mínimo é um problema **estrutural**: o
+embedding de um documento de 166 caracteres cujo único conteúdo é institucional
+não pode discriminar tema de pesquisa, porque não há tema de pesquisa no
+documento. Nenhum ajuste de limiar resolve isso — a semelhança medida é real, o
+que é falso é a inferência.
+
+Direções possíveis, não avaliadas: excluir do índice semântico perfis sem seção
+descritiva (mantendo-os no SQLite, onde respondem contagem e listagem
+corretamente); ou marcar o documento com um campo de densidade que a tool
+devolva junto, para o agente saber que não há base para afirmar tema.
+
+Relacionado aos itens 3 e 4 acima, e ao achado 09, que foi quem resgatou esses
+perfis de serem descartados — corretamente, porque nome e departamento são o
+que contagem e listagem precisam. O problema é usá-los na rota semântica.

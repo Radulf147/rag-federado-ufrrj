@@ -646,11 +646,29 @@ pergunta que pedia um recorte temático.
 **A `amb-02#3` é exatamente essa estratégia, executada.** 35 de 35, nota
 perfeita, 25 dos citados sem uma palavra sobre o tema.
 
-A métrica não é apenas silenciosa quanto a recall. **Ela premia o despejo.** Uma
-resposta que citasse corretamente os 3 docentes certos e errasse 1 seria punida;
-uma que despeja os 35 é impecável. Esta é a razão mais forte para a v2b existir,
-e a razão mais forte para não tratar a subida da condicional como sinal de
-qualidade do agente.
+A métrica não é apenas silenciosa quanto a recall. **Ela premia o despejo.**
+Dito na forma mais crua possível:
+
+> **3 certos e 1 errado reprova; 35 indiscriminados aprova.**
+
+Esta é a razão mais forte para a v2b existir, e a razão mais forte para não
+tratar a subida da condicional como sinal de qualidade do agente.
+
+## E a resposta que parece mais criteriosa é a menos ancorada
+
+A `#1` traz ressalva — *"nenhum docente específico do Departamento de Ciências
+Sociais apareceu"* — e por isso soa mais cuidadosa que a `#3`, que simplesmente
+despeja. **Proporcionalmente, é a pior das duas:**
+
+| | com evidência temática própria |
+|---|---|
+| `amb-02#1` | 1 de 10 = **10%** |
+| `amb-02#3` | 10 de 35 = **28,6%** |
+
+**A resposta que hedgeia é a menos ancorada.** Quase tudo o que ela oferece
+depois da ressalva não tem respaldo nenhum além do nome do departamento. O
+hedge não é evidência de cautela — aqui ele precede a afirmação menos
+sustentada das duas, e nenhum instrumento deste projeto captura isso.
 
 ## Auditoria de atribuição interna — feita, e não achou nada
 
