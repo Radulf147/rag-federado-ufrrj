@@ -47,11 +47,17 @@ TOOLS_SCHEMA = [
         "type": "function",
         "function": {
             "name": "busca_vetorial_sigaa",
+            # "perguntas genéricas interpretativas" era a outra metade do
+            # defeito: sinalizava que perguntas sobre UMA pessoa nomeada não
+            # eram para cá, quando são exatamente para cá se o que se pede é
+            # conteúdo de perfil.
             "description": (
-                "Utilize esta ferramenta para pesquisar descrições, ementas, "
-                "ou responder perguntas genéricas interpretativas (ex: Quem "
-                "pesquisa sobre Inteligência Artificial?). Busca em "
-                "currículos completos."
+                "Todo o TEXTO do perfil dos docentes: formação acadêmica, "
+                "áreas de interesse, atuação, descrição pessoal. Serve tanto "
+                "para pergunta ampla ('quem pesquisa Inteligência "
+                "Artificial?') quanto para uma pessoa nomeada ('qual a "
+                "formação de fulano?') — o que decide é o dado pedido ser "
+                "texto de perfil, não a pergunta citar um nome."
             ),
             "parameters": {
                 "type": "object",
@@ -69,11 +75,19 @@ TOOLS_SCHEMA = [
         "type": "function",
         "function": {
             "name": "buscar_docente_por_nome",
+            # A redação anterior abria com "quando o usuário perguntar sobre UM
+            # docente específico pelo nome", e isso casava com QUALQUER pergunta
+            # que citasse uma pessoa. Na bateria de 5 set derrubou "qual é a
+            # formação acadêmica de Filipe Braida?" e "quais são as áreas de
+            # interesse de Marcel?" — 6 execuções, todos os erros de roteamento
+            # da rodada. Agora abre pelo que DEVOLVE, e nomeia o destino certo.
             "description": (
-                "Utilize esta ferramenta quando o usuário perguntar sobre UM "
-                "docente específico pelo nome — em que departamento ele está, "
-                "se ele existe na base, qual o vínculo dele. Retorna dados "
-                "exatos do cadastro, não texto de perfil."
+                "Vínculo de UMA pessoa: dado o nome, diz a que departamento "
+                "ela pertence, ou que não está cadastrada. Isso é tudo o que "
+                "devolve. NÃO tem formação acadêmica, áreas de interesse, "
+                "atuação, contato nem qualquer outro texto do perfil — para "
+                "esses use busca_vetorial_sigaa, inclusive quando a pergunta "
+                "nomear a pessoa."
             ),
             "parameters": {
                 "type": "object",
