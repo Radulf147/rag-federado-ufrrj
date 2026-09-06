@@ -1,0 +1,20 @@
+{# Um post. `p` é a linha da loja; `aguardando` é o conjunto de ids na fila. #}
+<article class="post {% if p.e_bot %}post-bot{% endif %}">
+  <div class="avatar {% if p.e_bot %}avatar-bot{% endif %}">
+    {% if p.e_bot %}★{% else %}{{ p.autor[1:2] | upper }}{% endif %}
+  </div>
+  <div class="post-corpo">
+    <div class="post-cabecalho">
+      <span class="autor">{{ p.autor }}</span>
+      {% if p.e_bot %}<span class="selo">bot</span>{% endif %}
+      <span class="quando">{{ p.criado_em[11:16] }}</span>
+    </div>
+    <p class="texto">{{ p.texto }}</p>
+    {% if p.id in aguardando %}
+    <p class="aguardando">
+      <span class="pulso"></span>
+      o bot foi mencionado e ainda não respondeu — atualize daqui a pouco
+    </p>
+    {% endif %}
+  </div>
+</article>

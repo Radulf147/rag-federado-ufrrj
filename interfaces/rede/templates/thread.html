@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}Thread em {{ atual.nome }} — rede ufrrj{% endblock %}
+
+{% block conteudo %}
+
+<a class="voltar" href="{{ url_for('feed', instancia_id=atual.id) }}">
+  ← {{ atual.nome }}
+</a>
+
+<section class="thread thread-aberta">
+  {% with p = raiz %}{% include "_post.html" %}{% endwith %}
+
+  {% if respostas %}
+  <div class="respostas">
+    {% for p in respostas %}{% include "_post.html" %}{% endfor %}
+  </div>
+  {% endif %}
+
+  <form class="responder" method="post" action="{{ url_for('publicar') }}">
+    <input type="hidden" name="instancia" value="{{ atual.id }}">
+    <input type="hidden" name="responde_a" value="{{ raiz.id }}">
+    <input name="autor" placeholder="@voce" autocomplete="off" class="campo-autor">
+    <input name="texto" placeholder="Responder… ex.: {{ BOT }} quantos docentes tem?"
+           autocomplete="off">
+    <button type="submit">Responder</button>
+  </form>
+</section>
+
+{% endblock %}

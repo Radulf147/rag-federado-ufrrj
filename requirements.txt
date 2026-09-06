@@ -30,3 +30,7 @@ jsonschema==4.23.0
 # nenhum test_*.py, e rodar pytest coletava zero testes saindo com sucesso —
 # que se le facilmente como "esta tudo passando".
 pytest==8.3.4
+
+# Servidor da rede simulada (interfaces/rede/servidor.py). Escolhido por ser
+# pequeno: serve as paginas e recebe os posts, e nada mais. O Jinja2 vem junto.
+flask==3.0.3

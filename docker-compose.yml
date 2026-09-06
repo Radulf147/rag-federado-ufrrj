@@ -129,6 +129,67 @@ services:
     profiles:
       - agente
 
+  # -------------------------------------------------------------------
+  # Rede simulada — a página web (interfaces/rede/servidor.py)
+  #
+  # NAO fala com o Ollama e NAO depende do tunel: só grava posts e devolve
+  # HTML. É deliberado — com o Ollama fora, publicar continua funcionando e a
+  # resposta chega quando o worker voltar, que é o comportamento certo para
+  # uma rede social e evita o site inteiro depender do tunel SSH.
+  # -------------------------------------------------------------------
+  rede:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag_rede
+    env_file:
+      - .env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./dados:/app/dados
+      - ./logs:/app/logs
+    environment:
+      - DB_PATH=/app/dados/sigaa.db
+      - REDE_DB_PATH=/app/dados/rede.db
+    restart: unless-stopped
+    command: python -m interfaces.rede.servidor
+    profiles:
+      - rede
+
+  # -------------------------------------------------------------------
+  # Worker do bot — consome a fila e responde. ESTE precisa do Ollama.
+  #
+  # Separado do `rede` de propósito: são ciclos de vida diferentes. A página
+  # tem de continuar de pé quando o LLM cai, e o worker tem de poder ser
+  # reiniciado (ou parado, para demonstrar a fila enchendo) sem derrubar o site.
+  # -------------------------------------------------------------------
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: rag_bot
+    depends_on:
+      chromadb:
+        condition: service_started
+    env_file:
+      - .env
+    volumes:
+      - ./dados:/app/dados
+      - ./logs:/app/logs
+      - models_cache:/app/models_cache
+    environment:
+      - CHROMA_HOST=chromadb
+      - CHROMA_PORT=8000
+      - DB_PATH=/app/dados/sigaa.db
+      - REDE_DB_PATH=/app/dados/rede.db
+      - HF_HUB_OFFLINE=1
+      - HF_HUB_CACHE=/app/models_cache
+    restart: unless-stopped
+    command: python -m interfaces.rede.bot
+    profiles:
+      - rede
+
 # -------------------------------------------------------------------
 # Volumes nomeados — persistem entre reinicializações
 # -------------------------------------------------------------------

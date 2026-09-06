@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block titulo %}{{ atual.nome }} — rede ufrrj{% endblock %}
+
+{% block conteudo %}
+
+<div class="cabecalho-instancia" style="--cor: {{ atual.cor }}">
+  <h1>{{ atual.nome }}</h1>
+  <p>{{ atual.descricao }}</p>
+  <p class="regra-linha"><b>Regra da instância:</b> {{ atual.regra }}</p>
+</div>
+
+<form class="escrever" method="post" action="{{ url_for('publicar') }}">
+  <input type="hidden" name="instancia" value="{{ atual.id }}">
+  <div class="escrever-linha">
+    <input class="campo-autor" name="autor" placeholder="@voce" autocomplete="off">
+  </div>
+  <textarea name="texto" rows="3"
+            placeholder="Escreva algo em {{ atual.nome }}…"></textarea>
+  <div class="escrever-rodape">
+    <span class="dica">Para chamar o bot, responda a um post marcando <code>{{ BOT }}</code>.</span>
+    <button type="submit">Publicar</button>
+  </div>
+</form>
+
+{% if not threads %}
+<p class="vazio">Nenhum post nesta instância ainda. Escreva o primeiro.</p>
+{% endif %}
+
+{% for t in threads %}
+<section class="thread">
+  {# `aguardando` tem de entrar no escopo do include em CADA thread: o parcial
+     procura essa variável pelo nome, e sem o `with` ela fica indefinida — o
+     Jinja não reclama, só nunca mostra o aviso. Página 200, layout certo,
+     funcionalidade ausente. Coberto por TestAvisoDeEspera. #}
+  {% with p = t.raiz, aguardando = t.aguardando %}
+    {% include "_post.html" %}
+  {% endwith %}
+
+  {% if t.respostas %}
+  <div class="respostas">
+    {% for p in t.respostas %}
+      {% with aguardando = t.aguardando %}{% include "_post.html" %}{% endwith %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <form class="responder" method="post" action="{{ url_for('publicar') }}">
+    <input type="hidden" name="instancia" value="{{ atual.id }}">
+    <input type="hidden" name="responde_a" value="{{ t.raiz.id }}">
+    <input name="autor" placeholder="@voce" autocomplete="off" class="campo-autor">
+    <input name="texto" placeholder="Responder… ex.: {{ BOT }} quantos docentes tem?"
+           autocomplete="off">
+    <button type="submit">Responder</button>
+  </form>
+
+  <a class="link-thread" href="{{ url_for('thread', instancia_id=atual.id, post_id=t.raiz.id) }}">
+    abrir thread ({{ t.respostas | length }})
+  </a>
+</section>
+{% endfor %}
+
+{% endblock %}
