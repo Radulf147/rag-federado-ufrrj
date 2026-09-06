@@ -485,7 +485,22 @@ Agora os 102 dizem de onde vieram. **É o controle substituindo a memória:** na
 sétima ocorrência eu lembrei da armadilha 1 e por isso reconstruí; aqui não é
 preciso lembrar de nada, porque a origem está na saída.
 
-### Nona — o marcador de origem que não discriminava origem
+### Nona — onde a lista se fecha sobre si mesma
+
+**As oito primeiras foram medições que erravam. Esta é um controle que errava.**
+
+É a diferença que faz dela o item mais importante da série, e a razão de a série
+terminar aqui. As oito anteriores são instâncias de uma família de falhas: saída
+plausível, no formato esperado, que não corresponde ao dado. A nona é essa mesma
+família **capturando a regra escrita para impedi-la** — na primeira aplicação, e
+numa aplicação a si mesma: o controle inventado para provar a origem de um teste
+não distinguia duas origens.
+
+> **A lista não ganha um nono item. Ela se fecha sobre si mesma.** O aparato de
+> medição falhou nove vezes pelo mesmo modo que o sistema medido não pode falhar,
+> e a nona mostra que nem o aparato de *auditar o aparato* está fora do alcance.
+
+O que se segue é o caso.
 
 A primeira redação desta regra mandava imprimir **`.Id` e `.Created`** da imagem.
 Duas execuções seguidas devolveram:
@@ -508,6 +523,12 @@ formato esperado, plausível, que não discrimina o que afirma discriminar** —
 versão em metadado do "102 verdes antes e depois". E foi cometido *no texto da
 correção*, uma seção abaixo de onde está escrito que quem escreve o instrumento
 não está fora do alcance do defeito.
+
+Vale nomear por que um campo chamado `Created` não informa quando a imagem foi
+criada: o BuildKit reaproveita a configuração da imagem quando todas as camadas
+vêm do cache, e o timestamp vem junto. **O nome do campo descreve a intenção do
+formato, não a semântica da implementação** — e essa distância é onde mora a
+família inteira de falhas deste capítulo.
 
 Pego por conferir os dois valores um contra o outro em vez de aceitar que um
 campo chamado `Created` informa quando a imagem foi criada.
@@ -574,18 +595,112 @@ Não é conselho. É condição para um número entrar em decisão.
 > origem muda. Nome plausível não é evidência: `Created` parecia informar quando
 > a imagem foi criada e não informava.
 
-**As duas ampliações desta regra vieram de casos que ela não pegou**, e as duas
-estão registradas em vez de apresentadas como acerto:
+## Os itens 1 a 3 são remediação. O item 4 é critério.
+
+Esta é a distinção que organiza a regra, e ela não é de grau.
+
+**Os itens 1, 2 e 3 foram escritos depois de um erro específico e cobrem o
+formato daquele erro.** Cada um é a cicatriz de um caso: o item 1 nasceu do
+quarto erro e foi ampliado pelo sexto; o item 2 nasceu do sétimo; o item 3 é a
+consequência dos dois. São bons e são limitados pela mesma razão — **cobrem o
+que já aconteceu.**
 
 | item | veio de | o que a versão anterior não cobria |
 |---|---|---|
-| 1 (registros carregados) | 6ª ocorrência | cobria *quanto texto foi lido*, não *quantos registros* |
-| 2 e 4 (digest, não `created_at`) | 9ª ocorrência | o marcador escolhido não discriminava |
+| 1 (registros carregados) | 4ª, ampliado pela 6ª | cobria *quanto texto foi lido*, não *quantos registros* |
+| 2 (origem do teste) | 7ª | não havia marcador de origem nenhum |
+| 3 (não entra em decisão) | 5ª | não dizia o que fazer com número inconferível |
 
-O item 4 é o mais desconfortável dos quatro, porque é uma regra **sobre as outras
-regras**: exigir que o controle seja testado antes de virar controle. Ele existe
-porque a nona ocorrência aconteceu dentro da redação do item 2 — **a regra falhou
-na primeira vez em que foi aplicada, e foi aplicada a si mesma.**
+**O item 4 não é remediação de caso nenhum.** Ele não descreve um formato de
+erro: exige uma **propriedade do controle** antes de o controle ser adotado —
+prova de que o marcador varia quando o objeto varia.
+
+> **Cheguei ao item 4 por acumulação de nove falhas, mas ele é o único dos quatro
+> que teria pegado as nove.** Cada uma delas foi um marcador que se supôs
+> discriminante e não era: o trecho lido supunha representar o texto; a
+> proximidade supunha indicar a declaração; o casamento de palavra supunha indicar
+> o tema; `perfis carregados` teria denunciado a chave errada; `102 passed` supunha
+> indicar o código editado; `Created` supunha indicar a imagem. **Em nove casos, o
+> erro foi confiar num marcador sem demonstrar que ele discrimina.**
+
+Os itens 1 a 3 continuam valendo — são baratos e pegam o caso conhecido rápido.
+Mas se apenas um dos quatro sobrevivesse ao esquecimento, teria de ser o quarto.
+
+### O item 4, aplicado onde ainda não tinha sido: `checker_sha1`
+
+O `checker_sha1` carrega peso probatório maior que o `Created`, porque é o campo
+que sustenta a frase "duas repontuações com o mesmo carimbo rodaram o mesmo
+código". Isso nunca tinha sido **demonstrado** — só afirmado. Demonstração feita
+em 6 set 2026, sobre os três arquivos de `resultados/`:
+
+**1. Os carimbos gravados discriminam código diferente:**
+
+```
+v1_624c82234acd.json            v1            6a6e7721905a
+v2a_624c82234acd.json           v2a           54e26dd6a11c
+v2a_anafora_624c82234acd.json   v2a_anafora   54e26dd6a11c
+```
+
+**2. É reprodutível e é função da fonte.** O código atual recomputa
+`54e26dd6a11c`, e o sha1 dos 5376 chars de `_conferir` + `nomes_afirmados` +
+`_normalizar` bate com o que `_impressao_do_checker()` devolve.
+
+**3. Muda quando a fonte muda — o teste do item 4:**
+
+| mutação da fonte | sha | mudou? |
+|---|---|---|
+| *(nenhuma — fonte real)* | `54e26dd6a11c` | — |
+| 1 espaço a mais no fim | `f92eba901640` | **sim** |
+| 1 caractere trocado no meio | `c5c02639f8e8` | **sim** |
+| uma linha removida | `715b8ab4b3d9` | **sim** |
+
+**`checker_sha1` passa no teste. Não é um `Created`.**
+
+**4. E — igualmente importante — o que ele NÃO discrimina.** Os dois arquivos do
+v2a compartilham o mesmo sha, **de propósito**: é o mesmo código, e o que muda
+entre eles é um argumento. O campo discrimina **código**, não **configuração**.
+Quem tratasse `checker_sha1` como "qual execução produziu isto" cairia
+exatamente no erro do `Created`. O desempate é o par:
+
+```
+(checker_sha1, desempate_anaforico)   2 arquivos -> 2 pares distintos -> DESEMPATA
+```
+
+**Uma assimetria encontrada na verificação, registrada:** o arquivo do v1 **não
+tem** os campos `desempate_anaforico` nem `veredito_oficial` — foi gerado antes
+de eles existirem. O par não se forma para ele. Aqui não causa dano, porque o sha
+dele já é único; mas um leitor que comparasse os três "pelo par" encontraria uma
+chave ausente, e código que fizesse `d["desempate_anaforico"]` quebraria — foi o
+que aconteceu na primeira execução do script de verificação. **Campo ausente é
+uma terceira forma de marcador que não discrimina**, ao lado do herdado e do
+coincidente.
+
+**Os três arquivos trazem o mesmo `corpus.sha256` (`faf1becd…`, 1302 docentes) e
+o mesmo `prompt_sha1` (`624c82234acd`)** — é isso que os torna comparáveis entre
+si, e é verificável em vez de suposto.
+
+## A série termina aqui, e isso é uma decisão
+
+Uma décima ocorrência apareceria se eu continuasse procurando. As nove foram
+encontradas porque alguém olhou, e olhar mais renderia mais.
+
+**Isso deixou de ser sinal de que há mais a achar e passou a ser sinal de que o
+método funciona.** A série já sustenta o que precisa sustentar: nove falhas, num
+único modo — saída plausível, no formato esperado, sem exceção —, no aparato que
+julga um sistema cujo critério de aceitação é justamente não falhar desse modo.
+Uma décima instância não acrescenta nada ao argumento; acrescenta comprimento.
+
+O capítulo tem os três elementos de que precisava:
+
+1. **uma afirmação robusta** — a condicional objetiva, [95,83% ; 100%];
+2. **um instrumento que declara os próprios limites** — categoria não conclusiva,
+   relaxamento estrito, ressalva e cobertura temática fora de alcance;
+3. **a série documentada** — e ela se fecha na nona, onde a família de falhas
+   captura o controle escrito contra a família.
+
+**O que fortalece o trabalho daqui em diante é a fase 4, não a décima
+ocorrência.** O pré-registro está em `docs/pre_registro_fase4.md`, escrito antes
+de qualquer bateria nova.
 
 ---
 

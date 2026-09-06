@@ -343,11 +343,30 @@ bateria nova, com perguntas não inspecionadas.
    - **marcador de origem só vale depois de demonstrado discriminante** — mostrar
      que ele muda quando a origem muda, antes de confiar nele.
 
-   Esta condição existe porque nove erros meus nesta fase produziram, todos, saída
+   Esta condição existe porque nove erros meus na fase 3 produziram, todos, saída
    no formato esperado e sem exceção. **A regra não é conselho de higiene: é o que
    separa auditar de projetar**, e auditoria depende de alguém voltar.
 
-   O último item é regra sobre as outras regras, e existe porque a nona ocorrência
-   aconteceu **dentro da redação da própria condição** — o marcador escolhido para
-   provar a origem do teste não distinguia duas imagens. A regra falhou na
-   primeira vez em que foi aplicada, e foi aplicada a si mesma.
+   **Os três primeiros itens são remediação; o último é critério.** Os três
+   cobrem o formato de erros que já aconteceram. O quarto exige uma propriedade
+   do controle antes de adotá-lo, e é o único dos quatro que teria pegado as nove
+   ocorrências — todas foram confiar num marcador sem demonstrar que discrimina.
+   Ele foi escrito porque a nona aconteceu **dentro da redação do segundo item**:
+   a regra falhou na primeira aplicação, e a aplicação era a si mesma.
+
+7. **Todo carimbo novo da fase 4 passa pelo item 4 antes de entrar em relatório.**
+   Isso inclui, nominalmente:
+
+   | carimbo | tem de demonstrar |
+   |---|---|
+   | `checker_sha1` de uma regra nova | muda quando a fonte da regra muda |
+   | `contexto_docs` (item 4 do pré-registro) | distingue "não recuperado" de "recuperado e não usado" |
+   | qualquer marcador de execução | muda quando a execução muda, e **o que ele não distingue** |
+
+   O `checker_sha1` já foi demonstrado em 6 set 2026 (`relatorio_fase5.md` §10):
+   discrimina código — v1 `6a6e7721905a` contra v2a `54e26dd6a11c`, e três
+   mutações da fonte produzem três shas distintos — e **não** discrimina
+   configuração, já que os dois arquivos do v2a compartilham o sha de propósito.
+   O par `(checker_sha1, desempate_anaforico)` desempata. **Uma regra nova na fase
+   4 herda a demonstração do mecanismo, não a do valor:** o sha da regra de negação
+   tem de ser conferido contra o da regra anterior, e a diferença registrada.
