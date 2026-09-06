@@ -39,6 +39,18 @@ CHROMA_REMOTE = os.getenv("CHROMA_REMOTE", "False").lower() in ("true", "1")
 # tempo sem ser notado.
 DB_PATH = os.getenv("DB_PATH", "dados/sigaa.db")
 
+# --- Rede simulada (interfaces/rede) ---
+# Banco SEPARADO do sigaa.db de proposito. O ETL trata cada execucao como um
+# retrato completo e apaga as linhas do tipo que vai recarregar
+# (salvar_entidades(..., substituir=True), achado 10). Post de usuario nao e
+# entidade do SIGAA e nao pode estar sujeito a esse ciclo: uma recarga do ETL
+# apagaria a conversa junto, sem erro nenhum.
+REDE_DB_PATH = os.getenv("REDE_DB_PATH", "dados/rede.db")
+
+# Identificador do bot na rede simulada. Mencionar isto num post e o gesto que
+# aciona o agente.
+BOT_HANDLE = os.getenv("BOT_HANDLE", "@ufrrj")
+
 # --- LLM / Ollama ---
 MODELO_LLM = os.getenv("MODELO_LLM", "mistral")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
