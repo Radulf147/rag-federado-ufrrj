@@ -6,8 +6,10 @@ podia sair de quem mediu.
 
 **Seções 10 e 11 acrescentadas em 5 set 2026**, depois da leitura e por
 determinação do orientando: a seção sobre o instrumento de medição e a
-**conclusão da fase 3**. A seção 10 foi ampliada em 6 set 2026 com a sexta e a
-sétima ocorrências e a regra operacional que sai delas.
+**conclusão da fase 3**. A seção 10 foi ampliada em 6 set 2026 com a sexta à nona
+ocorrências e a regra operacional que sai delas — as quatro aconteceram
+*executando a correção das cinco primeiras*, e a nona dentro da redação da
+própria regra.
 
 **Os números das seções 1 a 9 não foram tocados** em nenhuma das duas rodadas.
 
@@ -291,9 +293,9 @@ originou toda esta fase.
 
 ## A evidência
 
-**Sete medições minhas nesta fase produziram resultado errado. Zero exceções:
-todas as sete devolveram uma saída no formato esperado, e nenhuma levantou
-exceção.**
+**Nove vezes nesta fase eu produzi um resultado errado por medir ou generalizar
+mal. Zero exceções: todas as nove devolveram uma saída no formato esperado, e
+nenhuma levantou exceção.**
 
 As **cinco primeiras** contaminaram alguma decisão antes de serem pegas, e são o
 conjunto registrado como erro de medição da fase:
@@ -406,17 +408,17 @@ O mecanismo que produziu o erro do `GLAUBER` **é o mesmo** que originou a métr
 | **o que produziu** | 9 de 10 docentes "que trabalham com movimentos sociais" sem uma palavra sobre o tema | 1 de 3 docentes "com a evidência mais forte" sem respaldo |
 | **como se detecta** | remover o nome do departamento antes de procurar o tema | exigir a **frase completa**, no texto descritivo |
 
-**São a mesma falha, e eu escrevi a correção de uma enquanto cometia a outra.**
-`texto_descritivo()` existe precisamente para tirar o nome do departamento do
-caminho — e a medição que eu usava para justificar o caso do gold set continuava
-casando palavra solta em documento inteiro.
+São a mesma falha.
+
+> **`texto_descritivo()` existe para tirar o nome do departamento do caminho, e a
+> colisão equivalente foi cometida ao escrever a correção dela.**
 
 É o argumento central do capítulo em forma concreta: **quem escreve o instrumento
 não está fora do alcance do defeito que o instrumento existe para pegar.**
 
-## Sexta e sétima ocorrências — as duas de 5 set 2026, durante a correção
+## Sexta à nona ocorrências — todas durante a correção das cinco primeiras
 
-As duas aconteceram **executando a correção das cinco anteriores**. Ficam em
+As quatro aconteceram **executando a correção das cinco anteriores**. Ficam em
 seção própria porque a diferença entre elas e as cinco primeiras é o resultado
 mais útil deste capítulo.
 
@@ -461,9 +463,58 @@ build`, o `pytest` executa a versão anterior à edição, e a saída não diz i
 lugar nenhum. É a **armadilha 1 do `CLAUDE.md`**, documentada há dois dias,
 cometida por quem a documentou.
 
-Depois do build: 102 passando de novo — mesmo número, agora significando outra
-coisa. **É o pior formato possível de erro:** o número certo pelo motivo errado,
-indistinguível do número certo pelo motivo certo.
+**102 verdes antes do build. 102 verdes depois. Mesmo número medindo outra
+coisa.** É o pior formato possível de erro: o número certo pelo motivo errado,
+indistinguível do número certo pelo motivo certo. Nenhuma inspeção da saída
+separa os dois casos, porque a saída é idêntica.
+
+> **Teste que não distingue o que mediu não é teste — é ritual.** Ele produz a
+> sensação de verificação sem a verificação: roda, fica verde, e não afirma nada
+> sobre o código que se acabou de escrever.
+
+A remediação foi aplicada ao próprio commit que descreve o erro — build primeiro,
+identificação da imagem impressa, **depois** os 102:
+
+```
+Image rag-federado-ufrrj-agente Built
+IMAGEM 2fed3b928d56
+102 passed, 3 warnings in 9.29s
+```
+
+Agora os 102 dizem de onde vieram. **É o controle substituindo a memória:** na
+sétima ocorrência eu lembrei da armadilha 1 e por isso reconstruí; aqui não é
+preciso lembrar de nada, porque a origem está na saída.
+
+### Nona — o marcador de origem que não discriminava origem
+
+A primeira redação desta regra mandava imprimir **`.Id` e `.Created`** da imagem.
+Duas execuções seguidas devolveram:
+
+```
+sha256:ffa8c9cce69fb0d8018b3634d8e0e6f8348689f27fef4e8aaed3bd3912a601ba
+  criada 2026-09-06T02:36:40.52078807Z
+
+sha256:2fed3b928d56cefb30bd442a63dde10169d9b5c95bbe2469075817e6863ebabf
+  criada 2026-09-06T02:36:40.52078807Z
+```
+
+**Imagens diferentes. `Created` idêntico ao nanossegundo.** O BuildKit não
+atualiza esse campo quando as camadas vêm do cache, então `created_at` é herdado
+e **não distingue uma imagem da outra** — que é exatamente o que eu tinha acabado
+de escrever que ele faria.
+
+É o mesmo erro do próprio caso que a regra existe para tratar: **um campo no
+formato esperado, plausível, que não discrimina o que afirma discriminar** — a
+versão em metadado do "102 verdes antes e depois". E foi cometido *no texto da
+correção*, uma seção abaixo de onde está escrito que quem escreve o instrumento
+não está fora do alcance do defeito.
+
+Pego por conferir os dois valores um contra o outro em vez de aceitar que um
+campo chamado `Created` informa quando a imagem foi criada.
+
+> **Correção:** o marcador de origem é o **`.Id` (digest)** da imagem, e só ele.
+> `Created` sai da regra. Um marcador que pode ser herdado do cache não é
+> marcador de origem.
 
 ### A assimetria, e é a recomendação prática do capítulo
 
@@ -472,6 +523,8 @@ indistinguível do número certo pelo motivo certo.
 | 1ª a 5ª | verificação **posterior** contra a fonte | **depois** de já ter contaminado uma decisão |
 | 6ª | instrumentação **do próprio script** (`perfis carregados: 1`) | **antes** de entrar em qualquer decisão |
 | 7ª | conhecimento prévio da armadilha, aplicado ao ler a saída | antes de entrar em decisão, **mas por memória, não por instrumento** |
+| 8ª | eu mesmo, ao formular a pergunta que a continha | antes de agir — **a única apanhada por quem a cometia** |
+| 9ª | conferir dois valores do campo um contra o outro | antes de a regra entrar em vigor — **por instrumentação** |
 
 As cinco primeiras foram pegas **auditando**: alguém voltou ao texto cru, à base,
 ao Chroma, depois que o número já tinha sido usado para decidir alguma coisa. A
@@ -490,6 +543,14 @@ A sétima mostra o limite de não instrumentar: ela foi pega porque eu lembrei d
 armadilha 1, e memória não é controle. Se `pytest` imprimisse a origem do código
 que executou, não haveria nada de que lembrar.
 
+**A oitava foi escrever `*.exe` no `.gitignore` por terem aparecido dois `.exe`,
+e em seguida perguntar autorização nominal para um `.webp` — tratar o caso
+listado em vez da classe, que é o padrão dos sete anteriores, na regra escrita
+para impedi-los.** Foi a única apanhada por mim mesmo, e apanhada no ato de
+formular a pergunta que a continha: a pergunta não cabia, porque a regra do item
+anterior já cobria a classe. Corrigida com bloqueio por classe e exceções por
+caminho.
+
 ## A regra operacional, na forma em que entra no projeto
 
 Não é conselho. É condição para um número entrar em decisão.
@@ -500,18 +561,31 @@ Não é conselho. É condição para um número entrar em decisão.
 > - quantos casaram com o que se procurava, e quantos não casaram
 > - **tamanho do texto lido** e se houve truncamento
 >
-> **2. Todo comando de teste imprime a origem do que executou:** imagem e
-> `created_at`, se houve build, caminho do código carregado.
+> **2. Todo comando de teste imprime a origem do que executou:** o **`.Id`
+> (digest) da imagem**, se houve build, e o caminho do código carregado.
+> **Não `created_at`** — ver a nona ocorrência: o BuildKit o herda do cache, e
+> ele não distingue duas imagens diferentes.
 >
 > **3. Resultado sem intermediário conferível não entra em decisão.** Não é que
 > ele valha menos: ele não entra.
+>
+> **4. O marcador de origem tem de ser demonstravelmente discriminante.** Antes
+> de adotar um campo como prova de origem, mostrar que ele **muda** quando a
+> origem muda. Nome plausível não é evidência: `Created` parecia informar quando
+> a imagem foi criada e não informava.
 
-O item 2 não estava previsto e entra por causa da sétima ocorrência. O item 1 já
-tinha sido escrito depois do quarto erro, na forma "declarar tamanho lido e
-truncamento" — **e a sexta ocorrência aconteceu mesmo assim**, porque a regra
-antiga cobria *quanto texto foi lido* e não cobria *quantos registros foram
-carregados*. A regra foi ampliada pelo caso que ela não pegou, o que é o modo
-correto de uma regra crescer e também o registro de que ela era incompleta.
+**As duas ampliações desta regra vieram de casos que ela não pegou**, e as duas
+estão registradas em vez de apresentadas como acerto:
+
+| item | veio de | o que a versão anterior não cobria |
+|---|---|---|
+| 1 (registros carregados) | 6ª ocorrência | cobria *quanto texto foi lido*, não *quantos registros* |
+| 2 e 4 (digest, não `created_at`) | 9ª ocorrência | o marcador escolhido não discriminava |
+
+O item 4 é o mais desconfortável dos quatro, porque é uma regra **sobre as outras
+regras**: exigir que o controle seja testado antes de virar controle. Ele existe
+porque a nona ocorrência aconteceu dentro da redação do item 2 — **a regra falhou
+na primeira vez em que foi aplicada, e foi aplicada a si mesma.**
 
 ---
 

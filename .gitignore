@@ -214,9 +214,35 @@ __marimo__/
 # Versiona-lo so produziria ruido de diff.
 dados/
 
-# Executaveis. Regra existe porque CONFERIR A CADA `git add` e a mesma aposta
-# que falhou sete vezes na fase 3: depender de atencao humana para nao commitar
-# a coisa errada. Dois instaladores (hydra, winrar) apareceram na raiz do repo
-# em 5 set 2026 e so nao entraram porque alguem olhou o `git status`. A regra
-# nao depende de ninguem olhar.
+# ---------------------------------------------------------------------------
+# BINARIOS -- bloqueados por CLASSE, liberados por CAMINHO
+# ---------------------------------------------------------------------------
+# Conferir a cada `git add` e a mesma aposta que falhou nove vezes na fase 3:
+# depender de atencao humana para nao deixar passar a coisa errada.
+#
+# A primeira versao desta regra listava so `*.exe`, porque foram dois .exe que
+# apareceram na raiz. Um .webp apareceu logo depois e a regra nao o pegava --
+# tratar o caso listado em vez da CLASSE e o mesmo padrao dos sete erros de
+# medicao desta fase. Este bloco cobre a classe.
+#
+# Excecoes sao por CAMINHO, nunca por extensao: liberar `*.png` porque existe
+# um diagrama legitimo em docs/ reabriria a porta inteira para o proximo
+# download que cair na raiz.
 *.exe
+*.msi
+*.dmg
+*.zip
+*.rar
+*.7z
+*.iso
+*.webp
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# Excecoes explicitas -- material que o repositorio precisa versionar.
+# Acrescentar aqui exige dizer QUAL arquivo, o que e uma decisao; acrescentar
+# uma extensao la em cima seria um descuido.
+!docs/*.png
+!docs/*.pdf

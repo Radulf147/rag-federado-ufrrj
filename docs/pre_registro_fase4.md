@@ -335,10 +335,19 @@ bateria nova, com perguntas não inspecionadas.
    - todo script de medição imprime, **antes do resultado**, quantos registros
      carregou e **de onde**, quantos casaram, o tamanho do texto lido e se
      truncou;
-   - todo comando de teste imprime **a origem do que executou** — imagem,
-     `created_at`, se houve build;
-   - **resultado sem intermediário conferível não entra em decisão.**
+   - todo comando de teste imprime **a origem do que executou** — o `.Id`
+     (digest) da imagem, se houve build, o caminho do código carregado.
+     **Não `created_at`:** o BuildKit o herda do cache e ele não distingue duas
+     imagens diferentes (nona ocorrência);
+   - **resultado sem intermediário conferível não entra em decisão**;
+   - **marcador de origem só vale depois de demonstrado discriminante** — mostrar
+     que ele muda quando a origem muda, antes de confiar nele.
 
-   Esta condição existe porque sete medições erradas nesta fase produziram, todas,
-   saída no formato esperado e sem exceção. **A regra não é conselho de higiene:
-   é o que separa auditar de projetar**, e auditoria depende de alguém voltar.
+   Esta condição existe porque nove erros meus nesta fase produziram, todos, saída
+   no formato esperado e sem exceção. **A regra não é conselho de higiene: é o que
+   separa auditar de projetar**, e auditoria depende de alguém voltar.
+
+   O último item é regra sobre as outras regras, e existe porque a nona ocorrência
+   aconteceu **dentro da redação da própria condição** — o marcador escolhido para
+   provar a origem do teste não distinguia duas imagens. A regra falhou na
+   primeira vez em que foi aplicada, e foi aplicada a si mesma.
