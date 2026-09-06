@@ -1,7 +1,12 @@
 # Fase 5 — repontuação da bateria `624c82234acd`
 
-**Sem conclusão sobre a fase 3.** Este documento traz números e discordâncias. O
-veredito da fase é decisão do orientando, depois de ler.
+**Seções 1 a 9: números e discordâncias, sem conclusão.** Foi assim que este
+documento foi entregue para leitura, deliberadamente — o veredito da fase não
+podia sair de quem mediu.
+
+**Seções 10 e 11 acrescentadas em 5 set 2026**, depois da leitura e por
+determinação do orientando: a seção sobre o instrumento de medição e a
+**conclusão da fase 3**. Os números das seções 1 a 9 não foram tocados.
 
 Toda repontuação é sobre as **respostas já gravadas**, sem chamar o LLM. Duas
 execuções do mesmo checker sobre o mesmo JSONL devolvem o mesmo veredito, e
@@ -198,10 +203,23 @@ evidência própria no perfil. A métrica oficial a marca como não-julgável.
 construção, e 23 dos 35 citados não têm uma palavra sobre o tema em lugar nenhum.
 A métrica oficial a aprova com folga.
 
-Nos dois casos as duas métricas apontam para lados opostos, e **nenhuma das duas
-está errada**: elas medem coisas diferentes. O que o par mostra é que a nota de
-atribuição, sozinha, não ordena as respostas por qualidade — e que a soma delas
-também não, porque não há como somar.
+**Cada métrica acerta dentro do próprio escopo. O que falha é a COBERTURA
+CONJUNTA.** Não há erro a consertar em nenhuma das duas: a atribuição mede
+atribuição e a mede bem; o respaldo mede respaldo e o mede bem. O defeito está no
+que as duas, somadas, deixam de fora.
+
+E o que fica de fora é a competência central. A atribuição declara **não
+julgável** justamente a resposta que aplica o princípio 3 de forma explícita — a
+`amb-01` reconhece um falso positivo da recuperação, exclui em voz alta e nomeia
+o departamento real do excluído. E **aprova com folga** a resposta que cita 23
+pessoas sem respaldo nenhum para o tema perguntado. A `amb-02#3` tira nota
+perfeita fazendo exatamente o que o princípio 3 proíbe.
+
+**A competência que o projeto diz querer fica fora de alcance nas duas
+direções**: o instrumento não premia quem a exerce e não pune quem a viola.
+Somar as duas métricas não resolve — não há denominador comum entre "quantos
+nomes foram atribuídos ao departamento certo" e "quantas citações têm respaldo
+no corpus", e a `amb-01` mostra que a primeira pode nem produzir um número.
 
 ## 7. Iterações — o custo de fechar
 
@@ -256,3 +274,157 @@ permanecem: **100%**, sem possibilidade de auditoria.
 
 É a terceira cobrança da mesma lacuna nesta fase. Registrada em
 `docs/backlog_avaliacao.md`.
+
+---
+
+# 10. Ferramenta de medição produz saída plausível por padrão
+
+Esta seção não é uma lista de descuidos. É uma afirmação sobre o instrumento, e
+ela é o argumento operacional do capítulo — vale mais que o caso do checker que
+originou toda esta fase.
+
+> **Um script de medição, escrito com atenção normal, devolve um número
+> plausível quando está errado. Plausibilidade não é verificação.**
+
+## A evidência
+
+Cinco medições minhas nesta fase produziram resultado errado. **Quatro direções
+distintas de erro. Zero exceções: todas as cinco produziram um número no formato
+esperado, e nenhuma levantou exceção.**
+
+| # | o que fiz | direção | número que saiu | o que era |
+|---|---|---|---|---|
+| 1 | li ~620 dos 898 chars da `amb-04` | leu de menos | "não declara departamento" | declara `Departamento de Letras/IM` |
+| 2 | medi a `amb-06` por proximidade em texto normalizado | mediu por proximidade | departamento a 4 chars | o parêntese próprio, a 37 chars |
+| 3 | regex de extração capturando prefixo de nome | leu demais | `LEANDRO AZEVEDO LAPA` fora do elenco | `...LAPA E SILVA`, dentro |
+| 4 | dump de perfis truncado em 520 chars | leu de menos | `MARCOS BACIS CEDDIA` INCONCLUSIVO | "agroecologia" no char ~1100 |
+| 5 | casamento de tema sem separar campo descritivo | mediu frouxo | **10 de 35 com tema próprio** | **4 COM · 8 INCONCL · 23 SEM** |
+
+Nenhum desses números tinha cara de errado. O `10 de 35` sustentou o argumento do
+despejo por vários turnos, e ele **superestimava a qualidade da resposta** — o
+erro foi para o lado que enfraquecia a própria tese que eu defendia, o que
+descarta viés de confirmação como explicação e deixa a explicação simples: **a
+medição estava errada e nada no resultado dizia isso.**
+
+## O que efetivamente pegou os cinco
+
+**Nenhum dos cinco foi pego por alguém achar o número estranho.**
+
+Todos os cinco foram pegos por **verificação contra fonte independente**:
+
+| # | o que pegou |
+|---|---|
+| 1 | reler o **texto cru** da resposta, inteiro, sem normalizar |
+| 2 | reler o **texto cru** e olhar o parêntese que a normalização tinha colado |
+| 3 | rodar `nomes_afirmados` e comparar com a **base** |
+| 4 | reler o **perfil inteiro** no dump, sem truncamento |
+| 5 | reclassificar contra os documentos do **Chroma**, campo a campo |
+
+Texto cru, base, Chroma. Em nenhum caso a suspeita veio do número; em todos os
+casos veio de conferir o número contra o dado de onde ele deveria ter saído.
+
+**É por isso que "revisar o resultado" não é um controle.** Revisar um resultado
+plausível confirma que ele é plausível. O único controle que funcionou foi
+recomputar contra a fonte — e é o único que este projeto deve exigir de si daqui
+em diante.
+
+## O alcance do quinto erro, medido hoje
+
+Ao executar a correção do número em todo lugar (5 set 2026), o `grep` encontrou o
+valor frouxo em **três lugares além do texto que o discutia**:
+
+| onde | o que dizia | corrigido para |
+|---|---|---|
+| `docs/criterios_avaliacao.md` | "31 dos 35 sem respaldo próprio" | intervalo **[4; 12] de 35** |
+| `docs/backlog_avaliacao.md` | "25 dos 35" | **23 SEM · 8 INCONCL · 4 COM** |
+| `testes/gold_checker/casos.py` | "25 dos 35"; "GLAUBER 3 menções" | ver abaixo |
+
+O terceiro é o que importa: **o número frouxo tinha chegado a uma justificativa de
+caso do gold set** — não a um texto de prosa, a um artefato de teste. Ao
+reclassificar os três nomes do `k2` contra o Chroma:
+
+```
+ELISA GUARANA DE CASTRO ...... COM_RESPALDO   (2119 chars descritivos)
+EDSON MIAGUSKO ............... COM_RESPALDO   ( 905 chars descritivos)
+GLAUBER RABELO MATIAS ........ INCONCLUSIVO   (1269 chars descritivos)
+```
+
+`GLAUBER` não tem "movimentos sociais" no perfil descritivo. A única ocorrência de
+"movimentos" nele é **MOVIMENTOS ARTÍSTICO-CULTURAIS** — outra coisa. As "3
+menções" que a medição frouxa contou eram `sociais` e `movimentos` contados
+**separados**, em posições diferentes do texto.
+
+O contraste do par de utilidade **sobrevive**: 2 de 3 no `k2` contra 4 de 35 no
+`k1`. A fixture não foi trocada — trocar a fixture depois de ver o resultado é
+exatamente o que este protocolo proíbe. A correção foi da justificativa, e a
+troca de `GLAUBER` por `CESAR AUGUSTO DA ROS` ou `MARCO ANTONIO PERRUSO` (os
+outros dois COM RESPALDO entre os 35) fica registrada como decisão do orientando.
+
+## Uma sexta ocorrência, hoje, pega antes de decidir nada
+
+O script escrito para fazer essa verificação **errou na primeira execução**. Ele
+buscava a chave `nome` no metadado do Chroma; a chave é `nome_docente`.
+Resultado:
+
+```
+perfis carregados: 1
+citados: 35 · com_respaldo: 0 · inconclusivos: 0 · sem_respaldo: 35
+intervalo [0; 0]   "fracao_minima": "0 de 35"
+```
+
+**Zero de 35.** Formato correto, JSON válido, nenhuma exceção — e teria sido um
+número espetacular para a tese do despejo. O que o denunciou não foi o `0 de 35`:
+foi a linha de diagnóstico `perfis carregados: 1`, impressa por hábito antes do
+resultado. Com a chave certa, `perfis carregados: 1301`, e o agregado reproduziu
+**exatamente** os números da seção 5 — 4 COM, 8 INCONCLUSIVO, 23 SEM.
+
+Esta é a primeira vez na fase em que o erro foi pego **antes** de entrar em
+decisão, e não foi por sorte: foi porque o script imprimia um intermediário
+conferível. Fica como a forma prática da regra.
+
+> **Regra, na forma operacional:** todo script de medição imprime, junto do
+> resultado, **os intermediários que permitem conferi-lo contra a fonte** —
+> quantos registros carregou, quantos casaram, quanto texto leu e se truncou.
+> Resultado sem intermediário conferível não entra em decisão nenhuma.
+
+---
+
+# 11. Conclusão da fase 3
+
+**A acurácia condicional objetiva atende o critério de forma ROBUSTA:
+[95,83% ; 100%], acima do limiar de 95% independentemente da política de
+denominador, do desempate anafórico e da resolução dos dois itens AMBÍGUOS. A
+fase 3 fecha sobre essa afirmação** — e, ao mesmo tempo, a categoria de
+atribuição departamental isolada é **NÃO CONCLUSIVA**, com intervalo
+[90,48% ; 100%] atravessando o limiar, e não sustenta afirmação nenhuma sozinha;
+o v2a é **relaxamento estrito** sobre o v1, onde `passa→reprova` é impossível por
+construção, de modo que a subida de 44 para 46 não é evidência de que a regra
+nova acerta mais, e só as reprovações sintéticas do gold set provam que ela
+morde; o instrumento **não avalia calibração de ressalva** — o hedge da `amb-02#1`
+não conta nem a favor nem contra, e é justamente a resposta que hedgeia a menos
+ancorada das duas — **nem cobertura temática**, que é o que a pergunta ambígua de
+fato pede; e **as métricas declaradas não cobrem a competência que o projeto diz
+querer**, já que a atribuição marca como não julgável a resposta que aplica o
+princípio 3 explicitamente e aprova com folga a que cita 23 pessoas sem respaldo.
+
+As duas coisas são verdade ao mesmo tempo, e a segunda não anula a primeira. O
+critério pré-registrado foi cumprido, medido sobre respostas gravadas, com gate
+de reprodução, `checker_sha1` carimbado, e intervalos que bateram o pré-registro
+exatamente.
+
+**Isto não é validação do sistema.** É o fechamento das **métricas declaradas**,
+com o alcance delas explícito. O que a fase 3 mede — roteamento, estabilidade,
+acurácia condicional objetiva — foi medido e atende. O que ela não mede está
+nomeado acima, e nada no resultado autoriza a afirmar que o agente é bom naquilo.
+
+| critério da fase 3 | limiar | medido | |
+|---|---|---|---|
+| Roteamento | ≥ 95% | 97,8% | ✅ |
+| Estabilidade | ≥ 90% | 93,3% | ✅ |
+| Acurácia condicional objetiva | ≥ 95% | **[95,83% ; 100%]** | ✅ **robusta** |
+| Interpretativas — zero afirmação sem respaldo | 100% | 100% | ⚠️ não auditável (§9) |
+
+A ressalva da última linha é a mesma da seção 9 e não é decorativa: o
+`nomes_sem_respaldo` da bateria **não é recomputável**, porque o JSONL não gravou
+o texto do contexto recuperado. O 100% é o que a bateria produziu, não o que
+alguém conferiu.

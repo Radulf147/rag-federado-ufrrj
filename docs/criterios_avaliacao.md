@@ -767,8 +767,10 @@ menos útil possível — o despejo do departamento sem filtro nenhum, para uma
 pergunta que pedia um recorte temático.
 
 **A `amb-02#3` é exatamente essa estratégia, executada.** 35 de 35, nota
-perfeita, e 31 dos 35 citados sem respaldo próprio para o tema — 23 SEM RESPALDO
-e 8 INCONCLUSIVO, pela medição rigorosa de `respaldo_de_citacao`.
+perfeita, e **no máximo 12 dos 35 citados têm respaldo próprio para o tema** —
+`respaldo_de_citacao` rigoroso dá 4 COM RESPALDO, 8 INCONCLUSIVO e 23 SEM
+RESPALDO, intervalo **[4; 12] de 35**. Os 23 não são "não achei o tema": são
+perfis sem campo descritivo nenhum, onde não há onde procurar.
 
 A métrica não é apenas silenciosa quanto a recall. **Ela premia o despejo.**
 Dito na forma mais crua possível:

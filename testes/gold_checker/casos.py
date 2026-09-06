@@ -274,9 +274,14 @@ GOLD = [
         "par_de_utilidade": "k2_tres_uteis",
         "porque": (
             "Cita 35 de 35 docentes do departamento. Zero intrusos, nota "
-            "perfeita. Medido: 25 dos 35 não têm uma palavra sobre o tema no "
-            "perfil (mediana 166 chars). É a estratégia ótima sob precisão "
-            "pura, executada — e a resposta menos útil possível."
+            "perfeita. Medido por `respaldo_de_citacao`: 23 SEM RESPALDO "
+            "(perfil sem campo descritivo, mediana 166 chars), 8 INCONCLUSIVO, "
+            "4 COM RESPALDO — intervalo [4; 12] de 35. É a estratégia ótima sob "
+            "precisão pura, executada, e a resposta menos útil possível. "
+            "CORRIGIDO 5 set 2026: dizia '25 dos 35 não têm uma palavra sobre "
+            "o tema', número da medição FROUXA, que varria o documento inteiro "
+            "(campo institucional incluído) e casava 'movimentos' e 'sociais' "
+            "separados. Ver docs/relatorio_fase5.md §10."
         ),
         "base": "os 35 citados pertencem ao DEPARTAMENTO DE CIÊNCIAS SOCIAIS (elenco = 35)",
     },
@@ -284,17 +289,32 @@ GOLD = [
         "id": "k2_tres_uteis",
         "arquivo": "sint_k2_tres_uteis",
         "origem": "SINTÉTICA — mutação mínima de real_amb02_r3_despejo",
-        "mutacao": "removidos 32 dos 35 itens de lista; mantidos os 3 com maior evidência temática",
+        "mutacao": (
+            "removidos 32 dos 35 itens de lista; mantidos os 3 que a medição "
+            "FROUXA apontava como de maior evidência temática. A escolha dos 3 "
+            "NÃO foi refeita depois — trocar a fixture ao ver o resultado é "
+            "exatamente o que este protocolo proíbe. Ver `porque`."
+        ),
         "pergunta_id": "amb-02",
         "esperado": APROVA,
         "par_de_utilidade": "k1_despejo_do_departamento_inteiro",
         "porque": (
             "PAR DE UTILIDADE. Mesma pergunta, veredito idêntico ao k1, "
-            "utilidade oposta: 3 docentes com evidência temática própria "
-            "(ELISA GUARANA DE CASTRO 8 menções, EDSON MIAGUSKO 7, GLAUBER "
-            "RABELO MATIAS 3) contra o despejo de 35. O teste passa SE E "
-            "SOMENTE SE os dois vereditos forem iguais — não testa correção da "
-            "regra, fixa em código que a métrica é CEGA À UTILIDADE."
+            "utilidade oposta. O teste passa SE E SOMENTE SE os dois vereditos "
+            "forem iguais — não testa correção da regra, fixa em código que a "
+            "métrica é CEGA À UTILIDADE. "
+            "CORRIGIDO 5 set 2026: a redação anterior afirmava '3 docentes com "
+            "evidência temática própria (ELISA 8 menções, EDSON 7, GLAUBER 3)'. "
+            "Contagem da medição frouxa. Pelo classificador rigoroso, ELISA "
+            "GUARANA DE CASTRO e EDSON MIAGUSKO são COM RESPALDO; GLAUBER "
+            "RABELO MATIAS é INCONCLUSIVO — perfil descritivo de 1269 chars "
+            "onde 'movimentos sociais' não aparece, e a única ocorrência de "
+            "'movimentos' é MOVIMENTOS ARTISTICO-CULTURAIS. As '3 menções' "
+            "eram 'sociais' e 'movimentos' contados separados. "
+            "O CONTRASTE SOBREVIVE: 2 de 3 no k2 contra 4 de 35 no k1. Os "
+            "COM RESPALDO reais entre os 35 são ELISA, EDSON, CESAR AUGUSTO DA "
+            "ROS e MARCO ANTONIO PERRUSO — trocar GLAUBER por um destes é "
+            "decisão do orientando, não conserto meu."
         ),
         "base": "ELISA GUARANA DE CASTRO, EDSON MIAGUSKO e GLAUBER RABELO MATIAS: DEPARTAMENTO DE CIÊNCIAS SOCIAIS",
     },

@@ -94,7 +94,10 @@ caracteres** — atravessam três achados distintos, sempre pelo mesmo mecanismo
    documento é o nome do departamento, então a similaridade da consulta é
    dominada por ele. Nove dos dez citados na `amb-02#1` são assim.
 2. **Despejo premiado.** São eles que engordam a listagem completa do
-   departamento sem custo de precisão: 25 dos 35 da `amb-02#3`.
+   departamento sem custo de precisão: **23 dos 35** da `amb-02#3` são SEM
+   RESPALDO — perfil sem campo descritivo nenhum, não há onde procurar o tema.
+   Outros 8 são INCONCLUSIVO e 4 COM RESPALDO. *(Corrigido em 5 set 2026: dizia
+   "25 dos 35", número da medição frouxa. Ver `relatorio_fase5.md` §10.)*
 3. **Evidência ausente.** Não há como o agente afirmar nada sobre a pesquisa
    deles sem violar o princípio 3 — e o sistema afirma mesmo assim, porque o
    documento foi recuperado e o LLM lê o nome do departamento como conteúdo.
