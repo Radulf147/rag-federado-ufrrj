@@ -1,0 +1,1814 @@
+{
+  "rotulo": "v2a_anafora",
+  "gerado_em": "2026-09-06T00:19:44",
+  "jsonl": "docs/avaliacao_fase3.jsonl",
+  "execucao": [
+    "20260905T170958"
+  ],
+  "prompt_sha1": [
+    "624c82234acd"
+  ],
+  "checker_sha1": "54e26dd6a11c",
+  "desempate_anaforico": true,
+  "veredito_oficial": false,
+  "corpus": {
+    "docentes": 1302,
+    "sha256": "faf1becde50209d24b50ed328b8a4e6cc724945dba41b67bbfdc94bf94ab4872"
+  },
+  "db_path": "/app/dados/sigaa.db",
+  "escopo": "condicional objetiva — execucoes do agente, sem falha de infraestrutura, com roteamento correto e verdade-base",
+  "nao_recomputavel": {
+    "chaves": [
+      "atribuicao_ok",
+      "nomes_sem_respaldo"
+    ],
+    "motivo": "o JSONL grava o contexto recuperado apenas como tamanho ('<N caracteres>'), nao o texto; sem ele nao ha como reconferir quais nomes tinham respaldo",
+    "situacao": "congelados no valor produzido pela bateria"
+  },
+  "resumo": {
+    "ok": 47,
+    "total": 48,
+    "por_tipo": {
+      "contagem": {
+        "ok": 18,
+        "total": 18
+      },
+      "listagem": {
+        "ok": 6,
+        "total": 6
+      },
+      "subconjunto": {
+        "ok": 20,
+        "total": 21
+      },
+      "vinculo": {
+        "ok": 3,
+        "total": 3
+      }
+    }
+  },
+  "itens": [
+    {
+      "pergunta_id": "est-01",
+      "repeticao": 1,
+      "pergunta": "Quantos docentes tem o Departamento de Matemática?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE MATEMÁTICA": 44
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "MONTAUBAN MOREIRA DE OLIVEIRA JUNIOR",
+        "EULINA COUTINHO SILVA DO NASCIMENTO",
+        "EDIVALDO FIGUEIREDO FONTES JUNIOR",
+        "OBERDAN MIGUEL RODRIGUES DE SOUZA",
+        "JOSIANE DA SILVA CORDEIRO COELHO",
+        "LEILIANE COUTINHO DA SILVA RAMOS",
+        "DUILIO TADEU DA CONCEICAO JUNIOR",
+        "DOUGLAS MONSORES DE MELO SANTOS",
+        "CARLOS ANDRES REYNA VERA TUDELA",
+        "CLAUDIO CESAR SACCOMORI JUNIOR",
+        "MARIA TERESA CARNEIRO DA CUNHA",
+        "ANA LUIZA DA CONCEICAO TENORIO",
+        "ANDRES MAURICIO LOPEZ BARRAGAN",
+        "GISELA MARIA DA FONSECA PINTO",
+        "LUIS ALBERTO TOSCANO MEDRANO",
+        "FELIPE LEITE COELHO DA SILVA",
+        "ANGELICA FRANCISCA DE ARAUJO",
+        "ANGEL RAMON SANCHEZ DELGADO",
+        "ROSANE FERREIRA DE OLIVEIRA",
+        "LUCIANA CAVALCANTI DE MELO",
+        "ANDRE LUIZ MARTINS PEREIRA",
+        "ORLANDO DOS SANTOS PEREIRA",
+        "CHARLES EDGAR LOPEZ VEREAU",
+        "ANTONIO CARLOS GONCALVES",
+        "ADRIANA OLIVEIRA ANDRADE",
+        "KARL IGOR MARTINS GUERRA",
+        "EDILSON MARCELINO SILVA",
+        "DANIEL REIS DE OLIVEIRA",
+        "LEANDRO TOMAZ DE ARAUJO",
+        "CELSO GUIMARAES BARBOSA",
+        "RENAN DE SOUZA TEIXEIRA",
+        "SERGIO DRUMOND VENTURA",
+        "BRUNO TELCH DOS SANTOS",
+        "ALINE MAURICIO BARBOSA",
+        "MOISES CENI DE ALMEIDA",
+        "PEDRO ROBERTO DE LIMA",
+        "DIEGO DA SILVA BARROS",
+        "RENATO NUNES PEREIRA",
+        "LUCIANO VIANNA FELIX",
+        "MARCELO JANGARELLI"
+      ],
+      "chars_lidos": 1362,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-01",
+      "repeticao": 2,
+      "pergunta": "Quantos docentes tem o Departamento de Matemática?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE MATEMÁTICA": 44
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "MONTAUBAN MOREIRA DE OLIVEIRA JUNIOR",
+        "EULINA COUTINHO SILVA DO NASCIMENTO",
+        "EDIVALDO FIGUEIREDO FONTES JUNIOR",
+        "OBERDAN MIGUEL RODRIGUES DE SOUZA",
+        "JOSIANE DA SILVA CORDEIRO COELHO",
+        "LEILIANE COUTINHO DA SILVA RAMOS",
+        "DUILIO TADEU DA CONCEICAO JUNIOR",
+        "DOUGLAS MONSORES DE MELO SANTOS",
+        "CARLOS ANDRES REYNA VERA TUDELA",
+        "CLAUDIO CESAR SACCOMORI JUNIOR",
+        "MARIA TERESA CARNEIRO DA CUNHA",
+        "ANA LUIZA DA CONCEICAO TENORIO",
+        "ANDRES MAURICIO LOPEZ BARRAGAN",
+        "GISELA MARIA DA FONSECA PINTO",
+        "LUIS ALBERTO TOSCANO MEDRANO",
+        "FELIPE LEITE COELHO DA SILVA",
+        "ANGELICA FRANCISCA DE ARAUJO",
+        "ANGEL RAMON SANCHEZ DELGADO",
+        "ROSANE FERREIRA DE OLIVEIRA",
+        "LUCIANA CAVALCANTI DE MELO",
+        "ANDRE LUIZ MARTINS PEREIRA",
+        "ORLANDO DOS SANTOS PEREIRA",
+        "CHARLES EDGAR LOPEZ VEREAU",
+        "ANTONIO CARLOS GONCALVES",
+        "ADRIANA OLIVEIRA ANDRADE",
+        "KARL IGOR MARTINS GUERRA",
+        "EDILSON MARCELINO SILVA",
+        "DANIEL REIS DE OLIVEIRA",
+        "LEANDRO TOMAZ DE ARAUJO",
+        "CELSO GUIMARAES BARBOSA",
+        "RENAN DE SOUZA TEIXEIRA",
+        "SERGIO DRUMOND VENTURA",
+        "BRUNO TELCH DOS SANTOS",
+        "ALINE MAURICIO BARBOSA",
+        "MOISES CENI DE ALMEIDA",
+        "PEDRO ROBERTO DE LIMA",
+        "DIEGO DA SILVA BARROS",
+        "RENATO NUNES PEREIRA",
+        "LUCIANO VIANNA FELIX",
+        "MARCELO JANGARELLI"
+      ],
+      "chars_lidos": 1369,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-01",
+      "repeticao": 3,
+      "pergunta": "Quantos docentes tem o Departamento de Matemática?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE MATEMÁTICA": 44
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "MONTAUBAN MOREIRA DE OLIVEIRA JUNIOR",
+        "EULINA COUTINHO SILVA DO NASCIMENTO",
+        "EDIVALDO FIGUEIREDO FONTES JUNIOR",
+        "OBERDAN MIGUEL RODRIGUES DE SOUZA",
+        "JOSIANE DA SILVA CORDEIRO COELHO",
+        "LEILIANE COUTINHO DA SILVA RAMOS",
+        "DUILIO TADEU DA CONCEICAO JUNIOR",
+        "DOUGLAS MONSORES DE MELO SANTOS",
+        "CARLOS ANDRES REYNA VERA TUDELA",
+        "CLAUDIO CESAR SACCOMORI JUNIOR",
+        "MARIA TERESA CARNEIRO DA CUNHA",
+        "ANA LUIZA DA CONCEICAO TENORIO",
+        "ANDRES MAURICIO LOPEZ BARRAGAN",
+        "GISELA MARIA DA FONSECA PINTO",
+        "LUIS ALBERTO TOSCANO MEDRANO",
+        "FELIPE LEITE COELHO DA SILVA",
+        "ANGELICA FRANCISCA DE ARAUJO",
+        "ANGEL RAMON SANCHEZ DELGADO",
+        "ROSANE FERREIRA DE OLIVEIRA",
+        "LUCIANA CAVALCANTI DE MELO",
+        "ANDRE LUIZ MARTINS PEREIRA",
+        "ORLANDO DOS SANTOS PEREIRA",
+        "CHARLES EDGAR LOPEZ VEREAU",
+        "ANTONIO CARLOS GONCALVES",
+        "ADRIANA OLIVEIRA ANDRADE",
+        "KARL IGOR MARTINS GUERRA",
+        "EDILSON MARCELINO SILVA",
+        "DANIEL REIS DE OLIVEIRA",
+        "LEANDRO TOMAZ DE ARAUJO",
+        "CELSO GUIMARAES BARBOSA",
+        "RENAN DE SOUZA TEIXEIRA",
+        "SERGIO DRUMOND VENTURA",
+        "BRUNO TELCH DOS SANTOS",
+        "ALINE MAURICIO BARBOSA",
+        "MOISES CENI DE ALMEIDA",
+        "PEDRO ROBERTO DE LIMA",
+        "DIEGO DA SILVA BARROS",
+        "RENATO NUNES PEREIRA",
+        "LUCIANO VIANNA FELIX",
+        "MARCELO JANGARELLI"
+      ],
+      "chars_lidos": 1391,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-02",
+      "repeticao": 1,
+      "pergunta": "Quantos professores estão lotados no Departamento de Ciências Sociais?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE CIÊNCIAS SOCIAIS": 35
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "ANDRE LUIZ VIDEIRA DE FIGUEIREDO",
+        "ANNELISE CAETANO FRAGA FERNANDEZ",
+        "NAARA LUCIA DE ALBUQUERQUE LUNA",
+        "LUENA NASCIMENTO NUNES PEREIRA",
+        "JAIME RODRIGO DA SILVA MIRANDA",
+        "ALESSANDRA DE ANDRADE RINALDI",
+        "MANI TEBET AZEVEDO DE MARINS",
+        "LEANDRO AZEVEDO LAPA E SILVA",
+        "MAURICIO HOELZ VEIGA JUNIOR",
+        "MARINA DE CARVALHO CORDEIRO",
+        "ALEXANDRE MAGNO LOPES GOLLO",
+        "DARLAN FERREIRA MONTENEGRO",
+        "APARECIDA MARIA ABRANCHES",
+        "IZABEL MISSAGIA DE MATTOS",
+        "JOSE CLAUDIO SOUZA ALVES",
+        "VLADIMYR LOMBARDO JORGE",
+        "ELISA GUARANA DE CASTRO",
+        "MARCELO DA COSTA MACIEL",
+        "BRUNA MOTTA DOS SANTOS",
+        "MOEMA DE CASTRO GUEDES",
+        "NALAYNE MENDONCA PINTO",
+        "RAFAEL DO VALLE PAIVA",
+        "GLAUBER RABELO MATIAS",
+        "MARCO ANTONIO PERRUSO",
+        "CARLY BARBOZA MACHADO",
+        "MARTA REGINA CIOCCARI",
+        "CESAR AUGUSTO DA ROS",
+        "PATRICIA REINHEIMER",
+        "MARIA JULIA GIMENEZ",
+        "FLAVIA BRAGA VIEIRA",
+        "EDSON MIAGUSKO",
+        "BEATRIZ WEY"
+      ],
+      "chars_lidos": 1304,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-02",
+      "repeticao": 2,
+      "pergunta": "Quantos professores estão lotados no Departamento de Ciências Sociais?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE CIÊNCIAS SOCIAIS": 35
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "TAMIS PORFIRIO COSTA CRISOSTOMO RAMOS",
+        "ADRIANA DE MAGALHAES CHAVES MARTINS",
+        "SABRINA MARQUES PARRACHO SANT ANNA",
+        "ANDRE LUIZ VIDEIRA DE FIGUEIREDO",
+        "ANNELISE CAETANO FRAGA FERNANDEZ",
+        "NAARA LUCIA DE ALBUQUERQUE LUNA",
+        "LUENA NASCIMENTO NUNES PEREIRA",
+        "JAIME RODRIGO DA SILVA MIRANDA",
+        "ALESSANDRA DE ANDRADE RINALDI",
+        "MANI TEBET AZEVEDO DE MARINS",
+        "LEANDRO AZEVEDO LAPA E SILVA",
+        "MAURICIO HOELZ VEIGA JUNIOR",
+        "MARINA DE CARVALHO CORDEIRO",
+        "ALEXANDRE MAGNO LOPES GOLLO",
+        "DARLAN FERREIRA MONTENEGRO",
+        "APARECIDA MARIA ABRANCHES",
+        "IZABEL MISSAGIA DE MATTOS",
+        "JOSE CLAUDIO SOUZA ALVES",
+        "VLADIMYR LOMBARDO JORGE",
+        "ELISA GUARANA DE CASTRO",
+        "MARCELO DA COSTA MACIEL",
+        "BRUNA MOTTA DOS SANTOS",
+        "MOEMA DE CASTRO GUEDES",
+        "NALAYNE MENDONCA PINTO",
+        "RAFAEL DO VALLE PAIVA",
+        "GLAUBER RABELO MATIAS",
+        "MARCO ANTONIO PERRUSO",
+        "CARLY BARBOZA MACHADO",
+        "MARTA REGINA CIOCCARI",
+        "CESAR AUGUSTO DA ROS",
+        "PATRICIA REINHEIMER",
+        "MARIA JULIA GIMENEZ",
+        "FLAVIA BRAGA VIEIRA",
+        "EDSON MIAGUSKO",
+        "BEATRIZ WEY"
+      ],
+      "chars_lidos": 1063,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-02",
+      "repeticao": 3,
+      "pergunta": "Quantos professores estão lotados no Departamento de Ciências Sociais?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE CIÊNCIAS SOCIAIS": 35
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "SABRINA MARQUES PARRACHO SANT ANNA",
+        "ANDRE LUIZ VIDEIRA DE FIGUEIREDO",
+        "ANNELISE CAETANO FRAGA FERNANDEZ",
+        "NAARA LUCIA DE ALBUQUERQUE LUNA",
+        "LUENA NASCIMENTO NUNES PEREIRA",
+        "JAIME RODRIGO DA SILVA MIRANDA",
+        "ALESSANDRA DE ANDRADE RINALDI",
+        "MANI TEBET AZEVEDO DE MARINS",
+        "LEANDRO AZEVEDO LAPA E SILVA",
+        "MAURICIO HOELZ VEIGA JUNIOR",
+        "MARINA DE CARVALHO CORDEIRO",
+        "ALEXANDRE MAGNO LOPES GOLLO",
+        "DARLAN FERREIRA MONTENEGRO",
+        "APARECIDA MARIA ABRANCHES",
+        "IZABEL MISSAGIA DE MATTOS",
+        "JOSE CLAUDIO SOUZA ALVES",
+        "VLADIMYR LOMBARDO JORGE",
+        "ELISA GUARANA DE CASTRO",
+        "MARCELO DA COSTA MACIEL",
+        "BRUNA MOTTA DOS SANTOS",
+        "MOEMA DE CASTRO GUEDES",
+        "NALAYNE MENDONCA PINTO",
+        "RAFAEL DO VALLE PAIVA",
+        "GLAUBER RABELO MATIAS",
+        "MARCO ANTONIO PERRUSO",
+        "CARLY BARBOZA MACHADO",
+        "MARTA REGINA CIOCCARI",
+        "CESAR AUGUSTO DA ROS",
+        "PATRICIA REINHEIMER",
+        "MARIA JULIA GIMENEZ",
+        "FLAVIA BRAGA VIEIRA",
+        "EDSON MIAGUSKO",
+        "BEATRIZ WEY"
+      ],
+      "chars_lidos": 1146,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-03",
+      "repeticao": 1,
+      "pergunta": "Liste os docentes do Departamento de Geociências.",
+      "tipo": "cobertura_de_listagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "cobertura_de_listagem",
+        "esperados": 10,
+        "faltando": [],
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "CLAUDIA MARIA MAGALHAES RIBEIRO MARTINS",
+        "FRANCISCO JOSE CORREA MARTINS",
+        "ELISABETE DO NASCIMENTO ROCHA",
+        "HEITOR FERNANDES MOTHE FILHO",
+        "SERGIO BRANDOLISE CITRONI",
+        "FERNANDO MACHADO DE MELLO",
+        "JOSE MIGUEL PETERS GARCIA",
+        "LUCIO CARRAMILLO CAETANO",
+        "SORAYA GARDEL CARELLI",
+        "DANIEL FERNANDES"
+      ],
+      "chars_lidos": 463,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-03",
+      "repeticao": 2,
+      "pergunta": "Liste os docentes do Departamento de Geociências.",
+      "tipo": "cobertura_de_listagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "cobertura_de_listagem",
+        "esperados": 10,
+        "faltando": [],
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "CLAUDIA MARIA MAGALHAES RIBEIRO MARTINS",
+        "FRANCISCO JOSE CORREA MARTINS",
+        "ELISABETE DO NASCIMENTO ROCHA",
+        "HEITOR FERNANDES MOTHE FILHO",
+        "SERGIO BRANDOLISE CITRONI",
+        "FERNANDO MACHADO DE MELLO",
+        "JOSE MIGUEL PETERS GARCIA",
+        "LUCIO CARRAMILLO CAETANO",
+        "SORAYA GARDEL CARELLI",
+        "DANIEL FERNANDES"
+      ],
+      "chars_lidos": 516,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-03",
+      "repeticao": 3,
+      "pergunta": "Liste os docentes do Departamento de Geociências.",
+      "tipo": "cobertura_de_listagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "cobertura_de_listagem",
+        "esperados": 10,
+        "faltando": [],
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "CLAUDIA MARIA MAGALHAES RIBEIRO MARTINS",
+        "FRANCISCO JOSE CORREA MARTINS",
+        "ELISABETE DO NASCIMENTO ROCHA",
+        "HEITOR FERNANDES MOTHE FILHO",
+        "SERGIO BRANDOLISE CITRONI",
+        "FERNANDO MACHADO DE MELLO",
+        "JOSE MIGUEL PETERS GARCIA",
+        "LUCIO CARRAMILLO CAETANO",
+        "SORAYA GARDEL CARELLI",
+        "DANIEL FERNANDES"
+      ],
+      "chars_lidos": 339,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-04",
+      "repeticao": 1,
+      "pergunta": "Quantos docentes há no Departamento de Química Analítica?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE QUÍMICA ANALÍTICA": 10
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "MARTHA TERESA PANTOJA DE OLIVEIRA CASTRO",
+        "INES ROSANE WELTER ZWIRTES DE OLIVEIRA",
+        "SHEISI FONSECA LEITE DA SILVA ROCHA",
+        "WALESKA GIANNINI PEREIRA DA SILVA",
+        "VANESSA GOMES KELLY ALMEIDA",
+        "JOSE GERALDO ROCHA JUNIOR",
+        "IDIO ALVES DE SOUSA FILHO",
+        "EVELTON ALVES CASARTELLI",
+        "FLAVIO COUTO CORDEIRO",
+        "CRISTINA MARIA BARRA"
+      ],
+      "chars_lidos": 394,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-04",
+      "repeticao": 2,
+      "pergunta": "Quantos docentes há no Departamento de Química Analítica?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE QUÍMICA ANALÍTICA": 10
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "MARTHA TERESA PANTOJA DE OLIVEIRA CASTRO",
+        "INES ROSANE WELTER ZWIRTES DE OLIVEIRA",
+        "SHEISI FONSECA LEITE DA SILVA ROCHA",
+        "WALESKA GIANNINI PEREIRA DA SILVA",
+        "VANESSA GOMES KELLY ALMEIDA",
+        "JOSE GERALDO ROCHA JUNIOR",
+        "IDIO ALVES DE SOUSA FILHO",
+        "EVELTON ALVES CASARTELLI",
+        "FLAVIO COUTO CORDEIRO",
+        "CRISTINA MARIA BARRA"
+      ],
+      "chars_lidos": 381,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-04",
+      "repeticao": 3,
+      "pergunta": "Quantos docentes há no Departamento de Química Analítica?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE QUÍMICA ANALÍTICA": 10
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "MARTHA TERESA PANTOJA DE OLIVEIRA CASTRO",
+        "INES ROSANE WELTER ZWIRTES DE OLIVEIRA",
+        "SHEISI FONSECA LEITE DA SILVA ROCHA",
+        "WALESKA GIANNINI PEREIRA DA SILVA",
+        "VANESSA GOMES KELLY ALMEIDA",
+        "JOSE GERALDO ROCHA JUNIOR",
+        "IDIO ALVES DE SOUSA FILHO",
+        "EVELTON ALVES CASARTELLI",
+        "FLAVIO COUTO CORDEIRO",
+        "CRISTINA MARIA BARRA"
+      ],
+      "chars_lidos": 406,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-05",
+      "repeticao": 1,
+      "pergunta": "O Departamento de Engenharia Química tem quantos professores?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE ENGENHARIA QUÍMICA": 29
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "CRISTIANO AGENOR OLIVEIRA DE ARAUJO",
+        "MARIA ALICE CRUZ LOPES DE OLIVEIRA",
+        "CAROLINA GUEDES FIORAVANTE REZENDE",
+        "BELMIRA BENEDITA DE LIMA KUHN",
+        "SIMONE PEREIRA TAGUCHI BORGES",
+        "CLAUDIA MIRIAM SCHEID PEREIRA",
+        "MARCIA PEIXOTO VEGA DOMICIANO",
+        "LINDOVAL DOMICIANO FERNANDES",
+        "LUIZ AUGUSTO DA CRUZ MELEIRO",
+        "TESSIE GOUVEA DA CRUZ LOPES",
+        "LUIZ ANTONIO BORGES JUNIOR",
+        "MAURICIO CORDEIRO MANCINI",
+        "ANTONIO RENATO BIGANSOLLI",
+        "FABIOLA OLIVEIRA DA CUNHA",
+        "PAULO JANSEN DE OLIVEIRA",
+        "DANIELI MARTINS DO CARMO",
+        "ELIANE PEREIRA CIPOLATTI",
+        "ROBERTA HELENA MENDONCA",
+        "MARISA FERNANDES MENDES",
+        "FILIPE ARANTES FURTADO",
+        "FERNANDA PEREIRA BRAGA",
+        "LEONARDO DE GIL TORRES",
+        "RENATA NUNES OLIVEIRA",
+        "BEATRIZ AUTULLO RAMOS",
+        "RUI DE GOES CASQUEIRA",
+        "JOAO VICTOR NICOLINI",
+        "LUIS AMERICO CALCADA",
+        "KETLY PONTES SOARES",
+        "ANDRE DE ALMEIDA"
+      ],
+      "chars_lidos": 897,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-05",
+      "repeticao": 2,
+      "pergunta": "O Departamento de Engenharia Química tem quantos professores?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE ENGENHARIA QUÍMICA": 29
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "CRISTIANO AGENOR OLIVEIRA DE ARAUJO",
+        "MARIA ALICE CRUZ LOPES DE OLIVEIRA",
+        "CAROLINA GUEDES FIORAVANTE REZENDE",
+        "BELMIRA BENEDITA DE LIMA KUHN",
+        "SIMONE PEREIRA TAGUCHI BORGES",
+        "CLAUDIA MIRIAM SCHEID PEREIRA",
+        "MARCIA PEIXOTO VEGA DOMICIANO",
+        "LINDOVAL DOMICIANO FERNANDES",
+        "LUIZ AUGUSTO DA CRUZ MELEIRO",
+        "TESSIE GOUVEA DA CRUZ LOPES",
+        "LUIZ ANTONIO BORGES JUNIOR",
+        "MAURICIO CORDEIRO MANCINI",
+        "ANTONIO RENATO BIGANSOLLI",
+        "FABIOLA OLIVEIRA DA CUNHA",
+        "PAULO JANSEN DE OLIVEIRA",
+        "DANIELI MARTINS DO CARMO",
+        "ELIANE PEREIRA CIPOLATTI",
+        "ROBERTA HELENA MENDONCA",
+        "MARISA FERNANDES MENDES",
+        "FILIPE ARANTES FURTADO",
+        "FERNANDA PEREIRA BRAGA",
+        "LEONARDO DE GIL TORRES",
+        "RENATA NUNES OLIVEIRA",
+        "BEATRIZ AUTULLO RAMOS",
+        "RUI DE GOES CASQUEIRA",
+        "JOAO VICTOR NICOLINI",
+        "LUIS AMERICO CALCADA",
+        "KETLY PONTES SOARES",
+        "ANDRE DE ALMEIDA"
+      ],
+      "chars_lidos": 985,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-05",
+      "repeticao": 3,
+      "pergunta": "O Departamento de Engenharia Química tem quantos professores?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE ENGENHARIA QUÍMICA": 29
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "CRISTIANO AGENOR OLIVEIRA DE ARAUJO",
+        "MARIA ALICE CRUZ LOPES DE OLIVEIRA",
+        "CAROLINA GUEDES FIORAVANTE REZENDE",
+        "BELMIRA BENEDITA DE LIMA KUHN",
+        "SIMONE PEREIRA TAGUCHI BORGES",
+        "CLAUDIA MIRIAM SCHEID PEREIRA",
+        "MARCIA PEIXOTO VEGA DOMICIANO",
+        "LINDOVAL DOMICIANO FERNANDES",
+        "LUIZ AUGUSTO DA CRUZ MELEIRO",
+        "TESSIE GOUVEA DA CRUZ LOPES",
+        "LUIZ ANTONIO BORGES JUNIOR",
+        "MAURICIO CORDEIRO MANCINI",
+        "ANTONIO RENATO BIGANSOLLI",
+        "FABIOLA OLIVEIRA DA CUNHA",
+        "PAULO JANSEN DE OLIVEIRA",
+        "DANIELI MARTINS DO CARMO",
+        "ELIANE PEREIRA CIPOLATTI",
+        "ROBERTA HELENA MENDONCA",
+        "MARISA FERNANDES MENDES",
+        "FILIPE ARANTES FURTADO",
+        "FERNANDA PEREIRA BRAGA",
+        "LEONARDO DE GIL TORRES",
+        "RENATA NUNES OLIVEIRA",
+        "BEATRIZ AUTULLO RAMOS",
+        "RUI DE GOES CASQUEIRA",
+        "JOAO VICTOR NICOLINI",
+        "LUIS AMERICO CALCADA",
+        "KETLY PONTES SOARES",
+        "ANDRE DE ALMEIDA"
+      ],
+      "chars_lidos": 1045,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-06",
+      "repeticao": 1,
+      "pergunta": "Quais docentes pertencem ao Departamento de Bioquímica?",
+      "tipo": "cobertura_de_listagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "cobertura_de_listagem",
+        "esperados": 11,
+        "faltando": [],
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "CRISTIANE MARTINS CARDOSO DE SALLES",
+        "DIEGO DE MELLO CONDE DE BRITO",
+        "ANA PAULA PEREIRA DA SILVA",
+        "MARCO ANDRE ALVES DE SOUZA",
+        "ANDRE MARQUES DOS SANTOS",
+        "DANIELA COSENTINO GOMES",
+        "ANDRE LUIZ GOMES VIEIRA",
+        "MARCELO DE FREITAS LIMA",
+        "EMERSON GUEDES PONTES",
+        "CRISTIANO JORGE RIGER",
+        "MILANE DE SOUZA LEITE"
+      ],
+      "chars_lidos": 370,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-06",
+      "repeticao": 2,
+      "pergunta": "Quais docentes pertencem ao Departamento de Bioquímica?",
+      "tipo": "cobertura_de_listagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "cobertura_de_listagem",
+        "esperados": 11,
+        "faltando": [],
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "CRISTIANE MARTINS CARDOSO DE SALLES",
+        "DIEGO DE MELLO CONDE DE BRITO",
+        "ANA PAULA PEREIRA DA SILVA",
+        "MARCO ANDRE ALVES DE SOUZA",
+        "ANDRE MARQUES DOS SANTOS",
+        "DANIELA COSENTINO GOMES",
+        "ANDRE LUIZ GOMES VIEIRA",
+        "MARCELO DE FREITAS LIMA",
+        "EMERSON GUEDES PONTES",
+        "CRISTIANO JORGE RIGER",
+        "MILANE DE SOUZA LEITE"
+      ],
+      "chars_lidos": 372,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-06",
+      "repeticao": 3,
+      "pergunta": "Quais docentes pertencem ao Departamento de Bioquímica?",
+      "tipo": "cobertura_de_listagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "cobertura_de_listagem",
+        "esperados": 11,
+        "faltando": [],
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "CRISTIANE MARTINS CARDOSO DE SALLES",
+        "DIEGO DE MELLO CONDE DE BRITO",
+        "ANA PAULA PEREIRA DA SILVA",
+        "MARCO ANDRE ALVES DE SOUZA",
+        "ANDRE MARQUES DOS SANTOS",
+        "DANIELA COSENTINO GOMES",
+        "ANDRE LUIZ GOMES VIEIRA",
+        "MARCELO DE FREITAS LIMA",
+        "EMERSON GUEDES PONTES",
+        "CRISTIANO JORGE RIGER",
+        "MILANE DE SOUZA LEITE"
+      ],
+      "chars_lidos": 441,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-07",
+      "repeticao": 1,
+      "pergunta": "Em qual departamento trabalha o professor Marcel William Rocha da Silva?",
+      "tipo": "vinculo",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "vinculo",
+        "esperado": [
+          "DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM"
+        ],
+        "faltando": [],
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "MARCEL WILLIAM ROCHA DA SILVA"
+      ],
+      "chars_lidos": 95,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-07",
+      "repeticao": 2,
+      "pergunta": "Em qual departamento trabalha o professor Marcel William Rocha da Silva?",
+      "tipo": "vinculo",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "vinculo",
+        "esperado": [
+          "DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM"
+        ],
+        "faltando": [],
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "MARCEL WILLIAM ROCHA DA SILVA"
+      ],
+      "chars_lidos": 95,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-07",
+      "repeticao": 3,
+      "pergunta": "Em qual departamento trabalha o professor Marcel William Rocha da Silva?",
+      "tipo": "vinculo",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "vinculo",
+        "esperado": [
+          "DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM"
+        ],
+        "faltando": [],
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [
+        "MARCEL WILLIAM ROCHA DA SILVA"
+      ],
+      "chars_lidos": 95,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-08",
+      "repeticao": 1,
+      "pergunta": "Quantos docentes tem o Departamento de Geografia?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE GEOGRAFIA": 16,
+          "DEPARTAMENTO DE GEOGRAFIA/IM": 14
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [],
+      "chars_lidos": 279,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-08",
+      "repeticao": 2,
+      "pergunta": "Quantos docentes tem o Departamento de Geografia?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE GEOGRAFIA": 16,
+          "DEPARTAMENTO DE GEOGRAFIA/IM": 14
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [],
+      "chars_lidos": 237,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-08",
+      "repeticao": 3,
+      "pergunta": "Quantos docentes tem o Departamento de Geografia?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE GEOGRAFIA": 16,
+          "DEPARTAMENTO DE GEOGRAFIA/IM": 14
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [],
+      "chars_lidos": 264,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-09",
+      "repeticao": 1,
+      "pergunta": "Quantos professores tem o Departamento de Ciências Jurídicas?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE CIÊNCIAS JURÍDICAS": 20,
+          "DEPARTAMENTO DE CIÊNCIAS JURÍDICAS/IM": 17
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [],
+      "chars_lidos": 274,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-09",
+      "repeticao": 2,
+      "pergunta": "Quantos professores tem o Departamento de Ciências Jurídicas?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE CIÊNCIAS JURÍDICAS": 20,
+          "DEPARTAMENTO DE CIÊNCIAS JURÍDICAS/IM": 17
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [],
+      "chars_lidos": 322,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "est-09",
+      "repeticao": 3,
+      "pergunta": "Quantos professores tem o Departamento de Ciências Jurídicas?",
+      "tipo": "contagem",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "contagem",
+        "esperado": {
+          "DEPARTAMENTO DE CIÊNCIAS JURÍDICAS": 20,
+          "DEPARTAMENTO DE CIÊNCIAS JURÍDICAS/IM": 17
+        },
+        "faltando": [],
+        "soma_indevida": false,
+        "ok": true,
+        "veredito": "APROVA"
+      },
+      "nomes_afirmados": [],
+      "chars_lidos": 292,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-01",
+      "repeticao": 1,
+      "pergunta": "Quem do Departamento de Matemática pesquisa estatística?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 44,
+        "citados": 6,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "WELSON ANTONIO DE OLIVEIRA",
+        "WAGNER DE SOUZA TASSINARI",
+        "ANTONIO CARLOS GONCALVES",
+        "ADRIANA OLIVEIRA ANDRADE",
+        "EDILSON MARCELINO SILVA",
+        "CELSO GUIMARAES BARBOSA"
+      ],
+      "chars_lidos": 1656,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-01",
+      "repeticao": 2,
+      "pergunta": "Quem do Departamento de Matemática pesquisa estatística?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 44,
+        "citados": 5,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "WELSON ANTONIO DE OLIVEIRA",
+        "ANTONIO CARLOS GONCALVES",
+        "ADRIANA OLIVEIRA ANDRADE",
+        "EDILSON MARCELINO SILVA",
+        "CELSO GUIMARAES BARBOSA"
+      ],
+      "chars_lidos": 571,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-01",
+      "repeticao": 3,
+      "pergunta": "Quem do Departamento de Matemática pesquisa estatística?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": false,
+      "veredito": "AMBIGUO",
+      "veredito_gravado": false,
+      "causas_do_ambiguo": [
+        {
+          "nome": "DIOGENES FERREIRA FILHO",
+          "em_escopo": [
+            "DEPARTAMENTO DE CIENCIAS ECONOMICAS E EXATAS/ITR",
+            "DEPARTAMENTO DE MATEMATICA"
+          ],
+          "causa": "negacao"
+        }
+      ],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 44,
+        "citados": 6,
+        "fora_do_elenco": 1,
+        "intrusos": [],
+        "ambiguos": [
+          {
+            "nome": "DIOGENES FERREIRA FILHO",
+            "em_escopo": [
+              "DEPARTAMENTO DE CIENCIAS ECONOMICAS E EXATAS/ITR",
+              "DEPARTAMENTO DE MATEMATICA"
+            ]
+          }
+        ],
+        "rotulados_corretamente": [],
+        "veredito": "AMBIGUO",
+        "ok": false
+      },
+      "nomes_afirmados": [
+        "WAGNER DE SOUZA TASSINARI",
+        "ANTONIO CARLOS GONCALVES",
+        "ADRIANA OLIVEIRA ANDRADE",
+        "EDILSON MARCELINO SILVA",
+        "CELSO GUIMARAES BARBOSA",
+        "DIOGENES FERREIRA FILHO"
+      ],
+      "chars_lidos": 1058,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-02",
+      "repeticao": 1,
+      "pergunta": "Quais docentes de Ciências Sociais trabalham com movimentos sociais?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": false,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 35,
+        "citados": 10,
+        "fora_do_elenco": 10,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [
+          {
+            "nome": "HELCIO HERBERT MOREIRA DA SILVA NETO",
+            "declarado": "DEPARTAMENTO DE EDUCACAO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "FABIANA DE CARVALHO DIAS ARAUJO",
+            "declarado": "DEPARTAMENTO DE EDUCACAO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "RAPHAEL CASTELO BRANCO DA SILVA",
+            "declarado": "DEPARTAMENTO DE EDUCACAO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "EDILEIA DE CARVALHO SOUZA ALVES",
+            "declarado": "DEPARTAMENTO DE EDUCACAO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "MARCELO HENRIQUE BEZERRA RAMOS",
+            "declarado": "DEPARTAMENTO DE EDUCACAO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "SANDRO ROBERTO ARAUJO OITAVEN",
+            "declarado": "DEPARTAMENTO DE EDUCACAO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "RAFAEL MAUL DE CARVALHO COSTA",
+            "declarado": "DEPARTAMENTO DE EDUCACAO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "MAGDA GISELA CRUZ DOS SANTOS",
+            "declarado": "DEPARTAMENTO DE EDUCACAO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "ANNA MARIA PEREIRA ESTEVES",
+            "declarado": "DEPARTAMENTO DE EDUCACAO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "RAMOFLY BICALHO DOS SANTOS",
+            "declarado": "DEPARTAMENTO DE EDUCACAO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE",
+            "nivel": 2,
+            "homonimo": false
+          }
+        ],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "HELCIO HERBERT MOREIRA DA SILVA NETO",
+        "FABIANA DE CARVALHO DIAS ARAUJO",
+        "RAPHAEL CASTELO BRANCO DA SILVA",
+        "EDILEIA DE CARVALHO SOUZA ALVES",
+        "MARCELO HENRIQUE BEZERRA RAMOS",
+        "SANDRO ROBERTO ARAUJO OITAVEN",
+        "RAFAEL MAUL DE CARVALHO COSTA",
+        "MAGDA GISELA CRUZ DOS SANTOS",
+        "ANNA MARIA PEREIRA ESTEVES",
+        "RAMOFLY BICALHO DOS SANTOS"
+      ],
+      "chars_lidos": 826,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-02",
+      "repeticao": 2,
+      "pergunta": "Quais docentes de Ciências Sociais trabalham com movimentos sociais?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 35,
+        "citados": 0,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [],
+      "chars_lidos": 881,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-02",
+      "repeticao": 3,
+      "pergunta": "Quais docentes de Ciências Sociais trabalham com movimentos sociais?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 35,
+        "citados": 35,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "TAMIS PORFIRIO COSTA CRISOSTOMO RAMOS",
+        "ADRIANA DE MAGALHAES CHAVES MARTINS",
+        "SABRINA MARQUES PARRACHO SANT ANNA",
+        "ANDRE LUIZ VIDEIRA DE FIGUEIREDO",
+        "ANNELISE CAETANO FRAGA FERNANDEZ",
+        "NAARA LUCIA DE ALBUQUERQUE LUNA",
+        "LUENA NASCIMENTO NUNES PEREIRA",
+        "JAIME RODRIGO DA SILVA MIRANDA",
+        "ALESSANDRA DE ANDRADE RINALDI",
+        "MANI TEBET AZEVEDO DE MARINS",
+        "LEANDRO AZEVEDO LAPA E SILVA",
+        "MAURICIO HOELZ VEIGA JUNIOR",
+        "MARINA DE CARVALHO CORDEIRO",
+        "ALEXANDRE MAGNO LOPES GOLLO",
+        "DARLAN FERREIRA MONTENEGRO",
+        "APARECIDA MARIA ABRANCHES",
+        "IZABEL MISSAGIA DE MATTOS",
+        "JOSE CLAUDIO SOUZA ALVES",
+        "VLADIMYR LOMBARDO JORGE",
+        "ELISA GUARANA DE CASTRO",
+        "MARCELO DA COSTA MACIEL",
+        "BRUNA MOTTA DOS SANTOS",
+        "MOEMA DE CASTRO GUEDES",
+        "NALAYNE MENDONCA PINTO",
+        "RAFAEL DO VALLE PAIVA",
+        "GLAUBER RABELO MATIAS",
+        "MARCO ANTONIO PERRUSO",
+        "CARLY BARBOZA MACHADO",
+        "MARTA REGINA CIOCCARI",
+        "CESAR AUGUSTO DA ROS",
+        "PATRICIA REINHEIMER",
+        "MARIA JULIA GIMENEZ",
+        "FLAVIA BRAGA VIEIRA",
+        "EDSON MIAGUSKO",
+        "BEATRIZ WEY"
+      ],
+      "chars_lidos": 1977,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-03",
+      "repeticao": 1,
+      "pergunta": "Há alguém no Departamento de Ciência da Computação que pesquise inteligência artificial?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 15,
+        "citados": 1,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "RONALDO E SILVA VIEIRA"
+      ],
+      "chars_lidos": 293,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-03",
+      "repeticao": 2,
+      "pergunta": "Há alguém no Departamento de Ciência da Computação que pesquise inteligência artificial?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 15,
+        "citados": 1,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "RONALDO E SILVA VIEIRA"
+      ],
+      "chars_lidos": 578,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-03",
+      "repeticao": 3,
+      "pergunta": "Há alguém no Departamento de Ciência da Computação que pesquise inteligência artificial?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 15,
+        "citados": 4,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "DANIEL FABIO DOMINGUES POSNER",
+        "RONALDO E SILVA VIEIRA",
+        "BRUNO JOSE DEMBOGURSKI",
+        "ADRIA RAMOS DE LYRA"
+      ],
+      "chars_lidos": 617,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-04",
+      "repeticao": 1,
+      "pergunta": "Quem no Departamento de Letras e Comunicação Social estuda literatura?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 30,
+        "citados": 3,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "CHRISTIAN MARIE VICTOR SIMON DUTILLEUX",
+        "ANDERSON SOARES GOMES",
+        "ELISA LIMA ABRANTES"
+      ],
+      "chars_lidos": 1372,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-04",
+      "repeticao": 2,
+      "pergunta": "Quem no Departamento de Letras e Comunicação Social estuda literatura?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 30,
+        "citados": 4,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "CHRISTIAN MARIE VICTOR SIMON DUTILLEUX",
+        "LUIS CARLOS ALVES DE MELO",
+        "ANDERSON SOARES GOMES",
+        "ELISA LIMA ABRANTES"
+      ],
+      "chars_lidos": 1333,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-04",
+      "repeticao": 3,
+      "pergunta": "Quem no Departamento de Letras e Comunicação Social estuda literatura?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": false,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 30,
+        "citados": 5,
+        "fora_do_elenco": 3,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [
+          {
+            "nome": "VALERIA ROSITO FERREIRA",
+            "declarado": "DEPARTAMENTO DE LETRAS/IM",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "ROSEMARY GONCALO AFONSO",
+            "declarado": "DEPARTAMENTO DE LETRAS/IM",
+            "nivel": 2,
+            "homonimo": false
+          },
+          {
+            "nome": "CARMEN PIMENTEL",
+            "declarado": "DEPARTAMENTO DE LETRAS/IM",
+            "nivel": 2,
+            "homonimo": false
+          }
+        ],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "TATIANA DE FREITAS MASSUNO",
+        "LUIS CARLOS ALVES DE MELO",
+        "VALERIA ROSITO FERREIRA",
+        "ROSEMARY GONCALO AFONSO",
+        "CARMEN PIMENTEL"
+      ],
+      "chars_lidos": 898,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-05",
+      "repeticao": 1,
+      "pergunta": "Quantos docentes do Departamento de História e Relações Internacionais pesquisam política?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 26,
+        "citados": 1,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "GABRIEL LECZNIESKI KANAAN"
+      ],
+      "chars_lidos": 488,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-05",
+      "repeticao": 2,
+      "pergunta": "Quantos docentes do Departamento de História e Relações Internacionais pesquisam política?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 26,
+        "citados": 1,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "GABRIEL LECZNIESKI KANAAN"
+      ],
+      "chars_lidos": 402,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-05",
+      "repeticao": 3,
+      "pergunta": "Quantos docentes do Departamento de História e Relações Internacionais pesquisam política?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 26,
+        "citados": 1,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "GABRIEL LECZNIESKI KANAAN"
+      ],
+      "chars_lidos": 449,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-06",
+      "repeticao": 1,
+      "pergunta": "Algum professor de Engenharia Agrícola e Ambiental trabalha com agroecologia?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": false,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 31,
+        "citados": 4,
+        "fora_do_elenco": 3,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [
+          {
+            "nome": "ADRIANA DE MAGALHAES CHAVES MARTINS",
+            "declarado": "DEPARTAMENTO DE CIENCIAS SOCIAIS",
+            "nivel": 1,
+            "homonimo": false
+          },
+          {
+            "nome": "MARCOS BACIS CEDDIA",
+            "declarado": "DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE",
+            "nivel": 1,
+            "homonimo": false
+          },
+          {
+            "nome": "ANELISE DIAS",
+            "declarado": "DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE",
+            "nivel": 1,
+            "homonimo": false
+          }
+        ],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "ADRIANA DE MAGALHAES CHAVES MARTINS",
+        "HENRIQUE VIEIRA DE MENDONCA",
+        "MARCOS BACIS CEDDIA",
+        "ANELISE DIAS"
+      ],
+      "chars_lidos": 1025,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-06",
+      "repeticao": 2,
+      "pergunta": "Algum professor de Engenharia Agrícola e Ambiental trabalha com agroecologia?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 31,
+        "citados": 1,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "HENRIQUE VIEIRA DE MENDONCA"
+      ],
+      "chars_lidos": 538,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-06",
+      "repeticao": 3,
+      "pergunta": "Algum professor de Engenharia Agrícola e Ambiental trabalha com agroecologia?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 31,
+        "citados": 1,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "HENRIQUE VIEIRA DE MENDONCA"
+      ],
+      "chars_lidos": 746,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-07",
+      "repeticao": 1,
+      "pergunta": "Entre os docentes do Departamento de Formação Docente do IM, quem atua com didática?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 37,
+        "citados": 1,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "DORA SORAIA KINDEL"
+      ],
+      "chars_lidos": 599,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-07",
+      "repeticao": 2,
+      "pergunta": "Entre os docentes do Departamento de Formação Docente do IM, quem atua com didática?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 37,
+        "citados": 1,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "DORA SORAIA KINDEL"
+      ],
+      "chars_lidos": 948,
+      "truncado": false
+    },
+    {
+      "pergunta_id": "amb-07",
+      "repeticao": 3,
+      "pergunta": "Entre os docentes do Departamento de Formação Docente do IM, quem atua com didática?",
+      "tipo": "precisao_de_atribuicao_departamental",
+      "ok": true,
+      "veredito": "APROVA",
+      "veredito_gravado": true,
+      "causas_do_ambiguo": [],
+      "detalhe": {
+        "tipo": "precisao_de_atribuicao_departamental",
+        "elenco": 37,
+        "citados": 1,
+        "fora_do_elenco": 0,
+        "intrusos": [],
+        "ambiguos": [],
+        "rotulados_corretamente": [],
+        "veredito": "APROVA",
+        "ok": true
+      },
+      "nomes_afirmados": [
+        "DORA SORAIA KINDEL"
+      ],
+      "chars_lidos": 688,
+      "truncado": false
+    }
+  ]
+}

@@ -41,6 +41,7 @@ import argparse
 import hashlib
 import inspect
 import json
+import re
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -99,7 +100,39 @@ def _objetivos(caminho: Path) -> list[dict]:
     return itens
 
 
-def repontuar(caminho: Path, rotulo: str) -> dict:
+def _causa_do_ambiguo(resposta: str, nome: str, em_escopo: list[str]) -> str:
+    """
+    Três estruturas distintas produzem AMBÍGUO, e agregá-las esconderia qual
+    delas domina. A terceira é a mais preocupante: se for frequente, a regra é
+    conservadora em LISTAS, que é o formato mais comum de resposta do agente.
+    """
+    from interfaces.comparar import MARCADORES_ANAFORICOS, _pecas
+
+    pecas = _pecas(resposta)
+    peca_do_nome = next((p for p in pecas if nome in p), "")
+
+    # NEGAÇÃO TEM PRECEDÊNCIA SOBRE ANÁFORA — critério fixado antes deste
+    # conserto. A primeira versão testava anáfora primeiro e em QUALQUER peça da
+    # resposta, e por isso rotulou o DIOGENES (amb-01) como "anafora" quando a
+    # causa é a negação "não ao Departamento de Matemática": a palavra "ELES"
+    # aparecia em outro ponto do texto. Conserto feito DEPOIS de ver a saída,
+    # e legítimo porque isto é código de RELATÓRIO — `_causa_do_ambiguo` não é
+    # chamada por `_conferir` e não entra em veredito nenhum.
+    if re.search(r"(?<![A-Z])NAO(?![A-Z])", peca_do_nome):
+        return "negacao"
+    # Anáfora agora localizada: só nas peças que contêm um dos departamentos em
+    # escopo, que são as candidatas a declaração.
+    pecas_da_declaracao = [p for p in pecas if any(d in p for d in em_escopo)]
+    if any(m in p for p in pecas_da_declaracao for m in MARCADORES_ANAFORICOS):
+        return "anafora"
+    if peca_do_nome.lstrip().startswith("-") or peca_do_nome.startswith("- "):
+        vizinhos = [p for p in pecas if p.lstrip().startswith("-") and nome not in p]
+        if any(d in v for v in vizinhos for d in em_escopo):
+            return "vizinho_de_lista"
+    return "outra"
+
+
+def repontuar(caminho: Path, rotulo: str, desempate_anaforico: bool = False) -> dict:
     registros = _objetivos(caminho)
 
     cache_verdade: dict[str, dict] = {}
@@ -114,8 +147,21 @@ def repontuar(caminho: Path, rotulo: str) -> dict:
         tipo = CHECAGEM[pergunta.id]
         afirmados = nomes_afirmados(registro["resposta"])
         veredito = _conferir(
-            tipo, cache_verdade[pergunta.id], registro["resposta"], afirmados
+            tipo,
+            cache_verdade[pergunta.id],
+            registro["resposta"],
+            afirmados,
+            desempate_anaforico=desempate_anaforico,
         )
+
+        causas = [
+            {
+                "nome": a["nome"],
+                "em_escopo": a["em_escopo"],
+                "causa": _causa_do_ambiguo(registro["resposta"], a["nome"], a["em_escopo"]),
+            }
+            for a in veredito.get("ambiguos", [])
+        ]
 
         por_tipo[tipo][1] += 1
         por_tipo[tipo][0] += bool(veredito["ok"])
@@ -124,11 +170,15 @@ def repontuar(caminho: Path, rotulo: str) -> dict:
                 "pergunta_id": pergunta.id,
                 "repeticao": registro["repeticao"],
                 "pergunta": pergunta.texto,
-                "tipo": tipo,
+                "tipo": veredito.get("tipo", tipo),
                 "ok": bool(veredito["ok"]),
+                "veredito": veredito.get("veredito"),
                 "veredito_gravado": bool((registro["avaliacao"]["verdade"] or {}).get("ok")),
+                "causas_do_ambiguo": causas,
                 "detalhe": veredito,
                 "nomes_afirmados": afirmados,
+                "chars_lidos": len(registro["resposta"]),
+                "truncado": False,
             }
         )
 
@@ -143,6 +193,8 @@ def repontuar(caminho: Path, rotulo: str) -> dict:
         "execucao": sorted(e for e in execucoes if e),
         "prompt_sha1": sorted(c for c in carimbos if c),
         "checker_sha1": _impressao_do_checker(),
+        "desempate_anaforico": desempate_anaforico,
+        "veredito_oficial": not desempate_anaforico,
         "corpus": _impressao_do_corpus(),
         "db_path": config.DB_PATH,
         "escopo": (
@@ -208,6 +260,10 @@ def main() -> None:
     parser.add_argument("--rotulo", required=True, help="v1, v2, ...")
     parser.add_argument("--saida", type=Path, default=None)
     parser.add_argument(
+        "--anafora", action="store_true",
+        help="variante com desempate anaforico; o veredito oficial e sem ela",
+    )
+    parser.add_argument(
         "--gate",
         metavar="OK/TOTAL,SUBCONJUNTO",
         default=None,
@@ -215,7 +271,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    resultado = repontuar(args.jsonl, args.rotulo)
+    resultado = repontuar(args.jsonl, args.rotulo, args.anafora)
 
     if args.gate:
         total, sub = args.gate.split(",")

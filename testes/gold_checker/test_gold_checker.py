@@ -146,17 +146,24 @@ class TestSeparacaoEntreV2aEV2b:
         caso = POR_CASO["h_omissao_de_docente_do_elenco"]
         assert _julgar(caso)["veredito"] == APROVA
 
-    def test_omissao_reprova_em_listagem_sob_v2b(self):
+    def test_omissao_reprova_em_cobertura_de_listagem(self):
+        """
+        SEM FLAG NENHUMA — e essa é a correção.
+
+        A "v2b como recall em listagem" foi projetada como construto novo e é
+        no-op: o ramo de listagem sempre calculou `faltando` e sempre exigiu
+        vazio. A premissa errada foi minha, ao ler só o ramo de atribuição na
+        Fase 0 e generalizar. Este teste passou a exercitar o comportamento
+        existente, como regressão, e é o que prova a separação: o MESMO texto
+        aprova em atribuição e reprova em cobertura.
+        """
         from interfaces.comparar import _conferir, nomes_afirmados
 
-        import inspect
-
-        if "recall" not in inspect.signature(_conferir).parameters:
-            pytest.skip("v2b ainda não implementada (Fase 4)")
         caso = POR_CASO["h_omissao_de_docente_do_elenco"]
         resposta = texto(caso["arquivo"])
         resultado = _conferir(
-            "listagem", POR_ID[caso["pergunta_id"]].verdade(), resposta,
-            nomes_afirmados(resposta), recall=True,
+            "cobertura_de_listagem", POR_ID[caso["pergunta_id"]].verdade(),
+            resposta, nomes_afirmados(resposta),
         )
         assert resultado["veredito"] == "REPROVA"
+        assert resultado["faltando"], "tem de dizer QUEM faltou, não só que faltou"

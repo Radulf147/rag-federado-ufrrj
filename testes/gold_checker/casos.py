@@ -88,13 +88,56 @@ GOLD = [
             "+ - ANELISE DIAS"
         ),
         "pergunta_id": "amb-06",
-        "esperado": REPROVA,
+        "esperado": AMBIGUO,
         "porque": (
-            "SEGUNDO BRAÇO — ausência de declaração reprova. A regra não pode "
-            "ser satisfeita por vagueza. Note que os outros dois nomes seguem "
-            "rotulados: um único nome sem rótulo basta para reprovar o item."
+            "CONTAMINAÇÃO DE ESCOPO POR ITEM VIZINHO DE LISTA — não ausência de "
+            "declaração, apesar de o rótulo original dizer isso. ANELISE ficou "
+            "sem parêntese, mas entre o departamento da pergunta (abertura) e o "
+            "do vizinho de lista logo abaixo:\n"
+            "    - ANELISE DIAS                    <- sem rótulo próprio\n"
+            "    - MARCOS BACIS CEDDIA (DEPARTAMENTO DE AGROTECNOLOGIAS ...)\n"
+            "Sob escopo bidirecional isso é a condição de AMBIGUIDADE. A fixture "
+            "não implementava a condição que seu rótulo descrevia — terceira "
+            "categoria de falha do gold set, ver o protocolo. Mantida com o "
+            "rótulo corrigido em vez de descartada, e (d2) cobre a condição "
+            "original."
         ),
         "base": {"ANELISE DIAS": "DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE"},
+    },
+    # ----------------------------------------------------------------- (d2)
+    {
+        "id": "d2_sem_declaracao_nenhuma",
+        "arquivo": "sint_d2_sem_declaracao",
+        "origem": "SINTÉTICA — mutação mínima de real_amb06_r1_rotulado",
+        "mutacao": (
+            "removidos os parênteses dos TRÊS nomes de fora:\n"
+            "- - ANELISE DIAS (DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE)\n"
+            "- - MARCOS BACIS CEDDIA (DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE)\n"
+            "- - ADRIANA DE MAGALHÃES CHAVES MARTINS (DEPARTAMENTO DE CIÊNCIAS SOCIAIS)\n"
+            "+ - ANELISE DIAS / - MARCOS BACIS CEDDIA / - ADRIANA DE MAGALHÃES CHAVES MARTINS"
+        ),
+        "pergunta_id": "amb-06",
+        "esperado": REPROVA,
+        "porque": (
+            "REPROVA, como pretendido — mas pelo TERCEIRO braço, não pelo "
+            "segundo, e isso é um achado sobre a implementação. Sem os "
+            "parênteses, sobra um único departamento no texto (o da pergunta, na "
+            "abertura e no fecho), e o Nível 2 o imputa aos três nomes. Como não "
+            "bate com o real de nenhum deles, os três viram intrusos por "
+            "'vínculo declarado não bate'.\n"
+            "CONSEQUÊNCIA: o SEGUNDO braço só dispara quando a resposta não "
+            "menciona NENHUM departamento conhecido — o vizinho mais próximo "
+            "sempre existe se existir algum. Na prática é quase inalcançável, "
+            "porque toda resposta nomeia ao menos o departamento perguntado.\n"
+            "O veredito está certo e o texto contradiz o motivo: a resposta diz "
+            "'outros docentes de departamentos diferentes' e a regra lhes imputa "
+            "justamente o departamento da pergunta."
+        ),
+        "base": {
+            "ANELISE DIAS": "DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE",
+            "MARCOS BACIS CEDDIA": "DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE",
+            "ADRIANA DE MAGALHAES CHAVES MARTINS": "DEPARTAMENTO DE CIÊNCIAS SOCIAIS",
+        },
     },
     # ------------------------------------------------------------------ (e)
     {

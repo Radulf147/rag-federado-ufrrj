@@ -754,7 +754,7 @@ procurar o tema:
 | | citados | com evidência própria | sem nenhuma | veredito v2a |
 |---|---|---|---|---|
 | `amb-02#1` | 10 | 1 | 9 | ✅ aprovada |
-| `amb-02#3` | **35 de 35** | 10 | **25** | ✅ aprovada |
+| `amb-02#3` | **35 de 35** | 4 | **31** | ✅ aprovada |
 
 Os perfis sem evidência na `#3` vão de 114 a 782 caracteres, mediana **166** —
 nome, departamento, contato, e nada mais.
@@ -767,7 +767,8 @@ menos útil possível — o despejo do departamento sem filtro nenhum, para uma
 pergunta que pedia um recorte temático.
 
 **A `amb-02#3` é exatamente essa estratégia, executada.** 35 de 35, nota
-perfeita, 25 dos citados sem uma palavra sobre o tema.
+perfeita, e 31 dos 35 citados sem respaldo próprio para o tema — 23 SEM RESPALDO
+e 8 INCONCLUSIVO, pela medição rigorosa de `respaldo_de_citacao`.
 
 A métrica não é apenas silenciosa quanto a recall. **Ela premia o despejo.**
 Dito na forma mais crua possível:
@@ -785,8 +786,8 @@ despeja. **Proporcionalmente, é a pior das duas:**
 
 | | com evidência temática própria |
 |---|---|
-| `amb-02#1` | 1 de 10 = **10%** |
-| `amb-02#3` | 10 de 35 = **28,6%** |
+| `amb-02#1` | 1 de 10 |
+| `amb-02#3` | 4 de 35 |
 
 **A resposta que hedgeia é a menos ancorada.** Quase tudo o que ela oferece
 depois da ressalva não tem respaldo nenhum além do nome do departamento. O
@@ -955,18 +956,49 @@ mais próxima do que o projeto diz querer.
 Vai para o **pré-registro da próxima bateria**, junto com os marcadores de
 negação e anáfora. Não é implementado aqui.
 
-# ⚠️ Decisão sobre texto parcial — característica do ambiente, não descuido
+# ⚠️ Medição improvisada — CINCO ocorrências, quatro direções
 
-**Quatro ocorrências do mesmo modo de falha nesta fase**, todas minhas:
+**Cinco vezes nesta fase uma medição minha produziu resultado errado**, e as
+cinco entraram em decisão antes de serem conferidas:
 
-| # | onde | o que produziu |
-|---|---|---|
-| 1 | li ~620 dos 898 chars da `amb-04` | previsão pré-registrada errada |
-| 2 | medi a `amb-06` por proximidade em texto normalizado | segunda previsão errada |
-| 3 | regex de extração capturando prefixo de nome | falso alarme do `LEANDRO` |
-| 4 | dump de perfis truncado em 520 chars | `MARCOS BACIS CEDDIA` quase rotulado errado |
+| # | onde | direção do erro | o que produziu |
+|---|---|---|---|
+| 1 | li ~620 dos 898 chars da `amb-04` | leu de menos | previsão pré-registrada errada |
+| 2 | medi a `amb-06` por proximidade em texto normalizado | mediu por proximidade | segunda previsão errada |
+| 3 | regex de extração capturando prefixo de nome | leu demais | falso alarme do `LEANDRO`, um turno inteiro |
+| 4 | dump de perfis truncado em 520 chars | leu de menos | `MARCOS BACIS CEDDIA` quase rotulado errado |
+| 5 | casamento de tema sem separar campo descritivo | mediu frouxo | **superestimou a qualidade da `amb-02#3`** |
 
-Quatro vezes não é descuido isolado — é **característica do ambiente**. Os textos
+## A quinta é a mais séria, porque sustentou um argumento
+
+A medição frouxa dava **10 de 35 "com tema próprio"** na `amb-02#3`. A rigorosa —
+extraindo só Perfil, Formação e Áreas de interesse, sem o nome do departamento e
+sem os campos institucionais — dá **4 COM RESPALDO, 8 INCONCLUSIVO, 23 SEM
+RESPALDO**.
+
+Ela **superestimou a qualidade da resposta**, e foi ela que sustentou o argumento
+do despejo neste documento. O argumento sobrevive — na verdade fica mais forte,
+porque 4 de 35 é pior que 10 de 35 —, mas ele esteve apoiado num número errado
+por vários turnos, e o erro foi para o lado que **enfraquecia** a própria tese
+que eu estava defendendo. Números corrigidos onde aparecem; o **pré-registro fica
+como foi escrito**, porque previsão reescrita depois do resultado não é
+previsão — a divergência entre o previsto (10) e o medido (4) é reportada na
+Fase 5.
+
+## Isto não é uma lista de descuidos
+
+São cinco erros de **medição**, em quatro direções diferentes — ler de menos,
+ler demais, medir por proximidade, medir frouxo —, num trabalho cuja tese é que
+o instrumento de medição precisa do mesmo rigor que o objeto medido. É a tese
+aplicada a quem a escreve, e ela não passou de primeira em nenhuma das cinco.
+
+Vale registrar o que cada uma tem em comum: **nenhuma deu erro.** Todas
+produziram um número plausível, no formato esperado, que só se revelou errado
+quando alguém pediu a evidência por trás dele. É exatamente o modo de falha que
+o `CLAUDE.md` define como inaceitável para o sistema — e ele apareceu cinco
+vezes no aparato que julga o sistema.
+
+Os textos
 aqui (respostas de 800 a 2000 caracteres, perfis de até 2400) estão sempre perto
 do tamanho em que se corta para caber na tela, e a evidência decisiva tem o
 hábito de ficar depois do corte. Nos quatro casos o trecho que mudava a conclusão

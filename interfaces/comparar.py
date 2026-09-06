@@ -229,7 +229,113 @@ def _departamento_nomeado(resposta_norm: str, esperado: str) -> bool:
     )
 
 
-def _conferir(checagem, verdade, resposta, afirmados) -> dict:
+APROVA, REPROVA, AMBIGUO = "APROVA", "REPROVA", "AMBIGUO"
+
+# Lista FECHADA, fixada em docs/criterios_avaliacao.md antes de codificar.
+MARCADORES_ANAFORICOS = (
+    "ESTES DOCENTES", "ESTAS DOCENTES",
+    "ESTES PROFESSORES", "ESTAS PROFESSORAS",
+    "ELES", "ELAS",
+)
+
+_DEPARTAMENTO_POR_DOCENTE: dict[str, set[str]] | None = None
+
+
+def _departamentos_por_docente() -> dict[str, set[str]]:
+    """Nome normalizado -> departamentos. Conjunto por causa do homônimo."""
+    global _DEPARTAMENTO_POR_DOCENTE
+    if _DEPARTAMENTO_POR_DOCENTE is None:
+        mapa = defaultdict(set)
+        for registro in _docentes():
+            departamento = registro.get("departamento") or ""
+            if departamento:
+                mapa[_normalizar(registro.get("nome", ""))].add(_normalizar(departamento))
+        _DEPARTAMENTO_POR_DOCENTE = dict(mapa)
+    return _DEPARTAMENTO_POR_DOCENTE
+
+
+def _pecas(bruto: str) -> list[str]:
+    """
+    Divide em frases NO TEXTO CRU, com a quebra de linha como fronteira.
+
+    A ordem importa e já custou uma medição inteira: `_normalizar` colapsa
+    quebras de linha, então segmentar depois de normalizar funde os itens de uma
+    lista com o parágrafo seguinte. Cada peça é normalizada DEPOIS de cortada.
+    """
+    saida = []
+    for linha in (bruto or "").split("\n"):
+        for pedaco in re.split(r"(?<=[.:;!?])\s+", linha):
+            normalizado = _normalizar(pedaco)
+            if normalizado:
+                saida.append(normalizado)
+    return saida
+
+
+def _deps_maximais(peca: str) -> set[str]:
+    """Departamentos conhecidos na peça, descartando os subsumidos por outro."""
+    presentes = {d for d in _nucleos_completos() if d in peca}
+    return {d for d in presentes if not any(d != o and d in o for o in presentes)}
+
+
+_NOMES_COMPLETOS_DEPARTAMENTO: list[str] | None = None
+
+
+def _nucleos_completos() -> list[str]:
+    global _NOMES_COMPLETOS_DEPARTAMENTO
+    if _NOMES_COMPLETOS_DEPARTAMENTO is None:
+        _NOMES_COMPLETOS_DEPARTAMENTO = sorted(
+            {d for deps in _departamentos_por_docente().values() for d in deps},
+            key=len,
+            reverse=True,
+        )
+    return _NOMES_COMPLETOS_DEPARTAMENTO
+
+
+def _escopo_do_nome(bruto: str, nome: str, desempate_anaforico: bool) -> dict:
+    """
+    Que departamentos a resposta coloca em escopo para ESTE nome.
+
+    NÍVEL 1 — atribuição local: departamentos na mesma peça (parêntese ou frase).
+    NÍVEL 2 — declaração com escopo, BIDIRECIONAL: o departamento conhecido mais
+    próximo antes e o mais próximo depois. "Mais próximo" já implementa a guarda
+    de "nada intervém": se houvesse outro entre, ele seria o mais próximo.
+    """
+    pecas = _pecas(bruto)
+    for peca in pecas:
+        if nome in peca:
+            locais = _deps_maximais(peca)
+            if locais:
+                return {"escopo": locais, "nivel": 1}
+
+    texto = " ".join(pecas)
+    pos = texto.find(nome)
+    if pos < 0:
+        return {"escopo": set(), "nivel": None}
+
+    antes = depois = None
+    for departamento in _nucleos_completos():
+        i = texto.find(departamento)
+        while i != -1:
+            if i + len(departamento) <= pos:
+                if antes is None or i > antes[0]:
+                    antes = (i, departamento)
+            elif i >= pos + len(nome):
+                if depois is None or i < depois[0]:
+                    depois = (i, departamento)
+            i = texto.find(departamento, i + 1)
+
+    candidatos = {c[1] for c in (antes, depois) if c is not None}
+
+    if desempate_anaforico and len(candidatos) > 1 and depois is not None:
+        janela = next((p for p in pecas if depois[1] in p), "")
+        antes_da_declaracao = janela.split(depois[1])[0]
+        if any(m in antes_da_declaracao for m in MARCADORES_ANAFORICOS):
+            return {"escopo": {depois[1]}, "nivel": 2, "desempate": "anaforico"}
+
+    return {"escopo": candidatos, "nivel": 2}
+
+
+def _conferir(checagem, verdade, resposta, afirmados, desempate_anaforico=False) -> dict:
     """
     Confere a resposta conforme o TIPO da pergunta.
 
@@ -255,16 +361,18 @@ def _conferir(checagem, verdade, resposta, afirmados) -> dict:
             "faltando": faltando,
             "soma_indevida": soma_indevida,
             "ok": not faltando and not soma_indevida,
+            "veredito": APROVA if (not faltando and not soma_indevida) else REPROVA,
         }
 
-    if checagem == "listagem":
+    if checagem in ("listagem", "cobertura_de_listagem"):
         esperados = [n for nomes in verdade["departamentos"].values() for n in nomes]
         faltando = [n for n in esperados if _normalizar(n) not in resposta_norm]
         return {
-            "tipo": checagem,
+            "tipo": "cobertura_de_listagem",
             "esperados": len(esperados),
             "faltando": faltando,
             "ok": not faltando,
+            "veredito": APROVA if not faltando else REPROVA,
         }
 
     if checagem == "vinculo":
@@ -278,30 +386,70 @@ def _conferir(checagem, verdade, resposta, afirmados) -> dict:
             "esperado": verdade["departamentos"],
             "faltando": faltando,
             "ok": not faltando,
+            "veredito": APROVA if not faltando else REPROVA,
         }
 
-    if checagem == "subconjunto":
-        # Não dá para saber quem DEVERIA estar na resposta — isso exigiria um
-        # gabarito semântico. Dá para saber quem não poderia: todo docente
-        # citado tem de pertencer ao departamento pedido. É o que pega a
-        # resposta sobre o departamento errado.
+    if checagem in ("subconjunto", "precisao_de_atribuicao_departamental"):
+        # v2a — A CLÁUSULA DO RÓTULO. Citar docente de fora não é defeito se a
+        # resposta disser de onde ele é e estiver certa ao dizer.
         #
-        # LIMITE HONESTO: um agente que responda sempre "não encontrei" passa
-        # nesta checagem. Por isso `citados` vai no registro — sem ele, zero
-        # intrusos seria indistinguível de zero esforço.
+        # LIMITE HONESTO 1: um agente que responda sempre "não encontrei" passa.
+        # Por isso `citados` vai no registro.
+        # LIMITE HONESTO 2: só nomes FORA do elenco são examinados. Atribuição
+        # falsa sobre alguém de dentro é invisível aqui, por desenho — auditado
+        # nos 21 itens, 3 casos com atribuição explícita e 0 divergentes.
         elenco = {
             _normalizar(n) for nomes in verdade["departamentos"].values() for n in nomes
         }
-        intrusos = [n for n in afirmados if n not in elenco]
+        fora = [n for n in afirmados if n not in elenco]
+
+        intrusos, ambiguos, rotulados = [], [], []
+        for nome in fora:
+            escopo = _escopo_do_nome(resposta, nome, desempate_anaforico)
+            declarados = escopo["escopo"]
+            reais = _departamentos_por_docente().get(nome, set())
+            if not declarados:
+                intrusos.append({"nome": nome, "motivo": "sem declaracao de vinculo"})
+            elif len(declarados) > 1:
+                ambiguos.append({"nome": nome, "em_escopo": sorted(declarados)})
+            elif declarados & reais:
+                # Homônimo: aceita se casar com QUALQUER um dos departamentos.
+                rotulados.append({
+                    "nome": nome,
+                    "declarado": sorted(declarados)[0],
+                    "nivel": escopo["nivel"],
+                    "homonimo": len(reais) > 1,
+                })
+            else:
+                intrusos.append({
+                    "nome": nome,
+                    "motivo": "vinculo declarado nao bate com a base",
+                    "declarado": sorted(declarados)[0],
+                    "real": sorted(reais),
+                })
+
+        # REPROVA domina AMBÍGUO: uma constatação definitiva vale mais que uma
+        # indecisão sobre outro nome do mesmo item.
+        if intrusos:
+            veredito = REPROVA
+        elif ambiguos:
+            veredito = AMBIGUO
+        else:
+            veredito = APROVA
+
         return {
-            "tipo": checagem,
+            "tipo": "precisao_de_atribuicao_departamental",
             "elenco": len(elenco),
             "citados": len(afirmados),
+            "fora_do_elenco": len(fora),
             "intrusos": intrusos,
-            "ok": not intrusos,
+            "ambiguos": ambiguos,
+            "rotulados_corretamente": rotulados,
+            "veredito": veredito,
+            "ok": veredito == APROVA,
         }
 
-    return {"tipo": checagem, "ok": None}
+    return {"tipo": checagem, "ok": None, "veredito": None}
 
 
 def avaliar(pergunta, resultado: ResultadoPipeline) -> dict:
