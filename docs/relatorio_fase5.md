@@ -6,7 +6,10 @@ podia sair de quem mediu.
 
 **Seções 10 e 11 acrescentadas em 5 set 2026**, depois da leitura e por
 determinação do orientando: a seção sobre o instrumento de medição e a
-**conclusão da fase 3**. Os números das seções 1 a 9 não foram tocados.
+**conclusão da fase 3**. A seção 10 foi ampliada em 6 set 2026 com a sexta e a
+sétima ocorrências e a regra operacional que sai delas.
+
+**Os números das seções 1 a 9 não foram tocados** em nenhuma das duas rodadas.
 
 Toda repontuação é sobre as **respostas já gravadas**, sem chamar o LLM. Duas
 execuções do mesmo checker sobre o mesmo JSONL devolvem o mesmo veredito, e
@@ -288,9 +291,12 @@ originou toda esta fase.
 
 ## A evidência
 
-Cinco medições minhas nesta fase produziram resultado errado. **Quatro direções
-distintas de erro. Zero exceções: todas as cinco produziram um número no formato
-esperado, e nenhuma levantou exceção.**
+**Sete medições minhas nesta fase produziram resultado errado. Zero exceções:
+todas as sete devolveram uma saída no formato esperado, e nenhuma levantou
+exceção.**
+
+As **cinco primeiras** contaminaram alguma decisão antes de serem pegas, e são o
+conjunto registrado como erro de medição da fase:
 
 | # | o que fiz | direção | número que saiu | o que era |
 |---|---|---|---|---|
@@ -299,6 +305,14 @@ esperado, e nenhuma levantou exceção.**
 | 3 | regex de extração capturando prefixo de nome | leu demais | `LEANDRO AZEVEDO LAPA` fora do elenco | `...LAPA E SILVA`, dentro |
 | 4 | dump de perfis truncado em 520 chars | leu de menos | `MARCOS BACIS CEDDIA` INCONCLUSIVO | "agroecologia" no char ~1100 |
 | 5 | casamento de tema sem separar campo descritivo | mediu frouxo | **10 de 35 com tema próprio** | **4 COM · 8 INCONCL · 23 SEM** |
+
+**Quatro direções distintas** — leu de menos, leu demais, mediu por proximidade,
+mediu frouxo. Nenhuma repetiu o mecanismo da anterior.
+
+A **sexta e a sétima** aconteceram em 5 set 2026, *executando a correção destas
+cinco*, e não chegaram a contaminar decisão. Estão numa seção própria mais
+abaixo, porque o que elas mostram não é mais um erro na lista: é **a diferença
+entre auditar e projetar**, que é o resultado prático deste capítulo.
 
 Nenhum desses números tinha cara de errado. O `10 de 35` sustentou o argumento do
 despejo por vários turnos, e ele **superestimava a qualidade da resposta** — o
@@ -324,9 +338,14 @@ Texto cru, base, Chroma. Em nenhum caso a suspeita veio do número; em todos os
 casos veio de conferir o número contra o dado de onde ele deveria ter saído.
 
 **É por isso que "revisar o resultado" não é um controle.** Revisar um resultado
-plausível confirma que ele é plausível. O único controle que funcionou foi
-recomputar contra a fonte — e é o único que este projeto deve exigir de si daqui
-em diante.
+plausível confirma que ele é plausível. O que funcionou foi recomputar contra a
+fonte.
+
+Mas recomputar contra a fonte é **auditoria**, e auditoria depende de alguém
+voltar. Nas cinco, ninguém voltou por suspeita — voltou-se porque o orientando
+cobrou a evidência. Um controle que precisa de um segundo leitor atento não é um
+controle do processo, é sorte de ter um. A sexta ocorrência mostra a alternativa,
+e está na seção correspondente.
 
 ## O alcance do quinto erro, medido hoje
 
@@ -354,17 +373,57 @@ GLAUBER RABELO MATIAS ........ INCONCLUSIVO   (1269 chars descritivos)
 menções" que a medição frouxa contou eram `sociais` e `movimentos` contados
 **separados**, em posições diferentes do texto.
 
-O contraste do par de utilidade **sobrevive**: 2 de 3 no `k2` contra 4 de 35 no
-`k1`. A fixture não foi trocada — trocar a fixture depois de ver o resultado é
-exatamente o que este protocolo proíbe. A correção foi da justificativa, e a
-troca de `GLAUBER` por `CESAR AUGUSTO DA ROS` ou `MARCO ANTONIO PERRUSO` (os
-outros dois COM RESPALDO entre os 35) fica registrada como decisão do orientando.
+### O achado, e ele é mais forte do que a correção
 
-## Uma sexta ocorrência, hoje, pega antes de decidir nada
+A fixture **não foi trocada, e não será.** Trocar fixture depois de ver o
+resultado é o movimento que este protocolo proíbe — inclusive, e principalmente,
+quando a troca melhoraria o caso. `CESAR AUGUSTO DA ROS` e `MARCO ANTONIO
+PERRUSO` são COM RESPALDO e deixariam o `k2` mais limpo. É exatamente por isso
+que não entram.
 
-O script escrito para fazer essa verificação **errou na primeira execução**. Ele
-buscava a chave `nome` no metadado do Chroma; a chave é `nome_docente`.
-Resultado:
+O que fica registrado no lugar da troca é o achado:
+
+> **Dos três nomes que eu escolheria como "a evidência temática mais forte" entre
+> os 35, um não tem respaldo nenhum.**
+
+Isso **fortalece** o argumento do despejo em vez de enfraquecê-lo. A comparação
+"2 de 3 no `k2` contra 4 de 35 no `k1`" já era desfavorável à `amb-02#3`; o
+achado diz que **a ancoragem daquela resposta é ainda menor do que a comparação
+sugeria**, porque nem a seleção deliberada dos melhores três acerta três. Se
+quem escolhe a dedo erra um em três, a lista de 35 escolhida por nada não tem
+como estar melhor.
+
+### As duas colisões de string, lado a lado
+
+O mecanismo que produziu o erro do `GLAUBER` **é o mesmo** que originou a métrica
+`respaldo_de_citacao`. Um nível acima, e dentro do meu próprio aparato:
+
+| | colisão no SISTEMA MEDIDO | colisão no APARATO DE MEDIÇÃO |
+|---|---|---|
+| **onde** | recuperação vetorial da `amb-02` | medição frouxa de "tema próprio" |
+| **o que casou** | `DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, **MOVIMENTOS SOCIAIS** E DIVERSIDADE` | `MOVIMENTOS` ARTÍSTICO-CULTURAIS + CIÊNCIAS `SOCIAIS` |
+| **por que casou** | o nome do departamento contém a frase da consulta | as duas palavras contadas separadas, em posições diferentes |
+| **o que produziu** | 9 de 10 docentes "que trabalham com movimentos sociais" sem uma palavra sobre o tema | 1 de 3 docentes "com a evidência mais forte" sem respaldo |
+| **como se detecta** | remover o nome do departamento antes de procurar o tema | exigir a **frase completa**, no texto descritivo |
+
+**São a mesma falha, e eu escrevi a correção de uma enquanto cometia a outra.**
+`texto_descritivo()` existe precisamente para tirar o nome do departamento do
+caminho — e a medição que eu usava para justificar o caso do gold set continuava
+casando palavra solta em documento inteiro.
+
+É o argumento central do capítulo em forma concreta: **quem escreve o instrumento
+não está fora do alcance do defeito que o instrumento existe para pegar.**
+
+## Sexta e sétima ocorrências — as duas de 5 set 2026, durante a correção
+
+As duas aconteceram **executando a correção das cinco anteriores**. Ficam em
+seção própria porque a diferença entre elas e as cinco primeiras é o resultado
+mais útil deste capítulo.
+
+### Sexta — chave errada no metadado do Chroma
+
+O script escrito para reclassificar os nomes do `k2` buscava a chave `nome` no
+metadado; a chave é `nome_docente`. Resultado:
 
 ```
 perfis carregados: 1
@@ -372,20 +431,87 @@ citados: 35 · com_respaldo: 0 · inconclusivos: 0 · sem_respaldo: 35
 intervalo [0; 0]   "fracao_minima": "0 de 35"
 ```
 
-**Zero de 35.** Formato correto, JSON válido, nenhuma exceção — e teria sido um
-número espetacular para a tese do despejo. O que o denunciou não foi o `0 de 35`:
-foi a linha de diagnóstico `perfis carregados: 1`, impressa por hábito antes do
-resultado. Com a chave certa, `perfis carregados: 1301`, e o agregado reproduziu
-**exatamente** os números da seção 5 — 4 COM, 8 INCONCLUSIVO, 23 SEM.
+**Zero de 35.** Formato correto, JSON válido, nenhuma exceção.
 
-Esta é a primeira vez na fase em que o erro foi pego **antes** de entrar em
-decisão, e não foi por sorte: foi porque o script imprimia um intermediário
-conferível. Fica como a forma prática da regra.
+⚠️ **E favorável à minha própria tese.** `0 de 35` seria o número mais forte
+possível para o argumento do despejo — a resposta de 35 nomes sem um único
+respaldo. Eu estava escrevendo a seção que sustenta esse argumento quando o
+script devolveu exatamente o número que o coroaria.
 
-> **Regra, na forma operacional:** todo script de medição imprime, junto do
-> resultado, **os intermediários que permitem conferi-lo contra a fonte** —
-> quantos registros carregou, quantos casaram, quanto texto leu e se truncou.
-> Resultado sem intermediário conferível não entra em decisão nenhuma.
+> **A plausibilidade que mais engana é a que confirma.** Um resultado
+> inesperado convida à conferência; um resultado que fecha a tese não convida a
+> nada. O `10 de 35` do quinto erro enfraquecia minha tese e mesmo assim durou
+> vários turnos. O `0 de 35` a fortalecia — teria durado quanto?
+
+O que o denunciou não foi o `0 de 35`: foi a linha `perfis carregados: 1`,
+impressa antes do resultado. Com a chave certa, `perfis carregados: 1301`, e o
+agregado reproduziu **exatamente** os números da seção 5.
+
+### Sétima — suíte verde de código obsoleto
+
+Rodei `pytest` depois de editar `testes/gold_checker/casos.py`:
+
+```
+102 passed, 3 warnings in 9.36s
+```
+
+**Os 102 eram de um `casos.py` obsoleto.** `testes/` não é volume montado no
+`docker-compose.yml` — o código vem do `COPY` da imagem. Sem `docker compose
+build`, o `pytest` executa a versão anterior à edição, e a saída não diz isso em
+lugar nenhum. É a **armadilha 1 do `CLAUDE.md`**, documentada há dois dias,
+cometida por quem a documentou.
+
+Depois do build: 102 passando de novo — mesmo número, agora significando outra
+coisa. **É o pior formato possível de erro:** o número certo pelo motivo errado,
+indistinguível do número certo pelo motivo certo.
+
+### A assimetria, e é a recomendação prática do capítulo
+
+| | como foi pega | quando |
+|---|---|---|
+| 1ª a 5ª | verificação **posterior** contra a fonte | **depois** de já ter contaminado uma decisão |
+| 6ª | instrumentação **do próprio script** (`perfis carregados: 1`) | **antes** de entrar em qualquer decisão |
+| 7ª | conhecimento prévio da armadilha, aplicado ao ler a saída | antes de entrar em decisão, **mas por memória, não por instrumento** |
+
+As cinco primeiras foram pegas **auditando**: alguém voltou ao texto cru, à base,
+ao Chroma, depois que o número já tinha sido usado para decidir alguma coisa. A
+auditoria funcionou — e funcionou tarde, cinco vezes.
+
+A sexta foi pega **projetando**: o script imprimia um intermediário conferível, e
+o intermediário estava errado de forma óbvia (`1` perfil, quando o corpus tem
+1302) enquanto o resultado estava errado de forma invisível.
+
+> **A diferença entre auditar e projetar é a recomendação que sai deste
+> capítulo.** Auditoria é um controle que depende de alguém voltar. Instrumentação
+> é um controle que age na primeira execução, sem depender de suspeita, de
+> disponibilidade ou de memória.
+
+A sétima mostra o limite de não instrumentar: ela foi pega porque eu lembrei da
+armadilha 1, e memória não é controle. Se `pytest` imprimisse a origem do código
+que executou, não haveria nada de que lembrar.
+
+## A regra operacional, na forma em que entra no projeto
+
+Não é conselho. É condição para um número entrar em decisão.
+
+> **1. Todo script de medição imprime, ANTES do resultado, os intermediários que
+> permitem conferi-lo contra a fonte:**
+> - quantos registros carregou, e **de onde** (host, coleção, caminho do arquivo)
+> - quantos casaram com o que se procurava, e quantos não casaram
+> - **tamanho do texto lido** e se houve truncamento
+>
+> **2. Todo comando de teste imprime a origem do que executou:** imagem e
+> `created_at`, se houve build, caminho do código carregado.
+>
+> **3. Resultado sem intermediário conferível não entra em decisão.** Não é que
+> ele valha menos: ele não entra.
+
+O item 2 não estava previsto e entra por causa da sétima ocorrência. O item 1 já
+tinha sido escrito depois do quarto erro, na forma "declarar tamanho lido e
+truncamento" — **e a sexta ocorrência aconteceu mesmo assim**, porque a regra
+antiga cobria *quanto texto foi lido* e não cobria *quantos registros foram
+carregados*. A regra foi ampliada pelo caso que ela não pegou, o que é o modo
+correto de uma regra crescer e também o registro de que ela era incompleta.
 
 ---
 

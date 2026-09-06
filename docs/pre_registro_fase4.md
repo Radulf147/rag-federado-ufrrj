@@ -330,3 +330,15 @@ bateria nova, com perguntas não inspecionadas.
    Nunca ajustar regra e rótulo no mesmo passo.
 5. **Nenhum critério é escolhido depois de ver o resultado.** O que este documento
    não previu entra como divergência registrada.
+6. **A regra operacional de medição vale como condição de entrada**, na forma
+   fixada em `docs/relatorio_fase5.md` §10:
+   - todo script de medição imprime, **antes do resultado**, quantos registros
+     carregou e **de onde**, quantos casaram, o tamanho do texto lido e se
+     truncou;
+   - todo comando de teste imprime **a origem do que executou** — imagem,
+     `created_at`, se houve build;
+   - **resultado sem intermediário conferível não entra em decisão.**
+
+   Esta condição existe porque sete medições erradas nesta fase produziram, todas,
+   saída no formato esperado e sem exceção. **A regra não é conselho de higiene:
+   é o que separa auditar de projetar**, e auditoria depende de alguém voltar.

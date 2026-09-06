@@ -213,3 +213,10 @@ __marimo__/
 # recarga, e reconstruivel a partir do Chroma (modulo1_etl/reconstruir_sqlite.py).
 # Versiona-lo so produziria ruido de diff.
 dados/
+
+# Executaveis. Regra existe porque CONFERIR A CADA `git add` e a mesma aposta
+# que falhou sete vezes na fase 3: depender de atencao humana para nao commitar
+# a coisa errada. Dois instaladores (hydra, winrar) apareceram na raiz do repo
+# em 5 set 2026 e so nao entraram porque alguem olhou o `git status`. A regra
+# nao depende de ninguem olhar.
+*.exe
