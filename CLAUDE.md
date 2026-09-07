@@ -122,6 +122,15 @@ modulo2_inferencia/          # motor de inferência
 interfaces/
   cli.py                      # REPL — entrypoint do agente interativo
   comparar.py                 # runner em lote da comparação dos 3 pipelines
+  conjunto_avaliacao.py       # as 30 perguntas e o gabarito calculado do corpus
+  repontuar.py                # repontua uma bateria JÁ GRAVADA, sem chamar o LLM
+  respaldo.py                 # respaldo_de_citacao — metrica exploratoria
+  rede/                       # REDE SIMULADA (ver §5) — nao e o Modulo 3
+    loja.py                     # posts e threads em SQLite; nao conhece o agente
+    bot.py                      # consome a fila, monta o contexto, publica
+    servidor.py                 # Flask; a pagina em localhost:5000
+    instancias.py               # as duas instancias simuladas
+    semear.py                   # cenario de exemplo
 
 testes/                      # suite de pytest; funcoes puras, sem rede nem banco
 dados/sigaa.db               # banco estruturado; volume montado, senão o --rm o destrói
@@ -516,7 +525,7 @@ Havia zero `test_*.py` e `pytest` fora do `requirements`. Rodar `pytest`
 coletava zero testes e saía com sucesso — que se lê facilmente como "está tudo
 passando". Não estava: não havia o que passar.
 
-Agora há **44 testes** em `testes/`, e cada um é a memória de um defeito que de
+Agora há **160 testes** em `testes/`, e cada um é a memória de um defeito que de
 fato aconteceu:
 
 | Arquivo | Cobre |
@@ -524,6 +533,14 @@ fato aconteceu:
 | `test_extracao_perfil.py` | achados 01, 03 e 09 — prefixo normalizado, placeholder do SIGAA, perfil esparso |
 | `test_busca_e_deduplicacao.py` | busca cega a acentos, chave de dedup, tradução de `REASONING_EFFORT` |
 | `test_avaliacao.py` | o instrumento da fase 3 — pré-registro, rota deduzida, atribuição, soma indevida, execução que falha |
+| `gold_checker/` | o gold set do checker v2a — 12 casos com evidência em cada rótulo |
+| `test_rede_loja.py` | posts e threads — menção contra e-mail, thread que não atravessa instância, fila |
+| `test_rede_bot.py` | composição do contexto, o interruptor, e nunca publicar resposta quando o agente falhou |
+| `test_rede_servidor.py` | rotas, publicação, o aviso de espera, escape de HTML |
+
+Rode com **`./rag.sh testes`**, que reconstrói a imagem antes e imprime o id
+dela. Não é zelo: `testes/` **não é volume montado** e o código vem do `COPY`
+da imagem — `pytest` sem build devolve verde de código obsoleto (armadilha 1).
 
 > ⚠️ **Testar o que MEDE é tão necessário quanto testar o que É medido.** Em
 > 5 set a bateria morreu na célula 53 de 150, meia hora depois de começar, num
@@ -1033,3 +1050,103 @@ invalida a comparação entre os pipelines. Reativar aquela linha é o gesto que
 inicia esta fase.
 
 Não iniciar a varredura ampla antes da fase 3 estar concluída.
+
+
+## 5. Rede simulada — o cenário onde o agente é exercitado (6 set 2026)
+
+```
+./rag.sh rede          sobe a página e o bot -> http://localhost:5000
+./rag.sh semear        APAGA os posts e recria o cenário de exemplo
+./rag.sh rede-logs     segue o worker do bot
+./rag.sh rede-parar    derruba os dois
+```
+
+### O que é, e principalmente o que NÃO é
+
+**Não é o Módulo 3.** Não há ActivityPub, não há instância remota, não há
+federação nenhuma. O pacote se chama `interfaces/rede/` e evita a palavra
+"federação" de propósito: chamar isto de Módulo 3 faria o repositório afirmar
+uma coisa que ele não faz.
+
+**A federação de verdade é escopo do TCC**, no ano seguinte. A IC é o bot — o
+título é *"RAG para recuperação de informação em redes sociais federadas"*, e o
+que está sendo pesquisado é a recuperação, não a rede.
+
+### Por que existe, então
+
+Porque **é o aparato experimental da IC.** O que distingue este trabalho de um
+chatbot comum é que a pergunta não chega limpa: ela chega como post com menção,
+dentro de uma thread, numa instância. Sem um cenário que force esses três
+aspectos, o agente seria exercitado por um prompt de terminal — e a pesquisa
+mediria uma coisa diferente da que descreve.
+
+```
+@raul:  quantos professores tem o Departamento de Computação?
+@bia:   @ufrrj e a Matemática, tem mais ou menos que esse?
+```
+
+"esse" não quer dizer nada sozinho. `bot.montar_pergunta` faz a junção, é
+**pura** (dois dicts entram, uma string sai) e é a função que a fase de medição
+vai interrogar.
+
+### O interruptor de contexto — a hipótese tem de poder ser negada
+
+`--sem-contexto` reproduz o comportamento antigo: o agente recebe só o texto da
+menção. Existe para que a mesma pergunta possa ser respondida das duas formas e
+comparada. Sem ele, *"ler a thread melhora as respostas"* não seria hipótese,
+seria afirmação sem como ser negada. Medido ao vivo com o agente real:
+
+| | texto enviado | resposta |
+|---|---|---|
+| **com** contexto | post citado + pergunta | chamou a tool 2× e comparou 15/15 contra 44 |
+| **sem** contexto | `"e a Matemática, tem mais ou menos que esse?"` | *"preciso saber com qual departamento você está comparando"* |
+
+A medição formal disso **ainda não foi feita** e exige pré-registro escrito
+antes, como o resto do projeto.
+
+### As regras que este módulo não pode quebrar
+
+1. **Nunca publicar resposta quando o agente falhou.** Post do bot é
+   indistinguível de outro para quem lê; texto de fallback com cara de resposta
+   é o resultado plausível e errado. Falha vira post que **diz** que falhou
+   (após `MAX_TENTATIVAS=3`, porque queda de túnel é transitória), ou não vira
+   post nenhum. **Resposta vazia conta como falha** — o gpt-oss:20b já devolveu
+   `content` vazio com `done_reason='stop'` neste projeto (§2).
+2. **O bot fica quieto onde não foi chamado.** Um bot que responde sem menção é
+   tão defeituoso quanto um que não responde quando mencionado, e o cenário de
+   exemplo tem uma thread só para exercitar isso.
+3. **Duas barreiras contra auto-resposta em laço.** A estrutural (`e_bot = 0` na
+   consulta da fila) e a textual (a menção não casa dentro de e-mail). A
+   primeira é a que vale: a resposta do agente **pode** conter `@ufrrj` ao citar
+   o contato de um docente, e 92,9% dos perfis têm e-mail institucional.
+4. **Thread não atravessa instância.** A separação de dados por instância é a
+   premissa do projeto; sem essa checagem ela deixaria de valer no banco sem
+   ninguém perceber.
+
+### Decisões de infraestrutura, e o porquê de cada uma
+
+- **`dados/rede.db`, separado do `sigaa.db`.** O ETL trata cada execução como
+  retrato completo e apaga as linhas do tipo que vai recarregar (achado 10).
+  Post de usuário não é entidade do SIGAA: uma recarga apagaria a conversa
+  junto, sem erro nenhum.
+- **`rede` e `bot` são serviços separados.** A página **não fala com o Ollama**
+  e não depende do túnel — publicar continua funcionando com o LLM fora, e a
+  resposta chega quando o worker voltar. Também permite parar o bot de
+  propósito para demonstrar a fila enchendo na tela.
+- **Sem atualização automática.** É fidelidade ao que se simula: no Grok quem
+  pergunta não fica olhando. No lugar do spinner, a página mostra **estado real
+  lido do banco** — post que mencionou o bot e ainda não tem resposta aparece
+  marcado como aguardando. Fato sobre a fila, não animação.
+- **Sem CDN e sem fonte remota.** A demonstração tem de abrir sem internet.
+
+### Limitação conhecida — injeção de prompt
+
+O post citado é **texto de terceiro** e chega ao modelo na mesma mensagem que a
+pergunta. Alguém pode publicar "ignore suas instruções" e esperar que outra
+pessoa mencione o bot ali embaixo. Numa rede social isso não é hipótese: é o
+caso normal.
+
+O texto entra delimitado e marcado como conteúdo de terceiro, e o delimitador
+escrito pelo usuário é neutralizado. Isso fecha o buraco óbvio e **não elimina**
+injeção de prompt — afirmar o contrário seria falso. Registrado como candidata
+a medição própria em `docs/backlog_avaliacao.md`.
