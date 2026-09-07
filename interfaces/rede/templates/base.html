@@ -14,42 +14,43 @@
       <span class="marca-ponto"></span>
       rede<b>ufrrj</b>
     </a>
-    <span class="aviso-simulacao" title="Não há ActivityPub nem federação real aqui.">
-      simulação local &middot; não federa
-    </span>
+    <nav class="topo-abas">
+      {% for i in INSTANCIAS %}
+      <a class="aba {% if i.id == atual.id %}ativa{% endif %}"
+         href="{{ url_for('feed', instancia_id=i.id) }}">{{ i.nome }}</a>
+      {% endfor %}
+    </nav>
   </div>
 </header>
 
 <div class="pagina">
 
   <aside class="coluna">
-    <h2 class="rotulo">Instâncias</h2>
-    <nav class="lista-instancias">
-      {% for i in INSTANCIAS %}
-      <a class="cartao-instancia {% if i.id == atual.id %}ativa{% endif %}"
-         href="{{ url_for('feed', instancia_id=i.id) }}"
-         style="--cor: {{ i.cor }}">
-        <span class="pastilha"></span>
-        <span class="ci-corpo">
-          <span class="ci-nome">{{ i.nome }}</span>
-          <span class="ci-id">{{ i.id }}</span>
-          <span class="ci-regra">{{ i.regra }}</span>
-        </span>
-      </a>
-      {% endfor %}
-    </nav>
+    <section class="box">
+      <h3><span>Instâncias</span></h3>
+      <nav class="lista-instancias">
+        {% for i in INSTANCIAS %}
+        <a class="cartao-instancia {% if i.id == atual.id %}ativa{% endif %}"
+           href="{{ url_for('feed', instancia_id=i.id) }}"
+           style="--cor: {{ i.cor }}">
+          <span class="pastilha"></span>
+          <span class="ci-corpo">
+            <span class="ci-nome">{{ i.nome }}</span>
+            <span class="ci-id">{{ i.id }}</span>
+            <span class="ci-regra">{{ i.regra }}</span>
+          </span>
+        </a>
+        {% endfor %}
+      </nav>
+    </section>
 
-    <p class="nota">
-      Cada instância tem os seus dados e as suas regras. É essa separação que o
-      projeto quer demonstrar — aqui ela está simulada.
-    </p>
-
-    <h2 class="rotulo">O bot</h2>
-    <p class="nota">
-      Marque <code>{{ BOT }}</code> respondendo a um post. A resposta não é
-      imediata: ela chega e <b>você atualiza a página</b> para ver, como no
-      Grok.
-    </p>
+    <section class="box">
+      <h3><span>O bot</span></h3>
+      <p class="nota">
+        Marque <code>{{ BOT }}</code> respondendo a um post. A resposta não é
+        imediata.
+      </p>
+    </section>
   </aside>
 
   <main class="conteudo">

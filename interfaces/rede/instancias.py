@@ -29,14 +29,14 @@ INSTANCIAS: tuple[Instancia, ...] = (
         nome="Computação",
         descricao="Alunos e docentes do Instituto Multidisciplinar e do DCC.",
         regra="Dados ficam nesta instância. Sem indexação externa.",
-        cor="#2F6F4E",
+        cor="#3b4877",   # navy do SIGAA
     ),
     Instancia(
         id="matematica.ufrrj",
         nome="Matemática",
         descricao="Comunidade do Departamento de Matemática.",
         regra="Só membros verificados publicam. Histórico apagado a cada período.",
-        cor="#7A4E8C",
+        cor="#7a5230",   # da familia do ambar do SIGAA
     ),
 )
 
