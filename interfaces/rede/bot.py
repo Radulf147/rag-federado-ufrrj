@@ -46,12 +46,38 @@ log = logging.getLogger(__name__)
 
 # Quantas vezes uma pergunta é tentada antes de virar um post de falha. Existe
 # porque queda de túnel é transitória: marcar a pergunta como perdida na
-# primeira falha de rede descartaria trabalho que funcionaria em 5 segundos.
-MAX_TENTATIVAS = 3
+# primeira falha de rede descartaria trabalho que voltaria a funcionar sozinho.
+MAX_TENTATIVAS = 5
+
+# ESPERA ENTRE TENTATIVAS — e ela é o mecanismo, não um detalhe.
+#
+# A primeira versão não tinha isto, e o resultado apareceu em produção em
+# 7 set 2026:
+#
+#     14:28:35,154  tentativa 1 falhou
+#     14:28:35,172  tentativa 2 falhou
+#     14:28:35,188  tentativa 3 falhou
+#     14:28:35,210  desistiu
+#
+# As três tentativas em 56 MILISSEGUNDOS. O laço só dormia quando a fila
+# estava vazia; com item na fila ele voltava imediatamente. A repetição
+# existia para atravessar uma queda de túnel e não atravessava nada — código
+# presente, comentário correto, mecanismo inerte. Mesma família dos erros
+# registrados em docs/relatorio_fase5.md §10: parece funcionar e não funciona.
+ESPERAS = (10, 30, 60, 120)  # segundos, entre a tentativa n e a n+1
+
+
+def espera_da_tentativa(numero: int) -> float:
+    """Segundos a esperar DEPOIS da tentativa `numero` (1-based)."""
+    if numero < 1:
+        return 0.0
+    return float(ESPERAS[min(numero, len(ESPERAS)) - 1])
+
 
 AVISO_FALHA = (
-    "Não consegui responder agora — o serviço de linguagem não respondeu. "
-    "A pergunta não foi perdida; tente mencionar de novo daqui a pouco."
+    "Não consegui responder — não obtive resposta do serviço de linguagem "
+    "depois de várias tentativas. Isso é problema de infraestrutura, não da "
+    "sua pergunta: mencione de novo quando o serviço voltar."
 )
 
 AVISO_SEM_PERGUNTA = (
@@ -172,8 +198,16 @@ def responder_um(
                 "erro": str(erro),
                 "resposta_id": _publicar_resposta(post_da_mencao, AVISO_FALHA),
             }
-        # Sem publicar: o post continua na fila e será tentado de novo.
-        return {"post": pid, "resultado": "falhou", "erro": str(erro)}
+        # Sem publicar: o post continua na fila e será tentado de novo. A
+        # espera vai no evento porque quem dorme é o laço — `responder_um` não
+        # bloqueia, para continuar testável em milissegundos.
+        return {
+            "post": pid,
+            "resultado": "falhou",
+            "erro": str(erro),
+            "tentativa": tentativas[pid],
+            "esperar": espera_da_tentativa(tentativas[pid]),
+        }
 
     if not (texto or "").strip():
         # O agente devolveu vazio. Isto já aconteceu neste projeto — o
@@ -188,7 +222,13 @@ def responder_um(
                 "erro": "resposta vazia",
                 "resposta_id": _publicar_resposta(post_da_mencao, AVISO_FALHA),
             }
-        return {"post": pid, "resultado": "falhou", "erro": "resposta vazia"}
+        return {
+            "post": pid,
+            "resultado": "falhou",
+            "erro": "resposta vazia",
+            "tentativa": tentativas[pid],
+            "esperar": espera_da_tentativa(tentativas[pid]),
+        }
 
     tentativas.pop(pid, None)
     return {
@@ -244,10 +284,21 @@ def executar(intervalo: float = 5.0, com_contexto: bool = True) -> None:
         except Exception:  # noqa: BLE001
             log.exception("erro inesperado no laço; seguindo")
             evento = None
+
         if evento is None:
             time.sleep(intervalo)
-        else:
-            log.info("post %s -> %s", evento["post"], evento["resultado"])
+            continue
+
+        log.info("post %s -> %s", evento["post"], evento["resultado"])
+
+        # ESPERAR DEPOIS DE FALHAR. Sem isto o laço volta imediatamente e
+        # consome as MAX_TENTATIVAS no mesmo instante — foi o que aconteceu em
+        # 7 set 2026, três tentativas em 56 ms. A espera é o que transforma a
+        # repetição em tolerância de verdade a queda de túnel.
+        espera = evento.get("esperar", 0)
+        if espera:
+            log.info("aguardando %ss antes da proxima tentativa", espera)
+            time.sleep(espera)
 
 
 if __name__ == "__main__":

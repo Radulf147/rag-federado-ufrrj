@@ -192,6 +192,43 @@ class TestFalha:
         assert evento["resultado"] == "falhou"
         assert loja.respostas_do_bot(mencao) == []
 
+    def test_falha_diz_quanto_esperar_antes_de_tentar_de_novo(self):
+        """
+        REGRESSÃO DE 7 SET 2026. A versão anterior não devolvia `esperar`, e o
+        laço voltava na hora: as três tentativas queimaram em 56 MILISSEGUNDOS
+        (14:28:35,154 / ,172 / ,188). A repetição existia para atravessar uma
+        queda de túnel e não atravessava nada.
+        """
+        _thread_com_mencao()
+        evento = bot.responder_um(_agente_que_falha())
+        assert evento["esperar"] > 0, (
+            "sem espera, MAX_TENTATIVAS é consumido no mesmo instante e a "
+            "repetição não tolera nada"
+        )
+
+    def test_a_espera_cresce_a_cada_tentativa(self):
+        """
+        Espera fixa e curta atrasa a desistência sem aumentar a tolerância. O
+        que dá tempo de um túnel voltar é o crescimento.
+        """
+        esperas = [bot.espera_da_tentativa(n) for n in range(1, bot.MAX_TENTATIVAS)]
+        assert esperas == sorted(esperas)
+        assert esperas[-1] > esperas[0]
+
+    def test_tolerancia_total_passa_de_um_minuto(self):
+        """
+        O número que importa não é MAX_TENTATIVAS, é quanto tempo o bot aguenta
+        o serviço fora. Com 3 tentativas sem espera, aguentava zero.
+        """
+        total = sum(bot.espera_da_tentativa(n) for n in range(1, bot.MAX_TENTATIVAS))
+        assert total >= 60, f"tolerancia de apenas {total}s"
+
+    def test_o_aviso_diz_que_o_problema_nao_e_a_pergunta(self):
+        """
+        Quem lê precisa saber se refaz a pergunta ou espera a infra voltar.
+        """
+        assert "infraestrutura" in bot.AVISO_FALHA.lower()
+
     def test_tentativa_bem_sucedida_zera_o_contador(self):
         from collections import defaultdict
 
