@@ -406,3 +406,71 @@ gabarito**, e na segunda não.
 
 É a sexta vez nesta linha de trabalho que uma medição minha precisa ser refeita,
 e a segunda pela MESMA causa — colisão com nome de departamento. Registrado.
+
+### Linha de base CORRIGIDA (7 set 2026) — esta é a régua
+
+Gabarito agora é o texto **descritivo** (Perfil, Formação, Áreas de interesse),
+sem o nome do departamento. As três previsões da segunda rodada, escritas antes
+de rodar (`8b3e0e1`), bateram todas.
+
+```
+tema                          gab  infl     @10     @20     @50    @100   pior
+------------------------------------------------------------------------------
+POLITICAS PUBLICAS             53     -    1/53    2/53    4/53    7/53   1260
+FORMACAO DE PROFESSORES        33     -    0/33    2/33    2/33    5/33   1168
+EDUCACAO ESPECIAL              15     -    5/15    8/15   11/15   13/15    821
+FORMACAO DOCENTE               14   +33    1/14    2/14    2/14    4/14   1121
+inteligencia artificial   *    11     -    2/11    4/11    6/11    7/11    498
+TEORIA DA HISTORIA              7     -    1/7     1/7     5/7     5/7     850
+
+  MEDIANA do recall@10: 14%
+```
+
+| # | previsto | medido | |
+|---|---|---|---|
+| 4 | `formação docente` encolhe e o recall dela cai | **47 → 14**, e 70% → **10%** do teto | ✅ |
+| 5 | temas que não são nome de departamento mudam pouco | `infl = -` em **todos** os outros | ✅ |
+| 6 | a mediana piora ou fica igual | 15% → **14%** | ✅ |
+
+**`+33` é o tamanho do meu erro.** Dos 47 do gabarito antigo de `formação
+docente`, **33 eram pessoas que não escreveram nada** — entravam pelo nome do
+departamento onde trabalham. O tema que parecia o melhor do conjunto era o mais
+contaminado, e virou um dos piores.
+
+Corrigindo pelo teto aritmético, a régua limpa:
+
+```
+EDUCACAO ESPECIAL .......... 5 de 10   33%   <- melhor caso
+inteligencia artificial .... 2 de 10   20%
+TEORIA DA HISTORIA ......... 1 de  7   14%
+FORMACAO DOCENTE ........... 1 de 10   10%
+POLITICAS PUBLICAS ......... 1 de 10   10%
+FORMACAO DE PROFESSORES .... 0 de 10    0%   <- pior caso
+```
+
+**No melhor tema medido, 2 de cada 3 vagas do TOP_10 vão para alguém que não
+escreveu nada sobre o assunto.**
+
+### A correção que o diagnóstico aponta, e ela não exige re-scraping
+
+O TOP_10 é ocupado por perfis vazios cujo único conteúdo indexado é o nome do
+departamento. A saída que ataca a causa: **indexar apenas o que a pessoa
+escreveu sobre si**, tirando do texto vetorizado o nome do departamento, o
+telefone, o e-mail e o endereço.
+
+Duas consequências, as duas desejáveis:
+
+1. A colisão com nome temático de departamento **deixa de existir** — some o
+   mecanismo dominante medido acima.
+2. Perfil sem conteúdo descritivo fica com texto vazio e **sai do índice
+   semântico**. É o correto: não há nada semântico num documento que só diz onde
+   a pessoa trabalha. Eles permanecem no SQLite, que é quem responde contagem e
+   listagem, e é por onde essas perguntas já são roteadas.
+
+> **Não precisa tocar no SIGAA.** O conteúdo completo já está gravado no Chroma;
+> basta reprocessar e re-vetorizar o que já existe. Sem scraping, sem carga
+> nova, sem risco para o corpus — e reversível, porque o texto original continua
+> lá.
+
+**A régua acima é o critério de aceite**, e ela pode reprovar a mudança: se o
+recall@10 não subir, a hipótese estava errada e a alteração é revertida.
