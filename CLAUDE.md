@@ -715,6 +715,36 @@ inaceitável, porque o comando remoto falha e não há ninguém no PC para
 perceber. Deixe o `manter` rodando numa janela, ou registre-o como tarefa
 agendada no logon para não depender de nada.
 
+### ⚠️ `./script.sh` NÃO funciona no PowerShell — use os `.cmd`
+
+`./tunel.sh manter` no PowerShell **não executa o script**: o Windows entrega o
+arquivo ao programa associado à extensão `.sh` e abre a janela *"escolha um
+aplicativo para abrir este arquivo"*. Aconteceu em 7 set 2026.
+
+```
+Git Bash ......  ./tunel.sh manter        ./rag.sh rede
+PowerShell ....  .\tunel.cmd manter       .\rag.cmd rede
+```
+
+Os `.cmd` são invólucros de duas linhas úteis que chamam o `.sh` correspondente.
+
+> **Chamar `bash tunel.sh` no PowerShell é pior que não chamar.** Nesta máquina
+> o `bash` do PATH é `C:\Windows\system32\bash.exe`, **do WSL** — outro sistema
+> de arquivos, outro `~/.ssh`, outro `/tmp`. O túnel subiria num ambiente que
+> não é o do projeto, e o socket de controle `/tmp/rag_tunel_dcc` não seria o
+> mesmo que `status` e `down` procuram: `up` diria OK e `status` diria FECHADO.
+> Por isso os `.cmd` apontam para o Git Bash por caminho absoluto.
+
+Duas armadilhas de arquivo `.cmd`, as duas cometidas na primeira versão destes
+invólucros e registradas no cabeçalho do `tunel.cmd`:
+
+1. **`.cmd` exige quebra de linha CRLF.** Com LF o `cmd.exe` lê lixo e reclama
+   de comandos inexistentes (`'m' não é reconhecido...`). Fixado em
+   `.gitattributes` com `text eol=crlf`, senão o próximo clone reintroduz.
+2. **`%ProgramFiles(x86)%` não pode ficar dentro de bloco entre parênteses** —
+   o `)` de `(x86)` fecha o bloco antes da hora. Vai para uma variável antes do
+   `if`.
+
 ### Hardware alvo: máquina da faculdade (invaders)
 
 **RTX 5070, 16GB VRAM.** Essa é a única especificação de hardware que
