@@ -24,7 +24,21 @@ EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", 384))
 
 # --- ChromaDB ---
 CHROMA_PERSIST_DIR = "./chroma_db"
-CHROMA_COLECAO = f"rag_{INSTANCIA}"
+# ⚠️ SOBREPONÍVEL POR AMBIENTE DESDE 7 SET 2026 — e antes disso NÃO ERA.
+#
+# `modulo1_etl/reindexar_descritivo.py` afirma, no próprio docstring, que
+# "voltar atrás é trocar uma variável de ambiente". Era falso: a coleção saía
+# só de INSTANCIA, que é constante no código, e não havia variável nenhuma
+# para trocar. Trocar a coleção de produção exigia editar este arquivo.
+#
+# A frase não deu erro nenhum, porque ninguém tinha tentado trocar ainda. Ela
+# descrevia uma reversibilidade que o código não tinha — e reversibilidade
+# barata foi o argumento usado para autorizar a reindexação. Mesmo padrão do
+# §10 do relatório: a saída plausível que ninguém foi conferir.
+#
+# O default preserva EXATAMENTE o valor anterior. Nada muda para quem não
+# definir a variável; o que muda é que agora existe o que trocar.
+CHROMA_COLECAO = os.getenv("CHROMA_COLECAO", f"rag_{INSTANCIA}")
 CHROMA_HOST = os.getenv("CHROMA_HOST", "localhost")
 CHROMA_PORT = int(os.getenv("CHROMA_PORT", 8000))
 CHROMA_REMOTE = os.getenv("CHROMA_REMOTE", "False").lower() in ("true", "1")
