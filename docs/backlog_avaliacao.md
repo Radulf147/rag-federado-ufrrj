@@ -322,3 +322,87 @@ alto nos outros temas) foi negada com folga. Mas nenhuma delas explica por que
 `FORMACAO DOCENTE` acerta 70% do teto e `FORMACAO DE PROFESSORES`, que é quase
 sinônimo, acerta 0%. **Falta um diagnóstico antes de tentar qualquer correção**,
 e tentar as três agora seria mexer sem saber.
+
+### Diagnóstico (7 set 2026) — a causa, e ela é dupla
+
+`modulo2_inferencia/diagnostico_recuperacao.py`.
+
+#### O espaço NÃO está colapsado — controle de absurdo passou
+
+```
+consulta                       d.1o    d.gab   d.corpus   separa?
+formacao docente               0.714   0.855    0.976     +0.121
+formacao de professores        0.786   0.918    0.994     +0.076
+politicas publicas             1.031   1.249    1.301     +0.052
+inteligencia artificial        1.074   1.149    1.258     +0.109
+culinaria japonesa medieval    1.302     -      1.538        -     <- ABSURDO
+```
+
+A consulta sem relação com o corpus fica a **1.302**, contra 0.714–1.074 das
+legítimas. O `bge-m3` distingue relevante de irrelevante. **Trocar de modelo de
+embedding não é a saída**, e essa era uma correção plausível que fica descartada.
+
+Mas o gabarito está apenas **0,05 a 0,12 mais perto** que o corpus, numa
+amplitude de ~0,4. O sinal existe e é fraco demais para ordenar.
+
+#### A causa: o ranking é decidido pelo TAMANHO do documento
+
+```
+consulta                   med.TOP10   med.corpus   med.gabarito
+formacao docente                 206         449            983
+formacao de professores          193         449           1397
+politicas publicas               180         449           1397
+inteligencia artificial          925         449           1515
+```
+
+**O TOP_10 é 2,4× mais curto que o corpus, e 7× mais curto que quem escreveu a
+frase.** Documento curto vence.
+
+Os três primeiros de `formação de professores`:
+
+```
+[188] Docente: MONICA PINHEIRO FERNANDES. Departamento: DEPARTAMENTO DE
+      FORMAÇÃO DOCENTE/IM. Currículo Lattes: link não informado ...
+[166] Docente: RAFAEL DOS SANTOS LAZARO. Departamento: DEPARTAMENTO DE
+      FORMAÇÃO DOCENTE/IM. ...
+[127] Docente: MARIANA CORREA PITANGA DE OLIVEIRA. Departamento: DEPARTAMENTO
+      DE FORMAÇÃO DOCENTE/IM. E-mail: ...
+```
+
+**São perfis vazios cujo único conteúdo é o NOME DO DEPARTAMENTO**, e o
+departamento se chama `FORMAÇÃO DOCENTE`. Para a consulta, o documento é 100%
+tema. Não diz nada sobre a pesquisa de ninguém.
+
+Do outro lado, `TANIA MIKAELA GARCIA ROBERTO` escreveu `formação de professores`
+num perfil de 4093 caracteres: a frase é **0,56%** do documento.
+
+```
+GISELA MARIA DA FONSECA PINTO      429 chars    5,36%
+DORA SORAIA KINDEL                 601 chars    3,83%
+TANIA MIKAELA GARCIA ROBERTO      4093 chars    0,56%
+```
+
+**Quem tem perfil rico é punido por tê-lo.** O embedding é média sobre o
+documento inteiro; cada informação a mais dilui todas as outras.
+
+Isto confirma os itens **3** (departamento de nome temático) e **5** (perfis
+esparsos) como o mecanismo DOMINANTE da recuperação, não como nota de rodapé.
+
+#### E resolve o enigma dos 70% contra 0%
+
+`FORMAÇÃO DOCENTE` **é o nome de um departamento**; `formação de professores`
+não é. Os mesmos perfis vazios lideram as duas consultas — mas na primeira o
+documento deles contém a frase (no nome do departamento) e **entra no
+gabarito**, e na segunda não.
+
+> ⚠️ **O 70% é artefato do MEU gabarito, não sucesso do sistema.** Casamento
+> literal conta o nome do departamento como se fosse conteúdo — exatamente a
+> colisão que `interfaces/respaldo.py::texto_descritivo` foi escrito para
+> remover, e que eu não apliquei aqui. **A linha de base precisa ser refeita
+> excluindo o nome do departamento do gabarito**, e o número de `formação
+> docente` vai cair. Os temas que não são nome de departamento
+> (`inteligência artificial`, `políticas públicas`, `teoria da história`) não
+> sofrem disso.
+
+É a sexta vez nesta linha de trabalho que uma medição minha precisa ser refeita,
+e a segunda pela MESMA causa — colisão com nome de departamento. Registrado.
