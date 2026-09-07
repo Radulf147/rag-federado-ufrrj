@@ -54,6 +54,24 @@ interesses diluindo, falta de busca por palavra) estão erradas. Nesse caso a
 investigação recomeça, e este arquivo fica como o registro de que eu previ o
 contrário.
 
+RESULTADO DA 1ª RODADA: mediana do recall@10 = **15%**. As previsões 1 e 3
+confirmadas, a 2 parcial. A previsão que me derrubaria foi negada com folga.
+
+⚠️ 2ª PREVISÃO, com o gabarito corrigido (escrita antes de rodar de novo)
+--------------------------------------------------------------------------
+O gabarito passou a ser o texto DESCRITIVO, sem o nome do departamento.
+
+4. `formação docente` encolhe muito — era 47 e é nome de departamento — e o
+   recall@10 dela **cai**, porque os acertos vinham dos perfis vazios daquele
+   departamento.
+5. `inteligência artificial`, `políticas públicas` e `teoria da história` mudam
+   pouco: não são nome de departamento nenhum.
+6. A mediana do recall@10 **piora** ou fica igual. Não melhora.
+
+**O QUE ME DERRUBA AQUI:** se a mediana subir, então o gabarito contaminado
+estava *escondendo* acertos em vez de inventá-los, e a leitura que fiz do
+diagnóstico está errada.
+
 NÃO ALTERA NADA DO SISTEMA. Só lê o Chroma e mede.
 """
 
@@ -138,7 +156,36 @@ def escolher_temas(documentos: list, quantos: int) -> list[str]:
 
 
 def gabarito(documentos: list, tema: str) -> set[str]:
-    """Quem escreveu a frase no próprio documento."""
+    """
+    Quem escreveu a frase SOBRE SI — só Perfil, Formação e Áreas de interesse.
+
+    ⚠️ CORRIGIDO EM 7 SET 2026. A primeira versão procurava a frase no documento
+    INTEIRO, e o documento começa com `Departamento: X`. Consequência medida: a
+    consulta `formação docente` marcava 47 docentes, entre eles todo mundo do
+    `DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM` cujo perfil está vazio — pessoas que
+    não escreveram nada sobre si e entravam no gabarito pelo nome do lugar onde
+    trabalham. O recall de 70% do teto naquele tema era artefato disto.
+
+    `texto_descritivo` já existia em `interfaces/respaldo.py` e foi escrito
+    exatamente para remover essa colisão, com teste próprio. Não aplicá-lo aqui
+    foi descuido meu, e é a SEGUNDA medição desta linha de trabalho a errar pela
+    mesma causa.
+
+    Efeito colateral correto: quem tem perfil vazio não pode entrar em gabarito
+    nenhum. Se a pessoa não escreveu, não há o que o sistema devesse achar.
+    """
+    from interfaces.respaldo import texto_descritivo
+
+    alvo = _normalizar(tema)
+    return {
+        d.meta.get("nome_docente")
+        for d in documentos
+        if alvo in _normalizar(texto_descritivo(d.content or ""))
+    }
+
+
+def gabarito_contaminado(documentos: list, tema: str) -> set[str]:
+    """A versão antiga, mantida só para reportar o TAMANHO do erro."""
     alvo = _normalizar(tema)
     return {
         d.meta.get("nome_docente")
@@ -149,6 +196,7 @@ def gabarito(documentos: list, tema: str) -> set[str]:
 
 def medir(componentes, documentos: list, tema: str, ks: tuple[int, ...]) -> dict:
     esperados = gabarito(documentos, tema)
+    contaminado = gabarito_contaminado(documentos, tema)
     embedding = componentes.embedder.run(text=tema)["embedding"]
     ranking = componentes.retriever.run(
         query_embedding=embedding, top_k=len(documentos)
@@ -165,6 +213,8 @@ def medir(componentes, documentos: list, tema: str, ks: tuple[int, ...]) -> dict
         "tema": tema,
         "origem": _normalizar(tema) == _normalizar(TERMO_DE_ORIGEM),
         "gabarito": len(esperados),
+        "gabarito_contaminado": len(contaminado),
+        "inflacao": len(contaminado) - len(esperados),
         "recall": {
             k: sum(1 for p in posicoes if p <= k) for k in ks
         },
@@ -214,7 +264,8 @@ def main() -> None:
     print("=" * 74)
     print("LINHA DE BASE -- recall da busca semantica contra o casamento literal")
     print("=" * 74)
-    cab = f"{'tema':34} {'gab':>4} " + " ".join(f"{'@'+str(k):>7}" for k in ks) + f" {'pior':>6}"
+    cab = (f"{'tema':34} {'gab':>4} {'infl':>5} "
+           + " ".join(f"{'@'+str(k):>7}" for k in ks) + f" {'pior':>6}")
     print(cab)
     print("-" * len(cab))
     for r in sorted(resultados, key=lambda x: -x["gabarito"]):
@@ -223,10 +274,15 @@ def main() -> None:
             f"{r['recall'][k]:>3}/{r['gabarito']:<3}" for k in ks
         )
         pior = r["pior_posicao"] if r["pior_posicao"] is not None else "-"
-        print(f"{r['tema'][:32]:32}{marca} {r['gabarito']:>4} {celulas} {pior:>6}")
+        infl = f"+{r['inflacao']}" if r["inflacao"] else "-"
+        print(f"{r['tema'][:32]:32}{marca} {r['gabarito']:>4} {infl:>5} "
+              f"{celulas} {pior:>6}")
     print("\n  * tema que originou a investigacao (backlog item 7)")
-    print("  'gab' = docentes que escreveram a frase no proprio perfil")
-    print("  'pior' = posicao do ultimo deles no ranking de "
+    print("  'gab'  = docentes que escreveram a frase SOBRE SI (Perfil,")
+    print("           Formacao, Areas de interesse) -- sem o nome do departamento")
+    print("  'infl' = quantos o gabarito ANTIGO contava a mais, por casar com o")
+    print("           nome do departamento. E o tamanho do erro da 1a medicao.")
+    print("  'pior' = posicao do ultimo do gabarito no ranking de "
           f"{len(documentos)} documentos")
 
     with_10 = [r["recall"][10] / r["gabarito"] for r in resultados if r["gabarito"]]
