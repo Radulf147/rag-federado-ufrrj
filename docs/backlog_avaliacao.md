@@ -561,3 +561,65 @@ O que denunciou foi a coluna `infl`, que existia por outro motivo — ela mostra
 `+53`, `+33`, `+11`, os tamanhos certos, ao lado de gabaritos zerados. É a regra
 dos intermediários conferíveis (`relatorio_fase5.md` §10) pagando pela terceira
 vez.
+
+### Terceira hipótese testada (7 set 2026) — busca por palavra
+
+`modulo2_inferencia/medir_hibrido.py`, com as paráfrases escritas antes de rodar
+e o script abortando se aparecesse tema sem paráfrase.
+
+```
+                        PARTE A (frase exata)      PARTE B (parafrase)
+tema                 sem.  palavra  hibrido     sem.  palavra  hibrido
+----------------------------------------------------------------------
+POLITICAS PUBLICAS    3/53   10/53   10/53      4/53    3/53    6/53
+EDUCACAO ESPECIAL     9/15   10/15   10/15      9/15    6/15    8/15
+FORMACAO DE PROFES.   2/33    9/33    8/33      5/33    0/33    2/33
+TEORIA DA HISTORIA    4/7     5/7     6/7       5/7     3/7     4/7
+FORMACAO DOCENTE      2/14    7/14    6/14      0/14    0/14    0/14
+inteligencia artif.   3/11    9/11    9/11      1/11    2/11    3/11
+----------------------------------------------------------------------
+TOTAL                23/133  50/133  49/133    24/133  14/133  23/133
+```
+
+⚠️ **A Parte A não é evidência.** O gabarito É o casamento literal, então a
+busca por palavra acerta por construção. O teto real ali é 57 (soma de
+`min(10, gabarito)`): palavra alcança 50 dele, a semântica alcança 23.
+
+#### Previsão 11: CONFIRMADA — e é o resultado que importa
+
+Com paráfrase, a busca por palavra **cai para 14 e perde da semântica (24)**. A
+previsão que me derrubaria — palavra empatar ou ganhar na Parte B — foi negada.
+
+**Isto sustenta a arquitetura do projeto.** A busca semântica não é enfeite: ela
+é o que continua funcionando quando o usuário não digita as palavras exatas que
+o docente escreveu. É a primeira evidência direta disso neste corpus.
+
+#### Previsão 12: ERRADA
+
+Eu previ que o híbrido por RRF ficaria `>=` a melhor das duas nas duas partes.
+Ficou **abaixo nas duas**: 49 contra 50 na Parte A, 23 contra 24 na Parte B.
+
+Fundir os dois rankings sem peso **dilui o melhor dos dois** em vez de somar. O
+método que perde puxa o vencedor para baixo, e o RRF não tem como saber qual é
+qual. Não vou calibrar peso sobre estes 6 temas: seria ajustar ao conjunto de
+validação, que é o erro que esta linha de trabalho já registrou.
+
+#### O que fica decidido, e o que não fica
+
+**Decidido:** a semântica se justifica — ela ganha no caso realista. E busca por
+palavra tem valor real no outro caso, que também é comum: um aluno digita
+"inteligência artificial", que é exatamente o que o docente escreveu.
+
+**Não decidido:** COMO combinar as duas. RRF simples piora. As saídas plausíveis
+— rotear por tipo de consulta, ou fundir com peso — exigem calibração, e
+calibrar aqui contaminaria a amostra. **Fica registrado como aberto em vez de
+resolvido com um número inventado.**
+
+**Uma medição que falta e mudaria a decisão:** com que frequência o usuário
+digita o termo exato? Isso não se sabe olhando o corpus — sai dos posts da rede
+simulada, quando houver uso real.
+
+#### Duas previsões seguidas erradas, registrado
+
+A 9 (mediana dobrando) ficou em 27% contra a barra de 28%. A 12 (híbrido nunca
+abaixo) errou nas duas partes. Nenhuma das duas foi reescrita.

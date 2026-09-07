@@ -1,0 +1,128 @@
+{
+  "gerado_em": "2026-09-07T18:05:40",
+  "colecao": "rag_sigaa_descritivo",
+  "parafrases": {
+    "POLITICAS PUBLICAS": "quem estuda acao do governo e gestao estatal",
+    "FORMACAO DE PROFESSORES": "quem prepara futuros educadores para a escola",
+    "EDUCACAO ESPECIAL": "docentes da area de inclusao e deficiencia",
+    "FORMACAO DOCENTE": "capacitacao de quem vai lecionar",
+    "TEORIA DA HISTORIA": "historiografia e pensamento sobre o passado",
+    "inteligencia artificial": "IA e aprendizado de maquina"
+  },
+  "bm25": {
+    "k1": 1.5,
+    "b": 0.75,
+    "k_rrf": 60
+  },
+  "aviso": "na parte A a busca por palavra e 100% por construcao; so a parte B vale como evidencia",
+  "resultados": [
+    {
+      "parte": "A (frase exata)",
+      "tema": "POLITICAS PUBLICAS",
+      "consulta": "POLITICAS PUBLICAS",
+      "gabarito": 53,
+      "semantico": 3,
+      "palavra": 10,
+      "hibrido": 10
+    },
+    {
+      "parte": "A (frase exata)",
+      "tema": "EDUCACAO ESPECIAL",
+      "consulta": "EDUCACAO ESPECIAL",
+      "gabarito": 15,
+      "semantico": 9,
+      "palavra": 10,
+      "hibrido": 10
+    },
+    {
+      "parte": "A (frase exata)",
+      "tema": "FORMACAO DE PROFESSORES",
+      "consulta": "FORMACAO DE PROFESSORES",
+      "gabarito": 33,
+      "semantico": 2,
+      "palavra": 9,
+      "hibrido": 8
+    },
+    {
+      "parte": "A (frase exata)",
+      "tema": "TEORIA DA HISTORIA",
+      "consulta": "TEORIA DA HISTORIA",
+      "gabarito": 7,
+      "semantico": 4,
+      "palavra": 5,
+      "hibrido": 6
+    },
+    {
+      "parte": "A (frase exata)",
+      "tema": "FORMACAO DOCENTE",
+      "consulta": "FORMACAO DOCENTE",
+      "gabarito": 14,
+      "semantico": 2,
+      "palavra": 7,
+      "hibrido": 6
+    },
+    {
+      "parte": "A (frase exata)",
+      "tema": "inteligencia artificial",
+      "consulta": "inteligencia artificial",
+      "gabarito": 11,
+      "semantico": 3,
+      "palavra": 9,
+      "hibrido": 9
+    },
+    {
+      "parte": "B (parafrase)",
+      "tema": "POLITICAS PUBLICAS",
+      "consulta": "quem estuda acao do governo e gestao estatal",
+      "gabarito": 53,
+      "semantico": 4,
+      "palavra": 3,
+      "hibrido": 6
+    },
+    {
+      "parte": "B (parafrase)",
+      "tema": "EDUCACAO ESPECIAL",
+      "consulta": "docentes da area de inclusao e deficiencia",
+      "gabarito": 15,
+      "semantico": 9,
+      "palavra": 6,
+      "hibrido": 8
+    },
+    {
+      "parte": "B (parafrase)",
+      "tema": "FORMACAO DE PROFESSORES",
+      "consulta": "quem prepara futuros educadores para a escola",
+      "gabarito": 33,
+      "semantico": 5,
+      "palavra": 0,
+      "hibrido": 2
+    },
+    {
+      "parte": "B (parafrase)",
+      "tema": "TEORIA DA HISTORIA",
+      "consulta": "historiografia e pensamento sobre o passado",
+      "gabarito": 7,
+      "semantico": 5,
+      "palavra": 3,
+      "hibrido": 4
+    },
+    {
+      "parte": "B (parafrase)",
+      "tema": "FORMACAO DOCENTE",
+      "consulta": "capacitacao de quem vai lecionar",
+      "gabarito": 14,
+      "semantico": 0,
+      "palavra": 0,
+      "hibrido": 0
+    },
+    {
+      "parte": "B (parafrase)",
+      "tema": "inteligencia artificial",
+      "consulta": "IA e aprendizado de maquina",
+      "gabarito": 11,
+      "semantico": 1,
+      "palavra": 2,
+      "hibrido": 3
+    }
+  ]
+}
