@@ -260,3 +260,65 @@ comparar depois.
 **Bloqueia afirmação?** Sim, e uma importante: o projeto **não pode afirmar que
 o agente responde bem perguntas interpretativas**. Ele responde sem inventar,
 que é outra coisa — e foi isso que a fase 3 mediu.
+
+### Linha de base medida (7 set 2026) — a previsão bateu, e o problema é maior
+
+`modulo2_inferencia/medir_recuperacao.py`, commitado **antes** de rodar
+(`3ff6b7b`) para a previsão ficar datada. Temas tirados das próprias
+`Áreas de interesse` do corpus por frequência, não escolhidos a dedo.
+
+```
+tema                          gab     @10     @20     @50    @100   pior
+------------------------------------------------------------------------
+POLITICAS PUBLICAS             53    1/53    2/53    4/53    7/53   1260
+FORMACAO DOCENTE               47    7/47   10/47   15/47   20/47   1121
+FORMACAO DE PROFESSORES        33    0/33    2/33    2/33    5/33   1168
+EDUCACAO ESPECIAL              15    5/15    8/15   11/15   13/15    821
+inteligencia artificial   *    11    2/11    4/11    6/11    7/11    498
+TEORIA DA HISTORIA              7    1/7     1/7     5/7     5/7     850
+
+  MEDIANA do recall@10 entre os temas: 15%
+```
+
+**`inteligência artificial` é um dos MELHORES casos.** O que originou a
+investigação não é o pior — é acima da mediana. O defeito é geral.
+
+**`FORMACAO DE PROFESSORES`: zero de 33.** Trinta e três docentes escreveram a
+frase exata no perfil e nenhum aparece no TOP_10 da consulta por ela.
+
+**`POLITICAS PUBLICAS`: alguém que escreveu a frase está na posição 1260 de
+1302** — quase o último do corpus inteiro, para a consulta que é a própria
+frase que ele escreveu.
+
+#### As três previsões, conferidas
+
+| # | previsto | medido | |
+|---|---|---|---|
+| 1 | recall@10 baixo na maioria, mediana < 50% | mediana **15%** | ✅ |
+| 2 | gabarito maior → recall@10 pior | tendência fraca e **suja** | ⚠️ parcial |
+| 3 | pior posição na casa das centenas | **498 a 1260** | ✅ |
+
+A previsão 2 merece a ressalva. O teto aritmético existe — 10 posições não cabem
+53 docentes —, mas ele **não explica a ordem**. Corrigindo pelo teto, isto é,
+quantas das 10 vagas foram para alguém que de fato escreveu a frase:
+
+```
+FORMACAO DOCENTE ........... 7 de 10   70%
+EDUCACAO ESPECIAL .......... 5 de 10   50%
+inteligencia artificial .... 2 de 10   20%
+TEORIA DA HISTORIA ......... 1 de  7   14%
+POLITICAS PUBLICAS ......... 1 de 10   10%
+FORMACAO DE PROFESSORES .... 0 de 10    0%
+```
+
+De 0% a 70%. **A variação entre temas é maior que qualquer efeito de tamanho**,
+e é isso que a previsão 2 não antecipou. Registrado como divergência; a previsão
+não foi reescrita.
+
+#### O que isso faz com as hipóteses
+
+As três hipóteses do item 7 **sobrevivem** — a previsão que as derrubaria (recall
+alto nos outros temas) foi negada com folga. Mas nenhuma delas explica por que
+`FORMACAO DOCENTE` acerta 70% do teto e `FORMACAO DE PROFESSORES`, que é quase
+sinônimo, acerta 0%. **Falta um diagnóstico antes de tentar qualquer correção**,
+e tentar as três agora seria mexer sem saber.
