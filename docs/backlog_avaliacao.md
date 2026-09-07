@@ -158,3 +158,105 @@ desta fase e cabe no aparato existente:
 pode afirmar que o bot é seguro para uso aberto numa rede social. Pode afirmar
 que responde bem, que não inventa e que declara os próprios limites — nada
 disso cobre um terceiro tentando manipulá-lo de propósito.
+
+## 7. ⚠️ A recuperação semântica acha 2 de 11 (7 set 2026)
+
+**Não é limitação da avaliação. É o defeito mais grave em aberto no sistema**, e
+está no centro do que o título da IC promete: *recuperação* de informação.
+
+### Como apareceu
+
+Pergunta feita na rede simulada: *"Quais docentes de computação do IM são de
+IA?"*. O agente respondeu `RONALDO E SILVA VIEIRA` e `FILIPE BRAIDA DO CARMO`.
+O orientando, que estuda no IM, apontou que **falta o `LEANDRO GUIMARAES
+MARQUES ALVIM`**.
+
+Achado por conhecimento de domínio, não por métrica. Nenhum instrumento deste
+projeto teria acusado — a fase 3 mede precisão e é declaradamente cega a recall
+(ver item 5, o par de cegueiras).
+
+### O caso do ALVIM não é o defeito
+
+O documento dele tem **147 caracteres**, na íntegra:
+
+```
+Docente: LEANDRO GUIMARAES MARQUES ALVIM. Departamento: DEPARTAMENTO DE
+CIÊNCIA DA COMPUTAÇÃO/IM. Telefone: 21981734381 E-mail: alvim.lgm@gmail.com
+```
+
+Sem Perfil, sem Formação, sem Áreas de interesse. **Não há no corpus nada que
+diga que ele pesquisa IA**, e afirmar que pesquisa violaria o princípio 3. Pelo
+princípio 1, perfil não preenchido não é falha do algoritmo. É o item 5 desta
+lista — e **13 dos 30 docentes (43%) dos dois departamentos de computação estão
+assim**.
+
+### O defeito é outro, e foi encontrado ao investigar o primeiro
+
+`RAIMUNDO JOSE MACARIO COSTA`, `DEPARTAMENTO DE COMPUTAÇÃO`, tem no documento:
+
+```
+Áreas de interesse: Inteligência Artificial, Matemática, Linguagens Formais e
+Autômatos, Compiladores, Matemática Discreta, Computadores Sociedade...
+```
+
+A frase exata da consulta, escrita no perfil. **A busca o coloca na posição 60
+de 1302**, distância 1.170. Não é ausência de dado: é a recuperação errando.
+
+### A medida
+
+Gabarito conservador: os docentes cujo documento contém literalmente a frase
+`inteligência artificial`. Se a pessoa escreveu, o sistema deveria achar.
+
+```
+docentes no gabarito ......... 11
+
+TOP_10    recall  2/11    precisao  2/10 = 20%
+TOP_20    recall  4/11    precisao  4/20 = 20%
+TOP_50    recall  6/11    precisao  6/50 = 12%
+TOP_100   recall  7/11    precisao  7/100 = 7%
+```
+
+**8 dos 10 primeiros não têm IA no perfil**, e nem ampliando para 100 o sistema
+acha os 11.
+
+### O que já foi descartado como causa
+
+- **Modelo ou dimensão trocados** (armadilha 3 do `CLAUDE.md`, cujo sintoma
+  descrito é exatamente "recuperação ruim indistinguível de dado ruim"):
+  conferido, `BAAI/bge-m3` e **1024 dimensões dos dois lados** — consulta e
+  índice no mesmo espaço.
+- **Limiar mal calibrado**: o limiar é 1.24 e o TOP_10 vai de 1.074 a 1.115.
+  Ele não está cortando ninguém aqui; o problema é a ORDEM, não o corte.
+
+### Hipóteses a testar, nenhuma implementada
+
+1. **O texto institucional dilui.** Todo documento começa com
+   `Docente: X. Departamento: Y.` e termina com telefone, e-mail e endereço. Num
+   documento de 147 chars isso é 100% do conteúdo. Testar indexar **apenas o
+   texto descritivo** (Perfil, Formação, Áreas de interesse) mais o nome.
+2. **Lista longa de interesses dilui.** O `RAIMUNDO` tem IA como 1 de ~7 áreas;
+   o `RONALDO`, que foi achado, tem 1 de 4 num documento menor. Testar indexar
+   **as áreas de interesse como documento próprio**, com o nome preservado. Não
+   contradiz o achado 02 — lá o problema era o chunk PERDER o nome.
+3. **Falta uma busca por palavra.** A consulta continha a frase exata que está
+   no perfil, e um `LIKE` acharia os 11 imediatamente. A arquitetura hoje tem
+   duas pernas (exata no SQLite, semântica no Chroma); o achado sugere uma
+   terceira, e isso **fortalece** o argumento de armazenamento híbrido do
+   projeto em vez de enfraquecê-lo.
+
+### Como medir qualquer correção — fixar ANTES de mexer
+
+O gabarito por casamento literal de frase é cru e é essa a vantagem: é
+auditável e não depende de julgamento. Ampliar para 3 ou 4 termos
+(`aprendizado de máquina`, `agroecologia`, `movimentos sociais`,
+`estatística`), medir `recall@10` de cada um **antes** de qualquer mudança, e
+comparar depois.
+
+> ⚠️ **Previsão arriscada obrigatória, e ela pode derrubar as três hipóteses:**
+> se a linha de base já der recall alto para os outros termos, o problema é
+> específico de `inteligência artificial` e as hipóteses acima estão erradas.
+> Medir os outros termos ANTES de mexer é o que impede otimizar para um caso.
+
+**Bloqueia afirmação?** Sim, e uma importante: o projeto **não pode afirmar que
+o agente responde bem perguntas interpretativas**. Ele responde sem inventar,
+que é outra coisa — e foi isso que a fase 3 mediu.
