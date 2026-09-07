@@ -193,9 +193,29 @@ def gabarito_contaminado(documentos: list, tema: str) -> set[str]:
     }
 
 
-def medir(componentes, documentos: list, tema: str, ks: tuple[int, ...]) -> dict:
-    esperados = gabarito(documentos, tema)
-    contaminado = gabarito_contaminado(documentos, tema)
+def medir(componentes, documentos: list, tema: str, ks: tuple[int, ...],
+          fonte_gabarito: list | None = None) -> dict:
+    """
+    `fonte_gabarito` é de onde sai QUEM deveria ser achado; `documentos` é o
+    que está sendo medido.
+
+    ⚠️ SEPARAR OS DOIS NÃO É REFINAMENTO, É CORREÇÃO DE BUG (7 set 2026).
+    A primeira versão tirava o gabarito da coleção MEDIDA. Ao medir a coleção
+    reindexada, o conteúdo dela já É o texto descritivo, sem os rótulos
+    `Perfil:` / `Áreas de interesse:` — então `texto_descritivo` não achava
+    campo nenhum, devolvia vazio, e o gabarito deu **0 para todos os temas**.
+    Recall 0/0 e mediana 0%, com cara de resultado catastrófico.
+
+    O gabarito é propriedade da PESSOA, não do índice: quem escreveu a frase
+    escreveu, independentemente de como resolvemos vetorizar depois. Ele tem de
+    sair sempre da coleção original.
+
+    O que denunciou foi a coluna `infl`, que existia por outro motivo: ela
+    mostrou +53, +33, +11 — os tamanhos certos — ao lado de gabaritos zerados.
+    """
+    fonte = fonte_gabarito if fonte_gabarito is not None else documentos
+    esperados = gabarito(fonte, tema)
+    contaminado = gabarito_contaminado(fonte, tema)
     embedding = componentes.embedder.run(text=tema)["embedding"]
     ranking = componentes.retriever.run(
         query_embedding=embedding, top_k=len(documentos)
@@ -283,7 +303,7 @@ def main() -> None:
         )
 
     ks = (10, 20, 50, 100)
-    resultados = [medir(componentes, documentos, t, ks) for t in temas]
+    resultados = [medir(componentes, documentos, t, ks, fonte_temas) for t in temas]
 
     print()
     print("=" * 74)

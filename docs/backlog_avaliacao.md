@@ -474,3 +474,90 @@ Duas consequências, as duas desejáveis:
 
 **A régua acima é o critério de aceite**, e ela pode reprovar a mudança: se o
 recall@10 não subir, a hipótese estava errada e a alteração é revertida.
+
+### Resultado da reindexação (7 set 2026) — melhora, mas não conserta
+
+Três coleções, mesma régua: temas e gabarito tirados sempre da coleção
+**original**, ranking medido em cada uma.
+
+```
+                          recall@10                    pior posicao
+tema                  orig  filtr  descr          orig  filtr  descr
+--------------------------------------------------------------------
+POLITICAS PUBLICAS    1/53   6/53   3/53          1260    704    704
+FORMACAO DE PROFES.   0/33   2/33   2/33          1168    615    521
+EDUCACAO ESPECIAL     5/15   8/15   9/15           821    308     96
+FORMACAO DOCENTE      1/14   2/14   2/14          1121    571    210
+inteligencia artif.*  2/11   2/11   3/11           498    304    201
+TEORIA DA HISTORIA    1/7    4/7    4/7            850    341    101
+
+MEDIANA recall@10      14%    18%    27%
+```
+
+`orig` = 1302 docs, texto completo · `filtr` = 746 docs, texto completo ·
+`descr` = 746 docs, só o descritivo
+
+#### O controle fez o trabalho dele
+
+**Sem ele, eu teria atribuído os 14% → 27% inteiros a tirar o texto
+institucional.** A separação real:
+
+```
+14% -> 18%   tirar do indice quem nao escreveu nada    (ganho aritmetico)
+18% -> 27%   tirar o texto institucional do vetor      (a hipotese)
+```
+
+Cada metade responde por metade. A hipótese vale — e vale **metade** do que o
+número final sugere.
+
+#### Onde a melhora é grande: em profundidade, não no topo
+
+O `recall@10` sobe pouco. O que desaba é a **pior posição** — quão fundo é
+preciso ir para achar todo mundo:
+
+```
+EDUCACAO ESPECIAL ....... 821 -> 96     (8,6x)
+TEORIA DA HISTORIA ...... 850 -> 101    (8,4x)
+FORMACAO DOCENTE ....... 1121 -> 210    (5,3x)
+inteligencia artificial . 498 -> 201    (2,5x)
+```
+
+E o `recall@100` também: `FORMACAO DE PROFESSORES` vai de 5/33 para **19/33**,
+`POLITICAS PUBLICAS` de 7/53 para **28/53**. **O ranking melhorou de verdade; o
+gargalo passou a ser o `TOP_K=10`.**
+
+#### A previsão 9 NÃO foi atendida
+
+Eu tinha escrito: *"mediana pelo menos dobrando (14% → ≥28%)"*. Deu **27%**.
+Passa perto e **não passa**. Registrado como não atendida em vez de arredondado
+a meu favor — a barra tinha sido fixada antes justamente para isto.
+
+As previsões 7 (746 indexados, previ 700–850) e 8 (`filtrado` melhora pouco)
+foram atendidas, e a parte da 9 sobre `FORMACAO DE PROFESSORES` deixar de ser
+zero também.
+
+#### Uma anomalia que não sei explicar
+
+`POLITICAS PUBLICAS` piora de `filtrado` (6/53) para `descritivo` (3/53) — é o
+único tema onde tirar o texto institucional **atrapalhou**. Não tenho hipótese
+para isso e não vou inventar uma.
+
+#### Critério de aceite: passou
+
+O critério fixado antes era *"se o recall@10 não subir, a hipótese estava errada
+e a alteração é revertida"*. Subiu de 14% para 27%, e a profundidade melhorou de
+2,5 a 8,6 vezes. **A mudança é boa e não é um conserto**: no melhor tema, 6 das
+10 vagas ainda vão para quem não escreveu sobre o assunto; na mediana, 7.
+
+#### Um bug meu, pego antes de virar decisão
+
+A primeira medição da coleção reindexada deu **gabarito 0 e recall 0% em todos
+os temas**. Não era resultado: o gabarito era calculado sobre a coleção MEDIDA,
+cujo conteúdo já é o texto descritivo, sem os rótulos `Perfil:` /
+`Áreas de interesse:` que `texto_descritivo` procura. Gabarito é propriedade da
+PESSOA, não do índice, e passou a sair sempre da coleção original.
+
+O que denunciou foi a coluna `infl`, que existia por outro motivo — ela mostrava
+`+53`, `+33`, `+11`, os tamanhos certos, ao lado de gabaritos zerados. É a regra
+dos intermediários conferíveis (`relatorio_fase5.md` §10) pagando pela terceira
+vez.

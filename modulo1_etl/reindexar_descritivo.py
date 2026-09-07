@@ -65,13 +65,61 @@ NÃO TOCA NO SIGAA. O conteúdo já está gravado; isto lê, recorta e re-vetori
 """
 
 import argparse
+import re
 
 from haystack import Document
 
 import config
-from interfaces.respaldo import texto_descritivo
+from interfaces.respaldo import CAMPOS_DESCRITIVOS, TODOS_OS_CAMPOS
 
 COLECAO_NOVA = f"{config.CHROMA_COLECAO}_descritivo"
+
+# ⚠️ POR QUE NÃO SE USA `respaldo.texto_descritivo` AQUI
+#
+# Ele devolve o texto NORMALIZADO — maiúsculas e sem acento —, e está certo:
+# foi escrito para CASAR strings, onde normalizar é o que se quer. Indexar a
+# saída dele colocaria no vetor "FORMACAO DE PROFESSORES" enquanto a consulta
+# chega como "formação de professores". O bge-m3 tolera bastante, mas a
+# comparação entre as duas coleções deixaria de medir o que se propõe: o ganho
+# ficaria misturado com o efeito de ter tirado acento e caixa de um lado só.
+#
+# Pego ao ler a saída da primeira execução, que veio em CAIXA ALTA.
+#
+# A separação abaixo é a mesma (mesmos nomes de campo, importados de lá), mas
+# recorta o texto ORIGINAL. O truque é normalizar PRESERVANDO O COMPRIMENTO —
+# `upper()` mais uma tradução de acentuadas um-para-um —, para que as posições
+# encontradas no texto normalizado valham no original. `unicodedata.normalize`
+# não serve: NFKD muda o comprimento e desalinha os índices.
+_ACENTUADAS = "ÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜÇÑ"
+_SEM_ACENTO = "AAAAAEEEEIIIIOOOOOUUUUCN"
+_TRADUTOR = str.maketrans(_ACENTUADAS, _SEM_ACENTO)
+
+
+def _alinhavel(texto: str) -> str:
+    """Maiúsculo e sem acento, com o MESMO comprimento do original."""
+    return (texto or "").upper().translate(_TRADUTOR)
+
+
+_RE_CAMPO_BRUTO = re.compile(
+    r"(?:^|(?<=[.\s]))(" + "|".join(re.escape(c) for c in TODOS_OS_CAMPOS) + r"):"
+)
+
+
+def descritivo_bruto(conteudo: str) -> str:
+    """
+    Perfil, Formação e Áreas de interesse — no texto ORIGINAL, com acento e
+    caixa preservados.
+    """
+    alinhado = _alinhavel(conteudo)
+    marcas = [(m.start(), m.group(1), m.end())
+              for m in _RE_CAMPO_BRUTO.finditer(alinhado)]
+    pedacos = {}
+    for i, (inicio, campo, fim) in enumerate(marcas):
+        limite = marcas[i + 1][0] if i + 1 < len(marcas) else len(conteudo)
+        pedacos[campo] = (conteudo[fim:limite]).strip()
+    return " ".join(
+        pedacos[c] for c in CAMPOS_DESCRITIVOS if pedacos.get(c)
+    ).strip()
 
 
 def _store(colecao: str):
@@ -113,7 +161,7 @@ def main() -> None:
 
     novos, vazios = [], []
     for d in docs:
-        descritivo = texto_descritivo(d.content or "")
+        descritivo = descritivo_bruto(d.content or "")
         if not descritivo.strip():
             vazios.append(d.meta.get("nome_docente"))
             continue
@@ -163,6 +211,20 @@ def main() -> None:
             "Indice e consulta ficariam em espacos diferentes, e isso nao daria "
             "erro nenhum depois — so recuperacao ruim (armadilha 3)."
         )
+
+    # APAGA A COLEÇÃO DE DESTINO ANTES DE ESCREVER. Sem isto, uma segunda
+    # execução soma-se à primeira e a coleção fica com o dobro dos documentos —
+    # é o achado 10 (o SQLite acumulando a cada recarga) na mesma forma, e sem
+    # erro nenhum: só recall medido sobre um corpus que não existe. Cada
+    # execução é um retrato COMPLETO, não um incremento.
+    import chromadb
+
+    cliente = chromadb.HttpClient(host=config.CHROMA_HOST, port=config.CHROMA_PORT)
+    try:
+        cliente.delete_collection(args.destino)
+        print(f"  colecao {args.destino} anterior apagada")
+    except Exception:
+        print(f"  colecao {args.destino} nao existia ainda")
 
     destino = _store(args.destino)
     destino.write_documents(com_vetor)
