@@ -623,3 +623,154 @@ simulada, quando houver uso real.
 
 A 9 (mediana dobrando) ficou em 27% contra a barra de 28%. A 12 (híbrido nunca
 abaixo) errou nas duas partes. Nenhuma das duas foi reescrita.
+
+### Teste no nível da RESPOSTA (7 set 2026) — a troca fica SUSPENSA
+
+Pré-registro em `docs/pre_registro_troca_colecao.md`, commitado antes de rodar
+(`8c4b3cb`). Dados crus em `docs/comparacao_colecoes.json`. 6 perguntas × 2
+coleções × 3 execuções = **36 respostas, 0 erros**.
+
+#### Por que este teste existiu
+
+O 27% não pode ver o único jeito de a reindexação dar errado. Os 556 docentes
+tirados do índice **nunca estiveram em gabarito nenhum** — o gabarito é
+casamento literal da frase, e quem não escreveu perfil não tem frase para
+casar. Removê-los só pode subir aquela métrica e só pode piorar a resposta de
+quem perguntar sobre eles. Uma métrica que só pode confirmar quem a fez não é
+métrica.
+
+#### Placar
+
+| # | previsão | resultado |
+|---|----------|-----------|
+| 13 | grupo C piora, com `INVENTA` | **NÃO BATEU como escrita** |
+| 14 | A2 e B1 melhoram ou empatam | bateu |
+| 15 | o limiar de 1.24 não salva o C | bateu — **10 de 10** passam nas 4 células |
+| 16 | os controles A1 e A3 não mudam | bateu |
+
+#### A 13 errou, e errou de um jeito que importa
+
+O grupo C **piorou**, mas não por invenção de área de pesquisa — por **negar a
+existência de um docente que existe**:
+
+| "o que o professor Leandro Alvim pesquisa?" | resposta |
+|---|---|
+| `rag_sigaa` (atual) | 3/3: *ele existe, o SIGAA não tem a área dele, aqui está o e-mail* |
+| `rag_sigaa_descritivo` (nova) | 2/3: *"é possível que ele não seja docente desta instituição"* |
+
+**A grade de classificação escrita ANTES não tinha essa categoria.** Os quatro
+rótulos pré-registrados (`CERTA` / `ABSTÉM` / `INVENTA` / `DESVIA`) foram
+pensados para o erro que eu esperava, e o erro que veio é pior que ele. Fica
+registrado assim, sem recategorizar depois do fato para a previsão parecer ter
+acertado: **a direção estava certa, o mecanismo e o lugar estavam errados.**
+
+E o `INVENTA` apareceu — no **B1**, que eu havia previsto que só melhoraria.
+`rag_sigaa_descritivo`, execução 1, lista quatro nomes como quem "pesquisa em
+Inteligência Artificial", **sem ressalva nenhuma**; três deles não têm IA no
+perfil. Na coleção atual essa pergunta devolvia zero nomes nas três execuções.
+A coleção nova troca *silêncio* por *lista plausível e errada*.
+
+#### O que efetivamente melhorou, e é pouco
+
+| | acertos entre os 2 docentes que declaram IA |
+|---|---|
+| A2, coleção atual | 1 de 2 (só RONALDO), nas 3 execuções |
+| A2, coleção nova | 1 de 2 (só RONALDO), nas 3 execuções |
+| B1, coleção atual | **0 de 2**, nas 3 |
+| B1, coleção nova | 1 de 2, nas 3 |
+
+**FILIPE BRAIDA DO CARMO não foi citado em nenhuma das 6 execuções de A2**, nas
+duas coleções — e o perfil dele diz, literalmente, "Inteligência Artificial,
+Mineração de Dados e Sistemas de Recomendação". A causa está no item 8.
+
+#### Decisão
+
+**A troca fica suspensa.** Não porque o 27% seja falso — ele é real —, mas
+porque se paga por ele com uma afirmação falsa sobre uma pessoa, e os dois
+defeitos que produzem isso são pequenos e testáveis (itens 8 e 9). Consertar,
+rerodar este mesmo teste, e então decidir.
+
+Isto não é o resultado que eu queria. O 27% era meu, e o teste que eu mesmo
+desenhei para poder me derrubar derrubou a parte que eu tinha previsto errado
+e a recomendação que eu vinha construindo.
+
+---
+
+## 8. ⚠️ O agente reescreve a pergunta e piora a própria busca (7 set 2026)
+
+Achado no teste do item 7, ao investigar por que o FILIPE BRAIDA sumiu de 6
+respostas seguidas.
+
+O agente **não consulta com a pergunta do usuário**. Ele emite a chamada de
+tool com uma reescrita própria — e a reescrita é pior:
+
+| consulta que chega ao recuperador | FILIPE BRAIDA | distância do 1º |
+|---|---|---|
+| `quais docentes do Departamento de Ciência da Computação trabalham com inteligência artificial?` | **posição 1** | 0.836 |
+| `inteligência artificial` — o que o agente de fato mandou nas 6 execuções | **fora do TOP_10** | 1.046 |
+
+A pergunta inteira é **melhor** que a palavra-chave, e por margem larga. Faz
+sentido: o `bge-m3` compara sentenças, e o perfil do Filipe é narrativo
+("Filipe Braida é professor do curso de Ciência da Computação..."). Encolher a
+consulta para dois termos joga fora o que casava.
+
+**POR QUE NENHUMA MEDIÇÃO ANTERIOR VIU ISTO.** `medir_recuperacao.py`,
+`diagnostico_recuperacao.py` e `medir_hibrido.py` consultam o recuperador
+**direto**, com o tema. Nenhum passa pelo agente. Todas as três mediram um
+recuperador que a produção não usa daquele jeito — e portanto o 14%, o 27% e o
+híbrido descrevem um caminho que o usuário não percorre.
+
+Isso não invalida aqueles números: eles medem o recuperador, e é o que dizem
+medir. Mas a ponte entre "o recuperador acha" e "o usuário recebe" nunca foi
+medida até hoje, e ela vaza.
+
+**O que testar, e a previsão vai escrita antes:** passar a pergunta do usuário
+adiante em vez da reescrita do modelo. Previsão 17 — o FILIPE aparece nas
+respostas de A2. **O que me derruba:** se ele continuar ausente, a causa não é
+a reescrita e este item está errado.
+
+---
+
+## 9. ⚠️ `buscar_docente_por_nome` casa substring contígua (7 set 2026)
+
+Demonstrado, não suposto:
+
+| consulta | resultado |
+|---|---|
+| `Leandro Alvim` | **Nenhum docente cadastrado** |
+| `Marcel Silva` | **Nenhum docente cadastrado** |
+| `LEANDRO GUIMARAES MARQUES ALVIM` | encontrado |
+| `Filipe Braida` | encontrado — é prefixo contíguo |
+
+`db_manager.buscar_entidades_por_campo` faz `alvo in normalizar(campo)`.
+"leandro alvim" não é substring contígua de "leandro guimaraes marques alvim".
+A ferramenta falha exatamente na forma como se chama um professor: primeiro
+nome + sobrenome.
+
+**A composição é o que faz estrago.** Sozinho, este defeito ficava escondido:
+na coleção atual a busca semântica devolvia o documento do próprio Alvim, e o
+agente nunca precisava do SQLite. Tirado o documento do índice, o agente cai no
+SQLite — e o SQLite também falha. **Duas fraquezas independentes que só compõem
+uma frase falsa quando a primeira é removida.** É por isso que medir componente
+isolado não substitui medir a resposta.
+
+Correção: casar por conjunto de palavras (todas as palavras da consulta
+presentes no nome), não por substring. A ambiguidade continua reportada como
+hoje (`o nome 'X' casa com N docentes`), que já está certo.
+
+---
+
+## 10. Duplicata real no SIGAA (7 set 2026, menor)
+
+`FERNANDA SILVA FERREIRA CHAER` aparece **duas vezes** no corpus, mesmo e-mail e
+mesma formação, com dois SIAPEs (`1435183` e `3435183`) e dois departamentos
+(`DEPARTAMENTO DE ADMINISTRAÇÃO E TURISMO/IM` e `DEPARTAMENTO DE CIÊNCIAS
+ADMINISTRATIVAS`).
+
+Não é o achado 08 nem o 10 voltando: os dois registros vêm de URLs diferentes do
+SIGAA, com SIAPEs diferentes. **A duplicação está na fonte.** Consequência: "1302
+docentes" são 1301 pessoas, e ela é contada nos dois departamentos.
+
+Fica registrado sem correção. Deduplicar por e-mail mudaria contagem
+institucional a partir de uma inferência nossa, e contagem é o que a base
+estruturada existe para responder exatamente.

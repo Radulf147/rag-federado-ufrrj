@@ -1,0 +1,581 @@
+{
+  "gerado_em": "2026-09-07T19:18:40",
+  "pre_registro": "docs/pre_registro_troca_colecao.md",
+  "colecoes": [
+    "rag_sigaa",
+    "rag_sigaa_descritivo"
+  ],
+  "repeticoes": 3,
+  "modelo_llm": "qwen2.5:32b-instruct-q4_K_M",
+  "modelo_embedding": "BAAI/bge-m3",
+  "limiar": 1.24,
+  "top_k": 10,
+  "aviso": "classificacao (CERTA/ABSTEM/INVENTA/DESVIA) e manual, contra o pre-registro; este arquivo guarda o texto cru",
+  "recuperacao": [
+    {
+      "id": "C1",
+      "colecao": "rag_sigaa",
+      "alvo": "LEANDRO GUIMARAES MARQUES ALVIM",
+      "alvo_recuperado": true,
+      "posicao_do_alvo": 4,
+      "passaram_o_limiar": 10,
+      "de": 10,
+      "primeiros": [
+        {
+          "nome": "MICHAELE ALVIM MILWARD DE AZEVEDO",
+          "dist": 0.926
+        },
+        {
+          "nome": "RENATO DE ABREU ALVIM",
+          "dist": 0.931
+        },
+        {
+          "nome": "ALESSANDRO BANDEIRA DUARTE",
+          "dist": 1.001
+        },
+        {
+          "nome": "LEANDRO GUIMARAES MARQUES ALVIM",
+          "dist": 1.003
+        },
+        {
+          "nome": "ALESSANDRO PEREIRA ALVES",
+          "dist": 1.007
+        }
+      ]
+    },
+    {
+      "id": "C1",
+      "colecao": "rag_sigaa_descritivo",
+      "alvo": "LEANDRO GUIMARAES MARQUES ALVIM",
+      "alvo_recuperado": false,
+      "posicao_do_alvo": null,
+      "passaram_o_limiar": 10,
+      "de": 10,
+      "primeiros": [
+        {
+          "nome": "ISRAEL SANCHES MARCELLINO",
+          "dist": 0.991
+        },
+        {
+          "nome": "FELIPE DE MELO ALVARENGA",
+          "dist": 0.999
+        },
+        {
+          "nome": "GUSTAVO BASTOS LYRA",
+          "dist": 1.018
+        },
+        {
+          "nome": "ANDREY CORDEIRO FERREIRA",
+          "dist": 1.019
+        },
+        {
+          "nome": "ANDRE MARQUES DOS SANTOS",
+          "dist": 1.023
+        }
+      ]
+    },
+    {
+      "id": "C2",
+      "colecao": "rag_sigaa",
+      "alvo": "MARCEL WILLIAM ROCHA DA SILVA",
+      "alvo_recuperado": false,
+      "posicao_do_alvo": null,
+      "passaram_o_limiar": 10,
+      "de": 10,
+      "primeiros": [
+        {
+          "nome": "RODOLFO ROCHA DOS SANTOS",
+          "dist": 0.927
+        },
+        {
+          "nome": "MELISSA CARVALHO MACHADO DO COUTO CHAMBARELLI",
+          "dist": 0.948
+        },
+        {
+          "nome": "MARCONDES GERALDO COELHO JUNIOR",
+          "dist": 0.95
+        },
+        {
+          "nome": "MARCELO SALES FERREIRA",
+          "dist": 0.969
+        },
+        {
+          "nome": "EMANUEL JOSE GOMES DE ARAUJO",
+          "dist": 0.97
+        }
+      ]
+    },
+    {
+      "id": "C2",
+      "colecao": "rag_sigaa_descritivo",
+      "alvo": "MARCEL WILLIAM ROCHA DA SILVA",
+      "alvo_recuperado": false,
+      "posicao_do_alvo": null,
+      "passaram_o_limiar": 10,
+      "de": 10,
+      "primeiros": [
+        {
+          "nome": "JORGE LUIZ DE GOES PEREIRA",
+          "dist": 0.911
+        },
+        {
+          "nome": "EMANUEL JOSE GOMES DE ARAUJO",
+          "dist": 0.926
+        },
+        {
+          "nome": "MARCONDES GERALDO COELHO JUNIOR",
+          "dist": 0.93
+        },
+        {
+          "nome": "ROBERTO SALVADOR SANTOLIN",
+          "dist": 0.941
+        },
+        {
+          "nome": "FELIPE DE MELO ALVARENGA",
+          "dist": 0.957
+        }
+      ]
+    }
+  ],
+  "respostas": [
+    {
+      "id": "A1",
+      "grupo": "controle",
+      "pergunta": "quantos professores tem o Departamento de Computação hoje?",
+      "colecao": "rag_sigaa",
+      "execucao": 1,
+      "tools": [
+        "buscar_docentes_por_departamento"
+      ],
+      "resposta": "O SIGAA lista dois departamentos relacionados à Computação na UFRRJ:\n\n- **DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM**: 15 docentes\n- **DEPARTAMENTO DE COMPUTAÇÃO**: 15 docentes\n\nSe você quiser o total, somando os dois, seriam 30 docentes. Mas se precisa de um em particular, por favor, especifique qual dos departamentos está buscando!",
+      "erro": null
+    },
+    {
+      "id": "A1",
+      "grupo": "controle",
+      "pergunta": "quantos professores tem o Departamento de Computação hoje?",
+      "colecao": "rag_sigaa",
+      "execucao": 2,
+      "tools": [
+        "buscar_docentes_por_departamento"
+      ],
+      "resposta": "O termo \"Computação\" corresponde a dois departamentos distintos na UFRRJ:\n\n- **DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM**: 15 docentes\n- **DEPARTAMENTO DE COMPUTAÇÃO**: 15 docentes\n\nSe você quiser o total de ambos, seriam 30 docentes. Caso contrário, por favor, especifique qual departamento exato você está buscando.",
+      "erro": null
+    },
+    {
+      "id": "A1",
+      "grupo": "controle",
+      "pergunta": "quantos professores tem o Departamento de Computação hoje?",
+      "colecao": "rag_sigaa",
+      "execucao": 3,
+      "tools": [
+        "buscar_docentes_por_departamento"
+      ],
+      "resposta": "O termo 'Computação' corresponde a dois departamentos distintos na UFRRJ:\n\n- **DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM**: possui 15 docentes.\n- **DEPARTAMENTO DE COMPUTAÇÃO**: possui 15 docentes.\n\nVocê gostaria de saber o número total de docentes em ambos os departamentos?",
+      "erro": null
+    },
+    {
+      "id": "A1",
+      "grupo": "controle",
+      "pergunta": "quantos professores tem o Departamento de Computação hoje?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 1,
+      "tools": [
+        "buscar_docentes_por_departamento"
+      ],
+      "resposta": "Há um pequeno detalhe aqui: o termo \"Computação\" se refere a dois departamentos diferentes na UFRRJ. Portanto, tenho as seguintes contagens separadas para você:\n\n- **DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM:** 15 docentes\n- **DEPARTAMENTO DE COMPUTAÇÃO:** 15 docentes\n\nSe você precisar da contagem de um desses departamentos especificamente, por favor, deixe claro qual é o seu interesse. Caso contrário, a soma seria de 30 docentes entre ambos os departamentos.",
+      "erro": null
+    },
+    {
+      "id": "A1",
+      "grupo": "controle",
+      "pergunta": "quantos professores tem o Departamento de Computação hoje?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 2,
+      "tools": [
+        "buscar_docentes_por_departamento"
+      ],
+      "resposta": "O termo 'Computação' corresponde a dois departamentos distintos na UFRRJ:\n\n- **DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM:** 15 docentes.\n- **DEPARTAMENTO DE COMPUTAÇÃO:** 15 docentes.\n\nVocê gostaria de saber o total, somando ambos os departamentos?",
+      "erro": null
+    },
+    {
+      "id": "A1",
+      "grupo": "controle",
+      "pergunta": "quantos professores tem o Departamento de Computação hoje?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 3,
+      "tools": [
+        "buscar_docentes_por_departamento"
+      ],
+      "resposta": "Há um pequeno detalhe para esclarecer, pois há dois departamentos relacionados à Computação na UFRRJ:\n\n- O **DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM** possui 15 docentes.\n  \n- O **DEPARTAMENTO DE COMPUTAÇÃO** também possui 15 docentes.\n\nGostaria de saber qual departamento específico você está buscando ou prefere que some os dois?",
+      "erro": null
+    },
+    {
+      "id": "A2",
+      "grupo": "real",
+      "pergunta": "quais docentes do Departamento de Ciência da Computação trabalham com inteligência artificial?",
+      "colecao": "rag_sigaa",
+      "execucao": 1,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "A partir das informações recuperadas, os docentes do Departamento de Ciência da Computação que trabalham ou têm interesse em Inteligência Artificial são:\n\n- RONALDO E SILVA VIEIRA. [Currículo Lattes](http://lattes.cnpq.br/1934898535152067)\n- NATALIA CHAVES LESSA, embora suas áreas de interesse listadas não mencionem explicitamente a Inteligência Artificial, ela pode ter pesquisas relacionadas. [Currículo Lattes](http://lattes.cnpq.br/0200110507202895)\n- ADRIA RAMOS DE LYRA, embora suas áreas de interesse listadas sejam em Ciência da Computação e Humanidades Digitais, ela pode ter pesquisas relacionadas. [Currículo Lattes](http://lattes.cnpq.br/5312565962811745)\n\nLembre-se que o docente LHAYS MARINHO DA CONCEICAO FERREIRA DE LIMA também tem interesse em Inteligência Artificial, mas está vinculado ao Departamento de Formação Docente. Caso seja útil, você pode verificar os currículos Lattes dos docentes para obter informações mais detalhadas sobre suas pesquisas e interesses.",
+      "erro": null
+    },
+    {
+      "id": "A2",
+      "grupo": "real",
+      "pergunta": "quais docentes do Departamento de Ciência da Computação trabalham com inteligência artificial?",
+      "colecao": "rag_sigaa",
+      "execucao": 2,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Os docentes do Departamento de Ciência da Computação que têm vínculo com inteligência artificial são:\n\n- RONALDO E SILVA VIEIRA, que tem entre seus interesses a área de Inteligência Artificial.\n- NATALIA CHAVES LESSA não menciona especificamente Inteligência Artificial em suas áreas de interesse.\n\nPara obter informações mais detalhadas sobre esses docentes, você pode consultar o currículo Lattes do Ronaldo E Silva Vieira disponível [aqui](http://lattes.cnpq.br/1934898535152067) e a página de perfil da Natalia Chaves Lessa no SIGAA [aqui](https://sigaa.ufrrj.br/sigaa/public/docente/portal.jsf?siape=2143584).\n\nPor favor, note que o currículo Lattes do docente oferece informações mais detalhadas e atualizadas sobre suas áreas de pesquisa.",
+      "erro": null
+    },
+    {
+      "id": "A2",
+      "grupo": "real",
+      "pergunta": "quais docentes do Departamento de Ciência da Computação trabalham com inteligência artificial?",
+      "colecao": "rag_sigaa",
+      "execucao": 3,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Encontrei dois docentes do Departamento de Ciência da Computação que têm vínculo com inteligência artificial em suas áreas de interesse:\n\n1. **RONALDO E SILVA VIEIRA** - Interesses incluem Inteligência Artificial, entre outros temas como Jogos e Ciência de Dados.\n\n2. **ADRIA RAMOS DE LYRA** - Embora seu perfil mencione Ciência da Computação e Humanidades Digitais, não há uma menção explícita a Inteligência Artificial. No entanto, é importante notar que as áreas de interesse podem ser mais amplas do que o perfil indica. Recomendo verificar o currículo Lattes de cada um para informações mais detalhadas.\n\nPara obter informações mais precisas e completas sobre os interesses de pesquisa desses docentes, sugiro acessar seus currículos Lattes ou entrar em contato diretamente com eles através dos endereços de email fornecidos.",
+      "erro": null
+    },
+    {
+      "id": "A2",
+      "grupo": "real",
+      "pergunta": "quais docentes do Departamento de Ciência da Computação trabalham com inteligência artificial?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 1,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Dos docentes do Departamento de Ciência da Computação que foram recuperados na busca pelo termo \"inteligência artificial\", encontrei o seguinte:\n\n- RONALDO E SILVA VIEIRA, vinculado ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM. Ele possui interesse em áreas como Jogos, Inteligência Artificial, Ciência de Dados e Estudos de Jogos.\n\nAlém dele, foi encontrado outro docente com interesse na área de inteligência artificial no SIGAA, mas ele pertence a um departamento diferente:\n\n- LIGIA MARIA SOARES PASSOS está vinculada ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM e tem interesses em Modelos Analíticos e de Simulação, Sistemas de Informação e Engenharia de Software. Embora não seja explicitamente mencionado inteligência artificial em seu perfil, ela pode estar envolvida indiretamente nessa área através dos temas citados.\n\nNatalia Chaves Lessa também está vinculada ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM, mas a busca semântica não retornou sua pesquisa relacionada à inteligência artificial. Isso pode indicar que seus interesses de pesquisa focam mais em engenharia de software e melhorias de processos.\n\nCaso precise de informações mais detalhadas ou atualizadas sobre os projetos específicos envolvendo inteligência artificial, sugiro verificar diretamente no currículo Lattes dos docentes mencionados ou entrar em contato com o departamento.",
+      "erro": null
+    },
+    {
+      "id": "A2",
+      "grupo": "real",
+      "pergunta": "quais docentes do Departamento de Ciência da Computação trabalham com inteligência artificial?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 2,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Baseado na minha pesquisa no SIGAA da UFRRJ, os docentes do Departamento de Ciência da Computação que trabalham com inteligência artificial são:\n\n- RONALDO E SILVA VIEIRA: Atua nas áreas de Jogos, Inteligência Artificial, Ciência de Dados e Estudos de Jogos.\n\nOutros docentes encontrados em outros departamentos da UFRRJ também se dedicam ao estudo ou aplicação da inteligência artificial:\n\n- LIGIA MARIA SOARES PASSOS: Apesar de não ter inteligência artificial explicitamente mencionada, suas áreas de interesse incluem lógicas e sistemas de informação, que podem cruzar com a área de IA.\n  \nSe você está interessado em obter mais detalhes sobre as pesquisas ou projetos específicos desses docentes, sugiro visitar o link do perfil SIGAA mencionado para cada um.\n\nPor favor, note que LIGIA MARIA SOARES PASSOS está listada no Departamento de Ciência da Computação/IM e pode ter interesse na inteligência artificial indiretamente. Se você busca docentes cuja pesquisa se concentra diretamente em IA, Ronaldo E Silva Vieira é um dos professores identificados nessa área especificamente.",
+      "erro": null
+    },
+    {
+      "id": "A2",
+      "grupo": "real",
+      "pergunta": "quais docentes do Departamento de Ciência da Computação trabalham com inteligência artificial?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 3,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Baseado nos dados do SIGAA da UFRRJ, os docentes do Departamento de Ciência da Computação que trabalham com inteligência artificial são:\n\n- **RONALDO E SILVA VIEIRA** - Atua principalmente em: Jogos, Inteligência Artificial, Ciência de Dados, Estudos de Jogos, Desenvolvimento de Jogos.\n- **LIGIA MARIA SOARES PASSOS** - Não há menção direta à inteligência artificial no perfil recuperado.\n\nOutros docentes mencionaram inteligência artificial, mas pertencem a departamentos diferentes do Departamento de Ciência da Computação. Se você tiver interesse em verificar os perfis completos desses docentes ou buscar mais informações específicas, pode seguir as URLs fornecidas para acessar seus perfis no SIGAA.\n\nCaso tenha outras perguntas ou precise de informações adicionais sobre outros departamentos, estou à disposição!",
+      "erro": null
+    },
+    {
+      "id": "A3",
+      "grupo": "controle",
+      "pergunta": "qual a nota de corte da monitoria de Cálculo 1 esse ano?",
+      "colecao": "rag_sigaa",
+      "execucao": 1,
+      "tools": [],
+      "resposta": "A informação sobre notas de corte para monitorias não está disponível através dos dados institucionais do SIGAA que tenho acesso. Recomendo entrar em contato diretamente com o departamento responsável pela disciplina ou verificar os anúncios oficiais da universidade para obter essa informação.",
+      "erro": null
+    },
+    {
+      "id": "A3",
+      "grupo": "controle",
+      "pergunta": "qual a nota de corte da monitoria de Cálculo 1 esse ano?",
+      "colecao": "rag_sigaa",
+      "execucao": 2,
+      "tools": [],
+      "resposta": "A informação sobre notas de corte para monitorias não está disponível através dos dados institucionais do SIGAA que eu acesso. Recomendo entrar em contato diretamente com o departamento responsável pela disciplina de Cálculo 1 ou a secretaria acadêmica da UFRRJ para obter essa informação.",
+      "erro": null
+    },
+    {
+      "id": "A3",
+      "grupo": "controle",
+      "pergunta": "qual a nota de corte da monitoria de Cálculo 1 esse ano?",
+      "colecao": "rag_sigaa",
+      "execucao": 3,
+      "tools": [],
+      "resposta": "A nota de corte para monitorias não está disponível através dos dados institucionais que tenho acesso no SIGAA. Recomendo entrar em contato com o departamento responsável pelo curso ou verificar as informações divulgadas pelos coordenadores das disciplinas, pois eles têm os detalhes específicos sobre processos seletivos para monitoria.",
+      "erro": null
+    },
+    {
+      "id": "A3",
+      "grupo": "controle",
+      "pergunta": "qual a nota de corte da monitoria de Cálculo 1 esse ano?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 1,
+      "tools": [],
+      "resposta": "A nota de corte para monitorias não está disponível através dos dados institucionais do SIGAA que eu posso acessar. Essa informação geralmente é divulgada pela coordenação do curso ou pelo professor responsável pela disciplina. Recomendo entrar em contato com o departamento responsável por Cálculo 1 para obter essa informação.",
+      "erro": null
+    },
+    {
+      "id": "A3",
+      "grupo": "controle",
+      "pergunta": "qual a nota de corte da monitoria de Cálculo 1 esse ano?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 2,
+      "tools": [],
+      "resposta": "A informação sobre notas de corte para monitorias não está disponível através dos dados institucionais do SIGAA aos quais tenho acesso. Recomendo que você consulte o departamento responsável pela disciplina de Cálculo 1 ou a secretaria acadêmica da UFRRJ para obter essa informação.",
+      "erro": null
+    },
+    {
+      "id": "A3",
+      "grupo": "controle",
+      "pergunta": "qual a nota de corte da monitoria de Cálculo 1 esse ano?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 3,
+      "tools": [],
+      "resposta": "A informação sobre notas de corte para monitorias não está disponível através dos dados institucionais do SIGAA aos quais tenho acesso. Recomendo entrar em contato diretamente com o departamento responsável pela disciplina ou verificar as comunicações da coordenação do curso.",
+      "erro": null
+    },
+    {
+      "id": "B1",
+      "grupo": "real",
+      "pergunta": "Quais docentes de computacao do IM sao de IA?",
+      "colecao": "rag_sigaa",
+      "execucao": 1,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Encontrei uma distinção importante no nome do departamento que você mencionou. Existem dois departamentos na UFRRJ relacionados a Computação:\n\n1. **DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM**: Com 15 docentes.\n2. **DEPARTAMENTO DE COMPUTAÇÃO**: Também com 15 docentes.\n\nQuando você se refere a \"Computação do IM\", estaria falando especificamente sobre o primeiro departamento, o DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM?\n\nAlém disso, ao buscar por docentes que pesquisam em Inteligência Artificial (IA), não encontrei informações semânticas específicas ou detalhadas na base de dados. Isso pode significar que os perfis dos docentes podem não especificar explicitamente a área de IA, mas eles ainda poderiam estar envolvidos com essa pesquisa.\n\nSe você tiver mais detalhes para refinar a busca ou se houver algum nome específico de um professor que você gostaria de verificar, posso tentar novamente.",
+      "erro": null
+    },
+    {
+      "id": "B1",
+      "grupo": "real",
+      "pergunta": "Quais docentes de computacao do IM sao de IA?",
+      "colecao": "rag_sigaa",
+      "execucao": 2,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Encontrei um pequeno desafio na sua pergunta. O termo \"Computação\" corresponde a dois departamentos distintos aqui:\n\n- DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM: 15 docentes\n- DEPARTAMENTO DE COMPUTAÇÃO: 15 docentes\n\nSe você puder especificar qual departamento deseja, posso tentar localizar os docentes que trabalham com Inteligência Artificial. Além disso, verifiquei na base de dados vetorial e não encontrei informações semânticas específicas sobre docentes em IA diretamente. Isso pode significar que as áreas de interesse ou projetos desses docentes podem não estar explicitamente mencionados como \"Inteligência Artificial\" no perfil do SIGAA, mas ainda podem se aplicar a essa área. Se você tiver mais detalhes ou puder especificar o departamento, ficarei feliz em ajudar mais!",
+      "erro": null
+    },
+    {
+      "id": "B1",
+      "grupo": "real",
+      "pergunta": "Quais docentes de computacao do IM sao de IA?",
+      "colecao": "rag_sigaa",
+      "execucao": 3,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Encontrei uma distinção importante no nome do departamento de Computação. Existem dois departamentos com nomes similares, e você precisará especificar qual deseja:\n\n1. DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM: 15 docentes.\n2. DEPARTAMENTO DE COMPUTAÇÃO: 15 docentes.\n\nAlém disso, não encontrei informações específicas sobre docentes que se dedicam à Inteligência Artificial nos perfis disponíveis no SIGAA. Para obter mais detalhes, pode ser útil verificar diretamente o currículo Lattes dos docentes ou entrar em contato com a secretaria do departamento de interesse.",
+      "erro": null
+    },
+    {
+      "id": "B1",
+      "grupo": "real",
+      "pergunta": "Quais docentes de computacao do IM sao de IA?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 1,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Dos docentes do Departamento de Ciência da Computação/IM que pesquisam em Inteligência Artificial, encontrei os seguintes nomes:\n\n1. RONALDO E SILVA VIEIRA\n2. MARCELO PANARO DE MORAES ZAMITH\n3. RICARDO CORDEIRO CORREA\n4. LIGIA MARIA SOARES PASSOS\n\nPor favor, note que não há docentes listados do Departamento de Computação no resultado da busca específica por Inteligência Artificial.\n\nPara mais detalhes sobre a pesquisa em Inteligência Artificial desses docentes ou para obter informações completas sobre outros departamentos relacionados à Computação, é recomendável consultar diretamente o perfil acadêmico dos professores ou contatar as secretarias dos respectivos departamentos.",
+      "erro": null
+    },
+    {
+      "id": "B1",
+      "grupo": "real",
+      "pergunta": "Quais docentes de computacao do IM sao de IA?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 2,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Os departamentos de Computação que foram encontrados são:\n\n- DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM: com 15 docentes\n- DEPARTAMENTO DE COMPUTAÇÃO: também com 15 docentes\n\nPara a pesquisa em Inteligência Artificial (IA) no Departamento de Ciência da Computação, encontramos os seguintes docentes:\n\n- RONALDO E SILVA VIEIRA — Pesquisa na área de Jogos, Inteligência Artificial, entre outros.\n- MARCELO PANARO DE MORAES ZAMITH — Não possui IA como área declarada no perfil.\n\nNo entanto, a consulta mais ampla também recuperou o seguinte docente que pesquisa Inteligência Artificial:\n\n- LIGIA MARIA SOARES PASSOS — Embora não seja uma área explícita de sua pesquisa conforme o perfil SIGAA, ela pode estar envolvida em trabalhos relacionados à IA.\n\nPor favor, verifique diretamente com os docentes ou consulte seus currículos completos para detalhes mais precisos sobre suas pesquisas. Note que a busca foi feita em todo o universo de docentes da UFRRJ e não apenas no Departamento de Computação especificado inicialmente. Para uma resposta mais precisa, pode ser necessário refinar a pesquisa para os membros do departamento específico mencionado.",
+      "erro": null
+    },
+    {
+      "id": "B1",
+      "grupo": "real",
+      "pergunta": "Quais docentes de computacao do IM sao de IA?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 3,
+      "tools": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Os docentes de Computação do IM que têm vínculo com Inteligência Artificial (IA) são os seguintes:\n\n- DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM:\n    - RONALDO E SILVA VIEIRA: Atua em áreas como Jogos, Inteligência Artificial e Ciência de Dados.\n    - MARCELO PANARO DE MORAES ZAMITH: Embora não seja explicitamente citado na descrição, ele está vinculado ao Departamento de Ciência da Computação/IM e pode ter pesquisas relacionadas à IA. Para informações mais detalhadas sobre a pesquisa dele em IA, seria necessário verificar seu perfil completo ou contatá-lo diretamente.\n    - RICARDO CORDEIRO CORREA: Também associado ao departamento, sua descrição não menciona explicitamente Inteligência Artificial, mas ele pode ter pesquisas nessa área. Recomendo verificar o grupo de pesquisa LAGOA para mais informações.\n\nLembre-se que a identificação do vínculo com IA foi feita com base na busca no texto dos perfis dos docentes do Departamento de Ciência da Computação/IM, e pode haver outros professores nessa área cujos perfis não mencionam explicitamente \"Inteligência Artificial\". Para uma informação mais precisa ou atualizada, sugerimos contatar o departamento diretamente.",
+      "erro": null
+    },
+    {
+      "id": "C1",
+      "grupo": "decide",
+      "pergunta": "o que o professor Leandro Alvim pesquisa?",
+      "colecao": "rag_sigaa",
+      "execucao": 1,
+      "tools": [
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Encontrei o perfil do docente LEANDRO GUIMARAES MARQUES ALVIM, vinculado ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM. No entanto, a informação sobre sua área de pesquisa não está disponível no SIGAA. Para obter mais detalhes sobre as pesquisas realizadas pelo professor Leandro Alvim, você pode verificar seu currículo Lattes ou entrar em contato diretamente com ele através do e-mail: alvim.lgm@gmail.com.",
+      "erro": null
+    },
+    {
+      "id": "C1",
+      "grupo": "decide",
+      "pergunta": "o que o professor Leandro Alvim pesquisa?",
+      "colecao": "rag_sigaa",
+      "execucao": 2,
+      "tools": [
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Segundo os dados disponíveis no SIGAA, o professor LEANDRO GUIMARAES MARQUES ALVIM está vinculado ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM. No entanto, a plataforma não fornece informações específicas sobre as áreas de pesquisa dele.\n\nPara obter detalhes mais precisos sobre os interesses e pesquisas do professor Leandro Alvim, recomendo consultar o currículo Lattes ou entrar em contato diretamente com ele através do email alvim.lgm@gmail.com.",
+      "erro": null
+    },
+    {
+      "id": "C1",
+      "grupo": "decide",
+      "pergunta": "o que o professor Leandro Alvim pesquisa?",
+      "colecao": "rag_sigaa",
+      "execucao": 3,
+      "tools": [
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Encontrei o perfil do professor LEANDRO GUIMARAES MARQUES ALVIM, mas infelizmente a informação sobre as áreas de interesse e pesquisa dele não está disponível no SIGAA. Para obter mais detalhes sobre suas pesquisas, sugiro verificar seu Currículo Lattes ou entrar em contato diretamente com ele através do email alvim.lgm@gmail.com.",
+      "erro": null
+    },
+    {
+      "id": "C1",
+      "grupo": "decide",
+      "pergunta": "o que o professor Leandro Alvim pesquisa?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 1,
+      "tools": [
+        "busca_vetorial_sigaa",
+        "busca_vetorial_sigaa",
+        "buscar_docente_por_nome"
+      ],
+      "resposta": "Não encontrei informações sobre o professor Leandro Alvim no SIGAA da UFRRJ. É possível que o nome esteja diferente ou que ele não seja docente desta instituição. Verifique o nome e tente novamente, ou você pode consultar diretamente a secretaria do departamento onde ele atua para mais informações.",
+      "erro": null
+    },
+    {
+      "id": "C1",
+      "grupo": "decide",
+      "pergunta": "o que o professor Leandro Alvim pesquisa?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 2,
+      "tools": [
+        "busca_vetorial_sigaa",
+        "busca_vetorial_sigaa",
+        "buscar_docente_por_nome"
+      ],
+      "resposta": "Não encontrei registros de um docente chamado Leandro Alvim no SIGAA da UFRRJ. É possível que haja uma variação no nome ou que o docente não esteja cadastrado na instituição. Se você tiver mais detalhes, posso tentar novamente.",
+      "erro": null
+    },
+    {
+      "id": "C1",
+      "grupo": "decide",
+      "pergunta": "o que o professor Leandro Alvim pesquisa?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 3,
+      "tools": [
+        "busca_vetorial_sigaa",
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Parece que houve um erro na recuperação das informações específicas sobre as pesquisas do professor Leandro Alvim. As buscas anteriores não retornaram os dados esperados para este docente. Recomendo verificar diretamente o perfil do docente no SIGAA ou entrar em contato com a secretaria do departamento para obter mais detalhes sobre suas áreas de pesquisa.",
+      "erro": null
+    },
+    {
+      "id": "C2",
+      "grupo": "decide",
+      "pergunta": "quais são as áreas de interesse do professor Marcel William Rocha da Silva?",
+      "colecao": "rag_sigaa",
+      "execucao": 1,
+      "tools": [
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Não encontrei as áreas de interesse do professor Marcel William Rocha da Silva diretamente no SIGAA. Para obter essa informação, sugiro verificar o currículo Lattes dele ou entrar em contato diretamente com o docente. Se precisar de mais ajuda para encontrar o currículo Lattes, posso auxiliar!",
+      "erro": null
+    },
+    {
+      "id": "C2",
+      "grupo": "decide",
+      "pergunta": "quais são as áreas de interesse do professor Marcel William Rocha da Silva?",
+      "colecao": "rag_sigaa",
+      "execucao": 2,
+      "tools": [
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Não encontrei as informações específicas sobre as áreas de interesse do professor Marcel William Rocha da Silva no SIGAA. Sugiro verificar diretamente o currículo Lattes ou entrar em contato com ele para obter mais detalhes. Se precisar de ajuda com outro docente, estou à disposição!",
+      "erro": null
+    },
+    {
+      "id": "C2",
+      "grupo": "decide",
+      "pergunta": "quais são as áreas de interesse do professor Marcel William Rocha da Silva?",
+      "colecao": "rag_sigaa",
+      "execucao": 3,
+      "tools": [
+        "busca_vetorial_sigaa",
+        "buscar_docente_por_nome"
+      ],
+      "resposta": "Encontrei que o professor **MARCEL WILLIAM ROCHA DA SILVA** está vinculado ao **DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM**. Infelizmente, não encontrei detalhes específicos sobre as áreas de interesse dele no SIGAA. Para obter mais informações, recomendo verificar seu currículo Lattes ou entrar em contato diretamente com o professor através do departamento.",
+      "erro": null
+    },
+    {
+      "id": "C2",
+      "grupo": "decide",
+      "pergunta": "quais são as áreas de interesse do professor Marcel William Rocha da Silva?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 1,
+      "tools": [
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Não encontrei as áreas de interesse do professor Marcel William Rocha da Silva nos dados disponíveis no SIGAA. Recomendo verificar diretamente seu perfil completo no SIGAA ou em seu currículo Lattes para obter essa informação.",
+      "erro": null
+    },
+    {
+      "id": "C2",
+      "grupo": "decide",
+      "pergunta": "quais são as áreas de interesse do professor Marcel William Rocha da Silva?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 2,
+      "tools": [
+        "busca_vetorial_sigaa",
+        "buscar_docente_por_nome"
+      ],
+      "resposta": "Encontrei que o professor MARCEL WILLIAM ROCHA DA SILVA está vinculado ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM. No entanto, para detalhes específicos sobre suas áreas de interesse, você precisaria verificar diretamente seu perfil no SIGAA ou em seu currículo Lattes, pois essa informação não foi encontrada na minha busca inicial.",
+      "erro": null
+    },
+    {
+      "id": "C2",
+      "grupo": "decide",
+      "pergunta": "quais são as áreas de interesse do professor Marcel William Rocha da Silva?",
+      "colecao": "rag_sigaa_descritivo",
+      "execucao": 3,
+      "tools": [
+        "busca_vetorial_sigaa"
+      ],
+      "resposta": "Desculpe, não encontrei as informações sobre as áreas de interesse do professor Marcel William Rocha da Silva através das ferramentas disponíveis no SIGAA. Recomendo verificar diretamente o perfil dele na plataforma ou entrar em contato com a secretaria do departamento para obter mais detalhes.",
+      "erro": null
+    }
+  ]
+}
