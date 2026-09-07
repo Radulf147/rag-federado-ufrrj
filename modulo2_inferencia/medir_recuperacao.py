@@ -104,16 +104,15 @@ def _normalizar(texto: str) -> str:
     return " ".join(sem_acento.upper().split())
 
 
-def _carregar_documentos() -> list:
+def _abrir_store(colecao: str):
     from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 
-    store = ChromaDocumentStore(
-        collection_name=config.CHROMA_COLECAO,
+    return ChromaDocumentStore(
+        collection_name=colecao,
         host=config.CHROMA_HOST,
         port=config.CHROMA_PORT,
         embedding_function="default",
     )
-    return store.filter_documents()
 
 
 def frases_de_interesse(documentos: list) -> Counter:
@@ -228,9 +227,18 @@ def medir(componentes, documentos: list, tema: str, ks: tuple[int, ...]) -> dict
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--temas", type=int, default=8)
-    parser.add_argument("--saida", type=Path,
-                        default=Path("docs/recuperacao_linha_de_base.json"))
+    parser.add_argument("--colecao", default=config.CHROMA_COLECAO)
+    parser.add_argument("--saida", type=Path, default=None)
+    parser.add_argument(
+        "--temas-de", default=None,
+        help="tira os temas DESTA colecao em vez da medida. Essencial ao medir "
+             "uma reindexacao: os temas tem de ser os MESMOS das duas vezes, "
+             "senao a comparacao troca a regua junto com o objeto.",
+    )
     args = parser.parse_args()
+    if args.saida is None:
+        sufixo = "" if args.colecao == config.CHROMA_COLECAO else f"_{args.colecao}"
+        args.saida = Path(f"docs/recuperacao_linha_de_base{sufixo}.json")
 
     # INTERMEDIÁRIOS ANTES DO RESULTADO — regra operacional fixada em
     # docs/relatorio_fase5.md §10. Número sem intermediário conferível não
@@ -238,9 +246,9 @@ def main() -> None:
     print("=" * 74)
     print("INTERMEDIARIOS")
     print("=" * 74)
-    documentos = _carregar_documentos()
+    documentos = _abrir_store(args.colecao).filter_documents()
     print(f"  chroma ............. {config.CHROMA_HOST}:{config.CHROMA_PORT}"
-          f" / {config.CHROMA_COLECAO}")
+          f" / {args.colecao}")
     print(f"  documentos ......... {len(documentos)}")
 
     com_area = sum(1 for d in documentos
@@ -248,7 +256,16 @@ def main() -> None:
     print(f"  com Areas de interesse  {com_area}"
           f"  ({100 * com_area / max(len(documentos), 1):.0f}%)")
 
-    temas = escolher_temas(documentos, args.temas)
+    # OS TEMAS TEM DE SER OS MESMOS DAS DUAS MEDICOES. Deriva-los da colecao
+    # reindexada daria outra lista (o texto mudou), e a comparacao trocaria a
+    # regua junto com o objeto -- o numero subiria ou desceria sem que se
+    # soubesse por causa de qual das duas coisas.
+    fonte_temas = documentos
+    if args.temas_de:
+        fonte_temas = _abrir_store(args.temas_de).filter_documents()
+        print(f"  temas tirados de ... {args.temas_de}"
+              f"  ({len(fonte_temas)} documentos)")
+    temas = escolher_temas(fonte_temas, args.temas)
     print(f"  temas selecionados .. {len(temas)}"
           f"  (frequencia entre {MIN_GABARITO} e {MAX_GABARITO} docentes)")
 
@@ -256,6 +273,14 @@ def main() -> None:
     componentes = montar_componentes()
     print(f"  embedding .......... {componentes.embedder.model}")
     print(f"  TOP_K de producao .. {config.TOP_K}")
+
+    if args.colecao != config.CHROMA_COLECAO:
+        from haystack_integrations.components.retrievers.chroma import (
+            ChromaEmbeddingRetriever,
+        )
+        componentes.retriever = ChromaEmbeddingRetriever(
+            document_store=_abrir_store(args.colecao), top_k=config.TOP_K
+        )
 
     ks = (10, 20, 50, 100)
     resultados = [medir(componentes, documentos, t, ks) for t in temas]
