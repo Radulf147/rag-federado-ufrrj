@@ -525,7 +525,7 @@ Havia zero `test_*.py` e `pytest` fora do `requirements`. Rodar `pytest`
 coletava zero testes e saía com sucesso — que se lê facilmente como "está tudo
 passando". Não estava: não havia o que passar.
 
-Agora há **160 testes** em `testes/`, e cada um é a memória de um defeito que de
+Agora há **183 testes** em `testes/`, e cada um é a memória de um defeito que de
 fato aconteceu:
 
 | Arquivo | Cobre |
@@ -537,6 +537,15 @@ fato aconteceu:
 | `test_rede_loja.py` | posts e threads — menção contra e-mail, thread que não atravessa instância, fila |
 | `test_rede_bot.py` | composição do contexto, o interruptor, e nunca publicar resposta quando o agente falhou |
 | `test_rede_servidor.py` | rotas, publicação, o aviso de espera, escape de HTML |
+| `test_identidade_entidade.py` | D1 — o nome não é chave; homônimos não colapsam em `gabarito`, `recall` e `fundir` |
+| `test_registro_tipos.py` | D0 — o registro concorda com `TOOLS_SCHEMA` **caractere a caractere** e com `identidade.py` |
+| `test_tools_saida_identica.py` | **critério de aceite do D0** — 11 casos congelados contra o corpus real |
+
+> ⚠️ `test_tools_saida_identica.py` **depende do corpus**. As contagens (15
+> docentes no DCC/IM, 26 na Física) são do retrato de 4 set 2026. Uma recarga do
+> ETL que mude o corpus o faz falhar **legitimamente**, e aí o instantâneo em
+> `testes/instantaneos/` precisa ser regravado de propósito — não o teste
+> afrouxado.
 
 Rode com **`./rag.sh testes`**, que reconstrói a imagem antes e imprime o id
 dela. Não é zelo: `testes/` **não é volume montado** e o código vem do `COPY`

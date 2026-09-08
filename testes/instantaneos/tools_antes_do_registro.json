@@ -1,0 +1,116 @@
+{
+  "dep_computacao": {
+    "tool": "buscar_docentes_por_departamento",
+    "argumento": "Computação",
+    "retorno": "Acesso à Base Estruturada: o termo 'Computação' corresponde a 2 departamentos distintos. Não somei os totais — informe ao usuário a distinção ou peça qual deles:\n- DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM: 15 docentes\n- DEPARTAMENTO DE COMPUTAÇÃO: 15 docentes"
+  },
+  "dep_fisica_ambiguo": {
+    "tool": "buscar_docentes_por_departamento",
+    "argumento": "Física",
+    "retorno": "Acesso à Base Estruturada: o termo 'Física' corresponde a 2 departamentos distintos. Não somei os totais — informe ao usuário a distinção ou peça qual deles:\n- DEPARTAMENTO DE EDUCAÇÃO FÍSICA E DESPORTOS: 18 docentes\n- DEPARTAMENTO DE FÍSICA: 26 docentes"
+  },
+  "dep_ciencia_comp": {
+    "tool": "buscar_docentes_por_departamento",
+    "argumento": "Ciência da Computação",
+    "retorno": "Acesso à Base Estruturada: O departamento 'DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM' tem 15 docentes. São eles:\n- ADRIA RAMOS DE LYRA\n- BRUNO JOSE DEMBOGURSKI\n- DANIEL FABIO DOMINGUES POSNER\n- FELLIPE RIBEIRO DUARTE\n- FERNANDA VIEIRA DIAS COUTO\n- FILIPE BRAIDA DO CARMO\n- JULIANA MENDES NASCENTE E SILVA ZAMITH\n- LEANDRO GUIMARAES MARQUES ALVIM\n- LIGIA MARIA SOARES PASSOS\n- MARCEL WILLIAM ROCHA DA SILVA\n- MARCELO PANARO DE MORAES ZAMITH\n- NATALIA CHAVES LESSA\n- RICARDO CORDEIRO CORREA\n- RONALDO E SILVA VIEIRA\n- UBIRATAM CARVALHO DE PAULA JUNIOR"
+  },
+  "dep_inexistente": {
+    "tool": "buscar_docentes_por_departamento",
+    "argumento": "Departamento de Alquimia",
+    "retorno": "Acesso à Base Estruturada: Não encontrei nenhum docente registrado sob o departamento 'Departamento de Alquimia'."
+  },
+  "dep_vazio": {
+    "tool": "buscar_docentes_por_departamento",
+    "argumento": "",
+    "retorno": "Acesso à Base Estruturada: o termo '' corresponde a 67 departamentos distintos. Não somei os totais — informe ao usuário a distinção ou peça qual deles:\n- COLEGIO TECNICO (12.28.01.30) (12.28.01.30): 1 docentes\n- DEPARTAMENTO DE ADMINISTRAÇÃO E TURISMO/IM: 16 docentes\n- DEPARTAMENTO DE ADMINISTRAÇÃO PÚBLICA: 12 docentes\n- DEPARTAMENTO DE ADMINISTRAÇÃO/IM: 20 docentes\n- DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE: 11 docentes\n- DEPARTAMENTO DE ANATOMIA ANIMAL E HUMANA: 10 docentes\n- DEPARTAMENTO DE ARQUITETURA E URBANISMO: 32 docentes\n- DEPARTAMENTO DE ARTES: 15 docentes\n- DEPARTAMENTO DE BIOLOGIA ANIMAL: 24 docentes\n- DEPARTAMENTO DE BIOQUÍMICA: 11 docentes\n- DEPARTAMENTO DE BOTÂNICA: 17 docentes\n- DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM: 15 docentes\n- DEPARTAMENTO DE CIÊNCIAS ADMINISTRATIVAS: 25 docentes\n- DEPARTAMENTO DE CIÊNCIAS ADMINISTRATIVAS E SOCIAIS/ITR: 19 docentes\n- DEPARTAMENTO DE CIÊNCIAS AMBIENTAIS: 17 docentes\n- DEPARTAMENTO DE CIÊNCIAS CONTÁBEIS E FINANÇAS: 21 docentes\n- DEPARTAMENTO DE CIÊNCIAS DO MEIO AMBIENTE/ITR: 16 docentes\n- DEPARTAMENTO DE CIÊNCIAS ECONÔMICAS: 25 docentes\n- DEPARTAMENTO DE CIÊNCIAS ECONÔMICAS E EXATAS/ITR: 23 docentes\n- DEPARTAMENTO DE CIÊNCIAS ECONÔMICAS/IM: 18 docentes\n- DEPARTAMENTO DE CIÊNCIAS FARMACÊUTICAS: 13 docentes\n- DEPARTAMENTO DE CIÊNCIAS FISIOLÓGICAS: 20 docentes\n- DEPARTAMENTO DE CIÊNCIAS JURÍDICAS: 20 docentes\n- DEPARTAMENTO DE CIÊNCIAS JURÍDICAS/IM: 17 docentes\n- DEPARTAMENTO DE CIÊNCIAS SOCIAIS: 35 docentes\n- DEPARTAMENTO DE COMPUTAÇÃO: 15 docentes\n- DEPARTAMENTO DE COMUNICAÇÃO E MÍDIAS: 14 docentes\n- DEPARTAMENTO DE DESENVOLVIMENTO, AGRICULTURA E SOCIEDADE: 26 docentes\n- DEPARTAMENTO DE DIREITO, HUMANIDADES E LETRAS/ITR: 23 docentes\n- DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE: 18 docentes\n- DEPARTAMENTO DE EDUCAÇÃO E SOCIEDADE/IM: 16 docentes\n- DEPARTAMENTO DE EDUCAÇÃO FÍSICA E DESPORTOS: 18 docentes\n- DEPARTAMENTO DE ENGENHARIA AGRÍCOLA E AMBIENTAL: 31 docentes\n- DEPARTAMENTO DE ENGENHARIA QUÍMICA: 29 docentes\n- DEPARTAMENTO DE ENTOMOLOGIA E FITOPATOLOGIA: 11 docentes\n- DEPARTAMENTO DE EPIDEMIOLOGIA E SAÚDE PÚBLICA: 16 docentes\n- DEPARTAMENTO DE FILOSOFIA: 16 docentes\n- DEPARTAMENTO DE FITOTECNIA: 13 docentes\n- DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM: 37 docentes\n- DEPARTAMENTO DE FÍSICA: 26 docentes\n- DEPARTAMENTO DE GENÉTICA: 12 docentes\n- DEPARTAMENTO DE GEOCIÊNCIAS: 10 docentes\n- DEPARTAMENTO DE GEOGRAFIA: 16 docentes\n- DEPARTAMENTO DE GEOGRAFIA/IM: 14 docentes\n- DEPARTAMENTO DE HISTÓRIA E RELAÇÕES INTERNACIONAIS: 26 docentes\n- DEPARTAMENTO DE HISTÓRIA/IM: 25 docentes\n- DEPARTAMENTO DE HOTELARIA E SERVIÇO SOCIAL: 31 docentes\n- DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL: 30 docentes\n- DEPARTAMENTO DE LETRAS/IM: 24 docentes\n- DEPARTAMENTO DE MATEMÁTICA: 44 docentes\n- DEPARTAMENTO DE MEDICINA E CIRURGIA VETERINÁRIA: 26 docentes\n- DEPARTAMENTO DE MICROBIOLOGIA E IMUNOLOGIA VETERINÁRIA: 17 docentes\n- DEPARTAMENTO DE NUTRIÇÃO ANIMAL E PASTAGENS: 12 docentes\n- DEPARTAMENTO DE PARASITOLOGIA ANIMAL: 16 docentes\n- DEPARTAMENTO DE PETROLOGIA E GEOTECTÔNICA: 11 docentes\n- DEPARTAMENTO DE PRODUTOS FLORESTAIS: 11 docentes\n- DEPARTAMENTO DE PRODUÇÃO ANIMAL: 16 docentes\n- DEPARTAMENTO DE PSICOLOGIA E ORIENTAÇÃO: 22 docentes\n- DEPARTAMENTO DE QUÍMICA ANALÍTICA: 10 docentes\n- DEPARTAMENTO DE QUÍMICA FUNDAMENTAL: 24 docentes\n- DEPARTAMENTO DE QUÍMICA ORGÂNICA: 15 docentes\n- DEPARTAMENTO DE REPRODUÇÃO E AVALIAÇÃO ANIMAL: 11 docentes\n- DEPARTAMENTO DE SILVICULTURA: 12 docentes\n- DEPARTAMENTO DE SOLOS: 15 docentes\n- DEPARTAMENTO DE TECNOLOGIA DE ALIMENTOS: 24 docentes\n- DEPARTAMENTO DE TECNOLOGIAS E LINGUAGENS/IM: 27 docentes\n- DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO: 39 docentes"
+  },
+  "nome_filipe": {
+    "tool": "buscar_docente_por_nome",
+    "argumento": "Filipe Braida",
+    "retorno": "Acesso à Base Estruturada: FILIPE BRAIDA DO CARMO pertence ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM."
+  },
+  "nome_completo_alvim": {
+    "tool": "buscar_docente_por_nome",
+    "argumento": "LEANDRO GUIMARAES MARQUES ALVIM",
+    "retorno": "Acesso à Base Estruturada: LEANDRO GUIMARAES MARQUES ALVIM pertence ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM."
+  },
+  "nome_parcial_alvim": {
+    "tool": "buscar_docente_por_nome",
+    "argumento": "Leandro Alvim",
+    "retorno": "Acesso à Base Estruturada: Nenhum docente cadastrado com o nome 'Leandro Alvim'."
+  },
+  "nome_silva_ambiguo": {
+    "tool": "buscar_docente_por_nome",
+    "argumento": "Silva",
+    "retorno": "Acesso à Base Estruturada: o nome 'Silva' casa com 130 docentes. Não escolhi por você:\n- ROBSON MARIANO DA SILVA: DEPARTAMENTO DE COMPUTAÇÃO\n- CARLOS DOMINGOS DA SILVA: DEPARTAMENTO DE CIÊNCIAS AMBIENTAIS\n- RONALDO RODRIGUES DA SILVA: DEPARTAMENTO DE CIÊNCIAS ECONÔMICAS E EXATAS/ITR\n- PEDRO PAULO DE OLIVEIRA SILVA: DEPARTAMENTO DE TECNOLOGIA DE ALIMENTOS\n- WELLINGTON DA SILVA CORTES: DEPARTAMENTO DE CIÊNCIAS FISIOLÓGICAS\n- FRANCISCO DE ASSIS DA SILVA: DEPARTAMENTO DE QUÍMICA FUNDAMENTAL\n- MARCO ANTONIO DA SILVA VASCONCELLOS: DEPARTAMENTO DE FITOTECNIA\n- FERNANDA FELISBERTO DA SILVA: DEPARTAMENTO DE LETRAS/IM\n- IZADORA MARTINS DA SILVA DE SOUZA: DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM\n- CAROLINA GUAL DA SILVA: DEPARTAMENTO DE HISTÓRIA E RELAÇÕES INTERNACIONAIS\n- LUANA CRISTINA ANDRADE DA SILVA: DEPARTAMENTO DE TECNOLOGIA DE ALIMENTOS\n- GUSTAVO SILVA SEMAAN: DEPARTAMENTO DE CIÊNCIAS ECONÔMICAS E EXATAS/ITR\n- FERNANDA CRISTINA MOREIRA DA SILVA COSTA: DEPARTAMENTO DE ARQUITETURA E URBANISMO\n- JAIRO PINHEIRO DA SILVA: DEPARTAMENTO DE CIÊNCIAS FISIOLÓGICAS\n- ANTONIO MARQUES DA SILVA JUNIOR: DEPARTAMENTO DE QUÍMICA FUNDAMENTAL\n... e mais 115 docentes."
+  },
+  "nome_inexistente": {
+    "tool": "buscar_docente_por_nome",
+    "argumento": "Fulano de Tal Inexistente",
+    "retorno": "Acesso à Base Estruturada: Nenhum docente cadastrado com o nome 'Fulano de Tal Inexistente'."
+  },
+  "nome_marcel": {
+    "tool": "buscar_docente_por_nome",
+    "argumento": "Marcel William Rocha da Silva",
+    "retorno": "Acesso à Base Estruturada: MARCEL WILLIAM ROCHA DA SILVA pertence ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM."
+  },
+  "__schema__": [
+    {
+      "type": "function",
+      "function": {
+        "name": "buscar_docentes_por_departamento",
+        "description": "Utilize esta ferramenta APENAS quando o usuário pedir para contar ou listar os professores/docentes de um departamento específico (ex: Computação, Física). Retorna dados exatos.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "departamento": {
+              "type": "string",
+              "description": "Nome ou sigla do departamento que o usuário deseja buscar (ex: Ciência da Computação, Matemática)"
+            }
+          },
+          "required": [
+            "departamento"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "busca_vetorial_sigaa",
+        "description": "Todo o TEXTO do perfil dos docentes: formação acadêmica, áreas de interesse, atuação, descrição pessoal. Serve tanto para pergunta ampla ('quem pesquisa Inteligência Artificial?') quanto para uma pessoa nomeada ('qual a formação de fulano?') — o que decide é o dado pedido ser texto de perfil, não a pergunta citar um nome.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "pergunta_semantica": {
+              "type": "string",
+              "description": "A pergunta otimizada para buscar no banco de dados vetorial."
+            }
+          },
+          "required": [
+            "pergunta_semantica"
+          ]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "buscar_docente_por_nome",
+        "description": "Vínculo de UMA pessoa: dado o nome, diz a que departamento ela pertence, ou que não está cadastrada. Isso é tudo o que devolve. NÃO tem formação acadêmica, áreas de interesse, atuação, contato nem qualquer outro texto do perfil — para esses use busca_vetorial_sigaa, inclusive quando a pergunta nomear a pessoa.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "nome": {
+              "type": "string",
+              "description": "Nome, ou parte do nome, do docente procurado (ex: Marcel William Rocha da Silva)"
+            }
+          },
+          "required": [
+            "nome"
+          ]
+        }
+      }
+    }
+  ]
+}

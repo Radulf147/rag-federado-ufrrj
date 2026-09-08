@@ -113,10 +113,16 @@ class TestEstruturaPuraNaoVaiParaOChroma:
             nome="departamento",
             identidade=lambda e: f"departamento:{e['id_sigaa']}",
             rotulo=lambda e: e["nome"],
+            singular="departamento",
+            plural="departamentos",
+            referente="o departamento",
+            campo_rotulo="nome",
+            campo_vinculo="centro",
             texto_semantico=None,
             buscas=(),
         )
         assert not estrutural.vai_para_o_chroma
+        assert "departamento" not in tipos_do_chroma()
 
 
 class TestMetadadosTemOMesmoFormatoParaTodoTipo:

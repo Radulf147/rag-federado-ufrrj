@@ -54,6 +54,12 @@ class Busca:
 
     `campo` é a chave dentro do JSON de `entidades_sigaa.dados_brutos`, que é o
     que `db_manager.buscar_entidades_por_campo` recebe.
+
+    ⚠️ OS SUBSTANTIVOS SÃO DECLARADOS, NÃO DERIVADOS. `plural_do_campo` não sai
+    de `campo + "s"`, e `artigo` não sai de heurística de terminação: português
+    tem "unidade"/"unidades" feminino ao lado de "centro"/"centros" masculino, e
+    uma regra esperta acertaria hoje e erraria calada no primeiro tipo novo. O
+    texto que o LLM lê é medido — declarar é mais barato que depurar.
     """
 
     campo: str
@@ -61,6 +67,12 @@ class Busca:
     descricao: str
     parametro: str
     descricao_parametro: str
+    # "agrupado": conta e lista por grupo, relatando ambiguidade
+    # "um_ou_ambiguo": espera um; se vier mais de um, relata em vez de escolher
+    formato: str
+    singular_do_campo: str
+    plural_do_campo: str
+    artigo: str = "o"
 
 
 @dataclass(frozen=True)
@@ -70,6 +82,17 @@ class Tipo:
     nome: str
     identidade: Callable[[dict], str]
     rotulo: Callable[[dict], str]
+    # Substantivos que entram no texto devolvido ao LLM. Declarados pelo mesmo
+    # motivo dos de `Busca`. `referente` é como a entidade é retomada numa
+    # frase — "a pessoa", "o departamento" —, e existe porque a guarda dos dois
+    # zeros diz "não responda como se a pessoa não existisse".
+    singular: str
+    plural: str
+    referente: str
+    # Campo que identifica a entidade numa listagem, e o que é mostrado ao lado
+    # dela quando o resultado é único.
+    campo_rotulo: str
+    campo_vinculo: str
     # None significa ESTRUTURA PURA: não vai para o Chroma. É a correção do D2
     # — indexar um registro sem texto livre é vetorizar um nome, que é
     # exatamente o defeito que o item 7 mediu e removeu para levar o recall de
@@ -111,11 +134,19 @@ DOCENTE = Tipo(
     nome="docente",
     identidade=lambda e: f"docente:{e.get('siape')}",
     rotulo=lambda e: e.get("nome") or e.get("nome_docente") or "",
+    singular="docente",
+    plural="docentes",
+    referente="a pessoa",
+    campo_rotulo="nome",
+    campo_vinculo="departamento",
     texto_semantico=lambda e: e.get("conteudo") or "",
     buscas=(
         Busca(
             campo="departamento",
             nome_tool="buscar_docentes_por_departamento",
+            formato="agrupado",
+            singular_do_campo="departamento",
+            plural_do_campo="departamentos",
             descricao=(
                 "Utilize esta ferramenta APENAS quando o usuário pedir para "
                 "contar ou listar os professores/docentes de um departamento "
@@ -130,6 +161,9 @@ DOCENTE = Tipo(
         Busca(
             campo="nome",
             nome_tool="buscar_docente_por_nome",
+            formato="um_ou_ambiguo",
+            singular_do_campo="nome",
+            plural_do_campo="nomes",
             # A redação anterior abria com "quando o usuário perguntar sobre UM
             # docente específico pelo nome", e casava com QUALQUER pergunta que
             # citasse uma pessoa. Na bateria de 5 set derrubou "qual é a

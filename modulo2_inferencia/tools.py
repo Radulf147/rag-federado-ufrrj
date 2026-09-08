@@ -17,173 +17,238 @@ from haystack.tools import Tool
 
 from modulo1_etl.db_manager import buscar_entidades_por_campo, total_de_entidades
 import config
+from interfaces.tipos import TIPOS
 
-TOOLS_SCHEMA = [
-    {
+# A tool semantica NAO sai do registro: ela nao filtra dado estruturado de um
+# tipo, ela varre o texto livre de todos. Fica literal, e a descricao carrega a
+# correcao de Set/2026 -- "perguntas genericas interpretativas" sinalizava que
+# pergunta sobre UMA pessoa nomeada nao era para ca, quando e exatamente para ca
+# se o que se pede e conteudo de perfil.
+SCHEMA_SEMANTICO = {
+    "type": "function",
+    "function": {
+        "name": "busca_vetorial_sigaa",
+        "description": (
+            "Todo o TEXTO do perfil dos docentes: formação acadêmica, "
+            "áreas de interesse, atuação, descrição pessoal. Serve tanto "
+            "para pergunta ampla ('quem pesquisa Inteligência "
+            "Artificial?') quanto para uma pessoa nomeada ('qual a "
+            "formação de fulano?') — o que decide é o dado pedido ser "
+            "texto de perfil, não a pergunta citar um nome."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "pergunta_semantica": {
+                    "type": "string",
+                    "description": "A pergunta otimizada para buscar no banco de dados vetorial.",
+                }
+            },
+            "required": ["pergunta_semantica"],
+        },
+    },
+}
+
+
+def _schema_da_busca(busca) -> dict:
+    """Uma Busca do registro vira o schema que o LLM le."""
+    return {
         "type": "function",
         "function": {
-            "name": "buscar_docentes_por_departamento",
-            "description": (
-                "Utilize esta ferramenta APENAS quando o usuário pedir para "
-                "contar ou listar os professores/docentes de um departamento "
-                "específico (ex: Computação, Física). Retorna dados exatos."
-            ),
+            "name": busca.nome_tool,
+            "description": busca.descricao,
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "departamento": {
+                    busca.parametro: {
                         "type": "string",
-                        "description": (
-                            "Nome ou sigla do departamento que o usuário deseja "
-                            "buscar (ex: Ciência da Computação, Matemática)"
-                        ),
+                        "description": busca.descricao_parametro,
                     }
                 },
-                "required": ["departamento"],
+                "required": [busca.parametro],
             },
         },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "busca_vetorial_sigaa",
-            # "perguntas genéricas interpretativas" era a outra metade do
-            # defeito: sinalizava que perguntas sobre UMA pessoa nomeada não
-            # eram para cá, quando são exatamente para cá se o que se pede é
-            # conteúdo de perfil.
-            "description": (
-                "Todo o TEXTO do perfil dos docentes: formação acadêmica, "
-                "áreas de interesse, atuação, descrição pessoal. Serve tanto "
-                "para pergunta ampla ('quem pesquisa Inteligência "
-                "Artificial?') quanto para uma pessoa nomeada ('qual a "
-                "formação de fulano?') — o que decide é o dado pedido ser "
-                "texto de perfil, não a pergunta citar um nome."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "pergunta_semantica": {
-                        "type": "string",
-                        "description": "A pergunta otimizada para buscar no banco de dados vetorial.",
-                    }
-                },
-                "required": ["pergunta_semantica"],
-            },
-        },
-    },
-    {
-        "type": "function",
-        "function": {
-            "name": "buscar_docente_por_nome",
-            # A redação anterior abria com "quando o usuário perguntar sobre UM
-            # docente específico pelo nome", e isso casava com QUALQUER pergunta
-            # que citasse uma pessoa. Na bateria de 5 set derrubou "qual é a
-            # formação acadêmica de Filipe Braida?" e "quais são as áreas de
-            # interesse de Marcel?" — 6 execuções, todos os erros de roteamento
-            # da rodada. Agora abre pelo que DEVOLVE, e nomeia o destino certo.
-            "description": (
-                "Vínculo de UMA pessoa: dado o nome, diz a que departamento "
-                "ela pertence, ou que não está cadastrada. Isso é tudo o que "
-                "devolve. NÃO tem formação acadêmica, áreas de interesse, "
-                "atuação, contato nem qualquer outro texto do perfil — para "
-                "esses use busca_vetorial_sigaa, inclusive quando a pergunta "
-                "nomear a pessoa."
-            ),
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "nome": {
-                        "type": "string",
-                        "description": (
-                            "Nome, ou parte do nome, do docente procurado "
-                            "(ex: Marcel William Rocha da Silva)"
-                        ),
-                    }
-                },
-                "required": ["nome"],
-            },
-        },
-    },
-]
+    }
 
 
-def buscar_docentes_por_departamento(departamento: str) -> str:
-    """Ferramenta determinística — consulta o SQLite (schema-less)."""
-    print(f"🔧 [TOOL EXECUTADA] Consulta estruturada em SQLite pelo departamento: {departamento}")
+# ⚠️ A ORDEM E FIXADA DE PROPOSITO, e nao e detalhe de arrumacao.
+#
+# Esta lista e literalmente o prompt que o LLM le para escolher a ferramenta, e
+# a acuracia de roteamento de 97,8% da fase 3 foi medida com ESTA ordem. Deixar
+# a ordem sair de iteracao de dicionario faria a reestruturacao mudar, de
+# graca, uma variavel que o experimento controlava -- e o numero novo pareceria
+# igualmente valido.
+#
+# Tool que o registro conhece e esta lista nao menciona entra no fim, em vez de
+# sumir em silencio.
+ORDEM_DAS_TOOLS = (
+    "buscar_docentes_por_departamento",
+    "busca_vetorial_sigaa",
+    "buscar_docente_por_nome",
+)
 
-    resultados = buscar_entidades_por_campo("docente", "departamento", departamento)
+
+def _montar_schema() -> list[dict]:
+    por_nome = {"busca_vetorial_sigaa": SCHEMA_SEMANTICO}
+    for tipo in TIPOS.values():
+        for busca in tipo.buscas:
+            por_nome[busca.nome_tool] = _schema_da_busca(busca)
+
+    ordenadas = [por_nome.pop(n) for n in ORDEM_DAS_TOOLS if n in por_nome]
+    # o que sobrou e tipo novo, ainda sem lugar declarado na ordem
+    return ordenadas + list(por_nome.values())
+
+
+TOOLS_SCHEMA = _montar_schema()
+
+
+def _entidades(tipo, busca, valor: str) -> list[dict]:
+    """Consulta comum aos dois formatos, com o rastro que a execucao imprime."""
+    print(
+        f"🔧 [TOOL EXECUTADA] Consulta estruturada em SQLite pelo "
+        f"{busca.campo}: {valor}"
+    )
+    return buscar_entidades_por_campo(tipo.nome, busca.campo, valor)
+
+
+def buscar_agrupado(tipo, busca, valor: str) -> str:
+    """
+    Conta e lista as entidades de um grupo, relatando ambiguidade.
+
+    Generalizacao de `buscar_docentes_por_departamento`. Os substantivos vem do
+    registro (`interfaces/tipos.py`), nao de heuristica sobre o nome do campo:
+    o texto que o LLM le e artefato medido, e uma regra esperta acertaria hoje
+    e erraria calada no primeiro tipo novo.
+    """
+    resultados = _entidades(tipo, busca, valor)
 
     if not resultados:
-        # DOIS ZEROS DIFERENTES. Nenhum docente naquele departamento e uma
-        # resposta legitima; base vazia e falha de infraestrutura. Ate 5 set
-        # 2026 as duas saiam com o mesmo texto, e a segunda virava a resposta
-        # errada mais convincente possivel — dita com seguranca, verificavel,
-        # e completamente falsa. Tipicamente acontecia rodando fora do Docker,
-        # onde o DB_PATH default abria um banco novo e vazio.
-        if total_de_entidades("docente") == 0:
+        # DOIS ZEROS DIFERENTES. Nenhuma entidade naquele grupo e uma resposta
+        # legitima; base vazia e falha de infraestrutura. Ate 5 set 2026 as duas
+        # saiam com o mesmo texto, e a segunda virava a resposta errada mais
+        # convincente possivel — dita com seguranca, verificavel, e
+        # completamente falsa.
+        if total_de_entidades(tipo.nome) == 0:
             return (
-                "Acesso à Base Estruturada: FALHA — a base não contém docente "
-                f"nenhum (DB_PATH={config.DB_PATH}). Isto não significa que o "
-                "departamento esteja vazio: significa que o banco não foi "
-                "carregado ou que o caminho está errado. Rode o ETL, ou "
-                "verifique DB_PATH. Não responda como se não houvesse docentes."
+                f"Acesso à Base Estruturada: FALHA — a base não contém {tipo.singular} "
+                f"nenhum (DB_PATH={config.DB_PATH}). Isto não significa que "
+                f"{busca.artigo} {busca.singular_do_campo} esteja vazio: significa "
+                "que o banco não foi carregado ou que o caminho está errado. Rode "
+                f"o ETL, ou verifique DB_PATH. Não responda como se não houvesse "
+                f"{tipo.plural}."
             )
         return (
-            f"Acesso à Base Estruturada: Não encontrei nenhum docente "
-            f"registrado sob o departamento '{departamento}'."
+            f"Acesso à Base Estruturada: Não encontrei nenhum {tipo.singular} "
+            f"registrado sob {busca.artigo} {busca.singular_do_campo} '{valor}'."
         )
 
-    # A busca é por substring, então um termo pode casar mais de um
-    # departamento — "Física" casa tanto DEPARTAMENTO DE FÍSICA (14) quanto
-    # DEPARTAMENTO DE EDUCAÇÃO FÍSICA E DESPORTOS (8). Somar os dois num
-    # número só devolveria 22, um valor plausível e errado. Quando há
-    # ambiguidade, ela é reportada em vez de escondida: o LLM tem contexto
-    # para escolher, ou para perguntar ao usuário.
-    por_departamento: dict[str, list[str]] = {}
+    # A busca e por substring, entao um termo pode casar mais de um grupo —
+    # "Fisica" casa DEPARTAMENTO DE FISICA (26) e DEPARTAMENTO DE EDUCACAO
+    # FISICA E DESPORTOS (18). Somar os dois num numero so devolveria 44, um
+    # valor plausivel e errado. Ambiguidade e relatada, nao escondida.
+    por_grupo: dict[str, list[str]] = {}
     for r in resultados:
-        por_departamento.setdefault(r["departamento"], []).append(r["nome"])
+        por_grupo.setdefault(r[busca.campo], []).append(r[tipo.campo_rotulo])
 
-    if len(por_departamento) > 1:
+    if len(por_grupo) > 1:
         linhas = [
-            f"- {depto}: {len(nomes)} docentes"
-            for depto, nomes in sorted(por_departamento.items())
+            f"- {grupo}: {len(itens)} {tipo.plural}"
+            for grupo, itens in sorted(por_grupo.items())
         ]
         return (
-            f"Acesso à Base Estruturada: o termo '{departamento}' corresponde a "
-            f"{len(por_departamento)} departamentos distintos. Não somei os "
+            f"Acesso à Base Estruturada: o termo '{valor}' corresponde a "
+            f"{len(por_grupo)} {busca.plural_do_campo} distintos. Não somei os "
             f"totais — informe ao usuário a distinção ou peça qual deles:\n"
             + "\n".join(linhas)
         )
 
-    nome_exato, nomes = next(iter(por_departamento.items()))
-    nomes = sorted(nomes)
-    total = len(nomes)
+    exato, itens = next(iter(por_grupo.items()))
+    itens = sorted(itens)
+    total = len(itens)
 
-    # TETO DE LISTAGEM, nunca recusa de listar.
-    #
-    # O corte era `total <= 10`, e acima disso a tool respondia "não os listarei
-    # todos para poupar espaço" — o que torna "quais docentes pertencem ao
-    # Departamento de Bioquímica?" (11 pessoas) impossível de responder. A
-    # bateria de 5 set 2026 reprovou est-06 por isso, e a culpa não era do
-    # agente: era a ferramenta se recusando a fazer o que foi pedido.
-    #
-    # Agora sempre lista, com teto e dizendo quantos ficaram de fora. O total
-    # continua exato em qualquer caso, e o que foi omitido fica declarado —
-    # omissão silenciosa é o que produz resposta incompleta com cara de
+    # TETO DE LISTAGEM, nunca recusa de listar. O corte era `total <= 10`, e
+    # acima disso a tool respondia "nao os listarei todos para poupar espaco" —
+    # o que torna "quais docentes pertencem ao Departamento de Bioquimica?" (11
+    # pessoas) impossivel de responder. A bateria de 5 set 2026 reprovou est-06
+    # por isso, e a culpa nao era do agente: era a ferramenta se recusando a
+    # fazer o que foi pedido. Agora sempre lista, e o que foi omitido fica
+    # declarado — omissao silenciosa produz resposta incompleta com cara de
     # completa.
     TETO_LISTAGEM = 40
-    lista = "\n- ".join(nomes[:TETO_LISTAGEM])
+    lista = "\n- ".join(itens[:TETO_LISTAGEM])
     if total > TETO_LISTAGEM:
         return (
-            f"Acesso à Base Estruturada: O departamento '{nome_exato}' tem "
-            f"{total} docentes. Os {TETO_LISTAGEM} primeiros em ordem alfabética "
+            f"Acesso à Base Estruturada: {busca.artigo.upper()} "
+            f"{busca.singular_do_campo} '{exato}' tem "
+            f"{total} {tipo.plural}. Os {TETO_LISTAGEM} primeiros em ordem alfabética "
             f"são:\n- {lista}\n(os outros {total - TETO_LISTAGEM} não foram "
             f"listados; o total acima é exato)"
         )
     return (
-        f"Acesso à Base Estruturada: O departamento '{nome_exato}' tem "
-        f"{total} docentes. São eles:\n- {lista}"
+        f"Acesso à Base Estruturada: {busca.artigo.upper()} "
+        f"{busca.singular_do_campo} '{exato}' tem "
+        f"{total} {tipo.plural}. São eles:\n- {lista}"
     )
+
+
+def buscar_um_ou_ambiguo(tipo, busca, valor: str) -> str:
+    """
+    Espera uma entidade. Se vier mais de uma, RELATA em vez de escolher.
+
+    Generalizacao de `buscar_docente_por_nome`. Mais de um casamento e
+    ambiguidade a reportar, nao algo a resolver escolhendo o primeiro — mesma
+    disciplina do achado 06.
+    """
+    resultados = _entidades(tipo, busca, valor)
+
+    if not resultados:
+        # Os dois zeros, de novo: base vazia nao e o mesmo que entidade ausente.
+        if total_de_entidades(tipo.nome) == 0:
+            return (
+                f"Acesso à Base Estruturada: FALHA — a base não contém {tipo.singular} "
+                f"nenhum (DB_PATH={config.DB_PATH}). Não responda como se "
+                f"{tipo.referente} não existisse."
+            )
+        return (
+            f"Acesso à Base Estruturada: Nenhum {tipo.singular} cadastrado com "
+            f"{busca.artigo} {busca.singular_do_campo} '{valor}'."
+        )
+
+    if len(resultados) > 1:
+        # Teto na listagem: "Silva" casa com 130 docentes, e despejar todos no
+        # contexto do LLM custa mais do que informa. O total continua exato.
+        TETO = 15
+        linhas = "\n".join(
+            f"- {r.get(tipo.campo_rotulo)}: {r.get(tipo.campo_vinculo)}"
+            for r in resultados[:TETO]
+        )
+        if len(resultados) > TETO:
+            linhas += "\n" + f"... e mais {len(resultados) - TETO} {tipo.plural}."
+        return (
+            f"Acesso à Base Estruturada: {busca.artigo} {busca.singular_do_campo} "
+            f"'{valor}' casa com "
+            f"{len(resultados)} {tipo.plural}. Não escolhi por você:\n{linhas}"
+        )
+
+    unico = resultados[0]
+    return (
+        f"Acesso à Base Estruturada: {unico.get(tipo.campo_rotulo)} pertence ao "
+        f"{unico.get(tipo.campo_vinculo)}."
+    )
+
+
+FORMATOS = {
+    "agrupado": buscar_agrupado,
+    "um_ou_ambiguo": buscar_um_ou_ambiguo,
+}
+
+
+# Os dois nomes abaixo existem para nao quebrar quem os importa direto
+# (testes de regressao, instantaneo do criterio de aceite do D0). O corpo saiu
+# daqui e virou molde no registro.
+def buscar_docentes_por_departamento(departamento: str) -> str:
+    tipo = TIPOS["docente"]
+    return buscar_agrupado(tipo, tipo.buscas[0], departamento)
 
 
 # ACHADO 03b — limiar de distância, DESLIGADO por padrão.
@@ -259,72 +324,41 @@ def busca_vetorial_sigaa(pergunta: str, embedder, retriever) -> str:
 
 def buscar_docente_por_nome(nome: str) -> str:
     """
-    Ferramenta determinística — em que departamento está um docente.
+    Vinculo de UMA pessoa. POR QUE EXISTE: a bateria de 5 set 2026 expos que a
+    pergunta "em qual departamento trabalha o professor X?" NAO TINHA caminho
+    estruturado, e a unica saida do agente era a busca semantica — que acerta
+    por recuperacao, nao por cadastro.
 
-    POR QUE EXISTE: a bateria de 5 set 2026 expôs que a pergunta "em qual
-    departamento trabalha o professor X?" NÃO TINHA caminho estruturado.
-    `buscar_docentes_por_departamento` recebe um departamento, não um nome, e
-    a única saída do agente era procurar a pessoa na busca semântica — que
-    acerta por recuperação, não por cadastro. Vínculo docente-departamento é
-    dado exato e merece resposta exata.
+    ⚠️ ITEM 9 DO BACKLOG: o casamento e por SUBSTRING CONTIGUA, entao
+    "Leandro Alvim" NAO acha "LEANDRO GUIMARAES MARQUES ALVIM". O defeito esta
+    em `db_manager.buscar_entidades_por_campo` e nao foi corrigido aqui.
     """
-    print(f"🔧 [TOOL EXECUTADA] Consulta estruturada em SQLite pelo nome: {nome}")
-
-    resultados = buscar_entidades_por_campo("docente", "nome", nome)
-
-    if not resultados:
-        # Os dois zeros, de novo: base vazia não é o mesmo que pessoa ausente.
-        if total_de_entidades("docente") == 0:
-            return (
-                "Acesso à Base Estruturada: FALHA — a base não contém docente "
-                f"nenhum (DB_PATH={config.DB_PATH}). Não responda como se a "
-                "pessoa não existisse."
-            )
-        return (
-            f"Acesso à Base Estruturada: Nenhum docente cadastrado com o nome "
-            f"'{nome}'."
-        )
-
-    if len(resultados) > 1:
-        # Teto na listagem: "Silva" casa com 130 docentes, e despejar todos no
-        # contexto do LLM custa mais do que informa. O total continua exato.
-        TETO = 15
-        # Mesma disciplina do achado 06: mais de um casamento é ambiguidade a
-        # relatar, não algo a resolver escolhendo o primeiro.
-        linhas = "\n".join(
-            f"- {r.get('nome')}: {r.get('departamento')}" for r in resultados[:TETO]
-        )
-        if len(resultados) > TETO:
-            linhas += "\n" + f"... e mais {len(resultados) - TETO} docentes."
-        return (
-            f"Acesso à Base Estruturada: o nome '{nome}' casa com "
-            f"{len(resultados)} docentes. Não escolhi por você:\n{linhas}"
-        )
-
-    unico = resultados[0]
-    return (
-        f"Acesso à Base Estruturada: {unico.get('nome')} pertence ao "
-        f"{unico.get('departamento')}."
-    )
+    tipo = TIPOS["docente"]
+    return buscar_um_ou_ambiguo(tipo, tipo.buscas[1], nome)
 
 
 def criar_dispatcher(embedder, retriever) -> dict:
     """
-    Monta o dicionário nome_da_tool -> função executável.
+    Monta o dicionario nome_da_tool -> funcao executavel, A PARTIR DO REGISTRO.
 
-    O agent.py não precisa conhecer a assinatura de cada tool — só chama
-    dispatcher[nome](**argumentos_do_llm). Adicionar uma tool nova não exige
-    tocar em agent.py, só registrar aqui.
+    O agent.py nao precisa conhecer a assinatura de cada tool — so chama
+    dispatcher[nome](**argumentos_do_llm). Tipo novo no registro aparece aqui
+    sozinho: era esta a promessa do D0.
     """
-    return {
-        "buscar_docente_por_nome": lambda nome="": buscar_docente_por_nome(nome),
-        "buscar_docentes_por_departamento": lambda departamento="": buscar_docentes_por_departamento(
-            departamento
-        ),
+    despacho = {
         "busca_vetorial_sigaa": lambda pergunta_semantica="": busca_vetorial_sigaa(
             pergunta_semantica, embedder, retriever
         ),
     }
+    for tipo in TIPOS.values():
+        for busca in tipo.buscas:
+            formatador = FORMATOS[busca.formato]
+
+            def executar(_t=tipo, _b=busca, _f=formatador, **argumentos):
+                return _f(_t, _b, argumentos.get(_b.parametro, ""))
+
+            despacho[busca.nome_tool] = executar
+    return despacho
 
 
 def criar_tools(embedder, retriever) -> list[Tool]:
