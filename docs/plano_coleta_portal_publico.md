@@ -37,14 +37,49 @@ o conteúdo atrás dele. Nenhum dos links é seguido.
 
 ## Custo medido, por alvo
 
-### Departamentos — 2 requisições
+### Departamentos — ~~2~~ **32 requisições** ✅ IMPLEMENTADO (7 set 2026)
 
-`/sigaa/public/departamento/lista.jsf?aba=p-academico`
+`/sigaa/public/departamento/lista.jsf?aba=p-academico` ·
+`modulo1_etl/coletar_departamentos.py`
 
 GET devolve só o formulário: um `<select name="form:programas">` com 16 opções
 (a primeira é `value="0"`, `-- TODOS --`) e o botão `form:buscar`.
 
-**POST com `-- TODOS --` devolve os 72 departamentos de uma vez.** Testado.
+**POST com `-- TODOS --` devolve os 72 departamentos de uma vez.** Testado — e
+foi por isso que este plano dizia 2 requisições.
+
+> ⚠️ **CORREÇÃO — 2 requisições dão os NOMES, e só.**
+>
+> A listagem de `-- TODOS --` traz **uma única** linha de centro
+> (`td.subListagem`, "INSTITUTO DE AGRONOMIA") para os 72 departamentos. O
+> parser óbvio — "o centro é o último `subListagem` visto" — atribuiria os 72
+> ao Instituto de Agronomia. **Plausível, silencioso, e o total continuaria
+> dando 72.**
+>
+> O vínculo departamento→centro, que a decisão D4 pede, sai de um POST por
+> centro: 15 centros, cada um com um GET de formulário antes (estado JSF).
+> **32 requisições**, e o POST de `-- TODOS --` vira **controle**.
+
+**O que a coleta encontrou:**
+
+| | |
+|---|---|
+| departamentos | **72** |
+| com centro | 68 |
+| **sem centro nenhum** | **4** |
+
+Os quatro sem centro são `PROGRAMAS E PROJETOS DE EXTENSÃO`,
+`RELAÇÕES COMUNITÁRIAS E INTERINSTITUCIONAIS`, `ARTE E CULTURA` e
+`ESPORTE E LAZER` — unidades administrativas que pendem de pró-reitoria, não de
+instituto. Não é defeito: é a estrutura real, e **entrou no banco sem centro em
+vez de ser descartada para o esquema ficar limpo**. Foi o controle que a
+revelou.
+
+**Uma verificação que desmentiu uma sondagem minha.** Numa sondagem anterior eu
+li 22 departamentos no Instituto Multidisciplinar; são **11**. A tabela tem 22
+âncoras `<a>`, metade **vazias**, e a contagem crua dobrava tudo. Confirmado por
+um terceiro caminho: o corpus de docentes tem exatamente 11 departamentos com
+sufixo `/IM`, e **os 11 casam**.
 
 ### Cursos (graduação) — 1 requisição
 
@@ -119,11 +154,11 @@ plano muda de forma.
 
 | alvo | requisições | acesso |
 |---|---|---|
-| Departamentos | **2** | POST, testado |
+| Departamentos | **32** ✅ feito | POST por centro, mais o controle |
 | Cursos | **1** | GET |
 | Estruturas curriculares | **76** | GET |
 | Visualizar cursos/eventos | **1** | GET |
-| **subtotal certo** | **80** | |
+| **subtotal certo** | **110** | |
 | Componentes curriculares | **?** | POST, falta sondar |
 | Extensão (5 tipos) | **?** | POST, falta sondar |
 | *(opcional)* apresentação dos cursos | *+76* | GET |
