@@ -360,7 +360,11 @@ async def extrair_perfil_docente_async(semaforo: asyncio.Semaphore, siape: int, 
         return "conteudo abaixo do minimo"
 
     log(f"  ✓ siape={siape} — {nome}")
-    return Document(content=conteudo, meta={"instancia_dona": INSTANCIA, "content_type": "docente_perfil", "source_url": url, "scraped_at": timestamp, "nome_docente": nome, "departamento": departamento, "siape": str(siape)})
+    # `id_entidade` e `rotulo` são a decisão D1: identidade estável e exibição,
+    # que `nome_docente` fazia acumuladas. `tipo` é o que o filtro do D2 usa.
+    # Os três são acrescentados sem remover nada — documento antigo continua
+    # lido pelo recuo de `interfaces/identidade.py`.
+    return Document(content=conteudo, meta={"instancia_dona": INSTANCIA, "content_type": "docente_perfil", "tipo": "docente", "id_entidade": f"docente:{siape}", "rotulo": nome, "source_url": url, "scraped_at": timestamp, "nome_docente": nome, "departamento": departamento, "siape": str(siape)})
 
 async def coletar_perfis_async(docentes: list[tuple[int, str]], timestamp: str) -> list[Document]:
     """Coleta os perfis dos pares (siape, nome) vindos das listagens."""

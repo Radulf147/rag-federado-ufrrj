@@ -133,12 +133,22 @@ class BM25:
 
 
 def fundir(*rankings: list) -> list:
-    """Reciprocal Rank Fusion — sem peso a calibrar, e é essa a graça."""
+    """
+    Reciprocal Rank Fusion — sem peso a calibrar, e é essa a graça.
+
+    ⚠️ A CHAVE É A IDENTIDADE (D1, 7 set 2026). Chaveado por nome, dois
+    homônimos davam DOIS erros de uma vez: o segundo sumia da saída **e a
+    pontuação dele somava na do primeiro** — um documento perdido e outro com
+    nota inflada. Pego por `testes/test_identidade_entidade.py`, escrito antes
+    da correção e que reprovou a versão anterior.
+    """
+    from interfaces.identidade import identidade
+
     nota: dict = {}
     guarda: dict = {}
     for ranking in rankings:
         for posicao, doc in enumerate(ranking, 1):
-            chave = doc.meta.get("nome_docente")
+            chave = identidade(doc.meta)
             nota[chave] = nota.get(chave, 0.0) + 1.0 / (K_RRF + posicao)
             guarda.setdefault(chave, doc)
     ordem = sorted(nota, key=lambda c: -nota[c])
@@ -146,7 +156,9 @@ def fundir(*rankings: list) -> list:
 
 
 def recall(ranking: list, esperados: set, k: int) -> int:
-    vistos = {d.meta.get("nome_docente") for d in ranking[:k]}
+    from interfaces.identidade import identidade
+
+    vistos = {identidade(d.meta) for d in ranking[:k]}
     return len(esperados & vistos)
 
 
@@ -209,8 +221,11 @@ def main() -> None:
         soma = {"sem": 0, "pal": 0, "hib": 0, "gab": 0}
         for tema in temas:
             esperados = gabarito(fonte, tema)
+            # `gabarito` já devolve identidades (D1); o filtro compara com as
+            # identidades da coleção medida, não com nomes.
+            from interfaces.identidade import identidade as _id
             esperados = {n for n in esperados
-                         if n in {d.meta.get("nome_docente") for d in docs}}
+                         if n in {_id(d.meta) for d in docs}}
             consulta = PARAFRASES[tema] if usar_parafrase else tema
             r_sem = semantico(consulta)
             r_pal = bm25.ranquear(consulta)

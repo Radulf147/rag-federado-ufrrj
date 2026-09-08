@@ -233,9 +233,19 @@ def busca_vetorial_sigaa(pergunta: str, embedder, retriever) -> str:
     # fatiados (parte3_chunking), mas mandar nome, departamento e fonte junto
     # continua sendo o certo: é o que permite ao agente citar corretamente e
     # é de graça, já vem no metadado do documento recuperado.
+    # D1: o cabeçalho sai do `rotulo`, não de `nome_docente`. Um documento de
+    # curso ou de componente curricular sairia daqui como "(nome ausente no
+    # metadado)" — o achado 02 voltando por outra porta, texto chegando ao LLM
+    # sem dizer de quem é.
+    #
+    # `rotulo()` recua para `nome_docente` quando o campo não existe, então a
+    # saída para docente é IDÊNTICA, byte a byte, à de antes desta mudança. É o
+    # critério de aceite do D0, e há teste que o fixa.
+    from interfaces.identidade import rotulo as _rotulo
+
     blocos = []
     for d in docs:
-        nome = d.meta.get("nome_docente") or "(nome ausente no metadado)"
+        nome = _rotulo(d.meta)
         depto = d.meta.get("departamento") or "(departamento ausente)"
         cabecalho = f"[{nome} — {depto}]"
         fonte = d.meta.get("source_url")
