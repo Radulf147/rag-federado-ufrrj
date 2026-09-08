@@ -32,26 +32,89 @@ direções — dentro de um tipo, e atravessando tipos.
 
 ---
 
-## D1 — Esquema de metadados tipado, com rótulo genérico
+## D1 — Esquema de metadados tipado: identidade **e** rótulo
 
-**Decisão.** Todo documento carrega os mesmos campos obrigatórios —
-`tipo`, `rotulo`, `source_url`, `scraped_at`, `instancia_dona` — e os campos
-específicos do tipo ao lado. `nome_docente` continua existindo; deixa de ser o
-que a tool assume.
+> **CORRIGIDO EM 7 SET 2026, ANTES DE IMPLEMENTAR.** A primeira redação pedia
+> só `rotulo`. Estava certa na direção e **incompleta no campo que a literatura
+> lista primeiro**: o identificador. Pior: o próprio parágrafo "por quê" dizia
+> *"id, fonte, data, tipo"* — e a lista de campos logo acima **não tinha id**.
+> A justificativa estava certa e o esquema não a seguia.
+>
+> A correção veio de uma pergunta do orientando: *"trocar `nome_docente` por
+> `rotulo` foi a melhor decisão depois de analisar a literatura?"*
+
+**Decisão.** Todo documento carrega quatro campos obrigatórios, e os campos
+específicos do tipo ao lado:
+
+| campo | serve para | exemplo |
+|---|---|---|
+| **`id_entidade`** | **identidade estável** — dedupe, chave do RRF, junções do D4 | `docente:1800852`, `departamento:7686` |
+| `rotulo` | exibição ao LLM, e só isso | `TN745 — APRENDIZADO DE MÁQUINA` |
+| `tipo` | o filtro do D2 | `docente`, `curso`, `componente` |
+| `source_url` · `scraped_at` | rastreabilidade e D6 | |
+
+`nome_docente` continua existindo como campo do tipo. Deixa de ser o que a tool
+assume, **e deixa de ser identidade**.
+
+### Por que `rotulo` sozinho não bastava
+
+`nome_docente` faz hoje **dois trabalhos diferentes**, e só um deles é
+exibição:
+
+| trabalho | onde | precisa de |
+|---|---|---|
+| dizer ao LLM de quem é o texto | `tools.py:238` | rótulo legível |
+| deduplicar e chavear o RRF | `medir_recuperacao.py:225`, `medir_hibrido.py:141` | identidade única |
+
+`rotulo` conserta o primeiro e deixa o segundo como está. E o segundo **já está
+errado**:
+
+```python
+posicao = {d.meta.get("nome_docente"): i for i, d in enumerate(ranking, 1)}
+```
+
+Dicionário chaveado por nome: dois documentos com o mesmo nome, e o segundo
+**apaga** o primeiro. `FERNANDA SILVA FERREIRA CHAER` colide hoje (item 10
+deste backlog: dois SIAPEs, dois departamentos, a duplicação é da fonte), então
+a posição medida dela é, em silêncio, a pior das duas.
+
+**Hoje o efeito numérico é 1 em 1302 — desprezível, e não é o argumento.** O
+argumento é que os tipos novos pioram o mecanismo: na listagem de cursos,
+`CIÊNCIAS BIOLÓGICAS` aparece **duas vezes**, mesmo campus, uma Bacharelado
+(id 1990463) e outra Licenciatura (id 450595). Chaveados por rótulo, viram um.
+
+### Por que o `id` do próprio Haystack não serve
+
+`Document.id` é hash do conteúdo. O mesmo docente tem **três ids diferentes**
+nas três coleções que existem hoje:
 
 ```
-tipo = docente    -> rotulo = "FILIPE BRAIDA DO CARMO"
-tipo = curso      -> rotulo = "AGRONOMIA (Bacharelado, Seropédica)"
-tipo = componente -> rotulo = "TN745 — APRENDIZADO DE MÁQUINA"
-tipo = extensao   -> rotulo = "Palestra SNCT — Modelos de Linguagem"
+FILIPE BRAIDA DO CARMO
+  rag_sigaa             df97b2dd...
+  rag_sigaa_descritivo  b72a1e6d...
+  rag_sigaa_filtrado    0ecc19f4...
 ```
 
-**Por quê.** É o esquema mínimo que a literatura trata como obrigatório em RAG
-multi-tipo: id, fonte, data, **tipo/categoria**. O `rotulo` é o que conserta a
-tool sem espalhar `if tipo == ...` por ela.
+Reindexar troca a identidade — e reindexamos duas vezes em 7 set. Uma
+identidade que não sobrevive a uma decisão de indexação não é identidade.
 
-**O que exige medir.** Nada. É refatoração de forma, e a bateria de regressão
-existente cobre o comportamento atual.
+O `id_entidade` sai do SIAPE (docente) ou do `id` do SIGAA (departamento,
+curso, componente). Já são coletados, e **não mudam quando reindexamos**.
+
+### O que exige medir
+
+Nada de recuperação: é refatoração de forma, e a bateria de regressão cobre o
+comportamento atual. Mas exige **um teste novo**: dois documentos de mesmo
+rótulo e ids distintos têm de sobreviver aos dois como entradas separadas em
+`recall()` e em `fundir()`. É o defeito acima, e teste que não distingue o que
+mediu não é teste.
+
+### O limite da correção
+
+`rotulo` continua sendo escolha de implementação, não achado de literatura.
+Nenhuma fonte diz "acrescente um campo rótulo". O que é respaldado é o esquema
+tipado com campos obrigatórios — e daí sai o `id_entidade`, não o `rotulo`.
+Fica registrado para não virar autoridade emprestada.
 
 ---
 
@@ -111,6 +174,13 @@ entra para os tipos novos.
 (`curso -> departamento`, `componente -> unidade`, `acao_extensao -> unidade`,
 `docente -> departamento`). O encadeamento entre tipos é feito pelo tool
 calling iterativo que já existe.
+
+**A chave é o `id_entidade` do D1, não o nome.** Ligar por nome funcionaria em
+66 dos 67 departamentos hoje — e é exatamente o tipo de acerto que esconde o
+caso que falha. `DEPARTAMENTO DE COMPUTAÇÃO` e
+`DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM` são unidades distintas com nomes
+que o LLM já confundiu em produção (posts 9 e 17 da rede simulada); o nome é
+bom para exibir e ruim para juntar.
 
 **Por quê.** A pergunta que este projeto passa a poder receber é multi-salto:
 

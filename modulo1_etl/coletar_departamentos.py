@@ -11,8 +11,10 @@ para um tipo de entidade que **não é docente** — a suposição sobre a qual 
 projeto inteiro foi construído sem nunca escrevê-la.
 
 NÃO INDEXA NO CHROMA. Isto grava só no SQLite. Indexar exige a decisão D1
-(rótulo genérico no lugar de `nome_docente`), que mexe em `tools.py` — código
-que as medições atuais usam — e por isso é passo próprio, com aval próprio.
+(`id_entidade` para identidade e `rotulo` para exibição, no lugar de
+`nome_docente` fazendo os dois), que mexe em `tools.py` — código que as
+medições atuais usam — e por isso é passo próprio, com aval próprio. Os dois
+campos já saem gravados daqui.
 
 ⚠️ POR QUE NÃO SÃO 2 REQUISIÇÕES, COMO O PLANO DIZIA
 -----------------------------------------------------
@@ -180,14 +182,25 @@ def main() -> None:
         por_centro.items(), key=lambda kv: kv[1][0]
     ):
         entidades.append({
-            # `rotulo` e o campo generico da decisao D1: todo tipo de entidade
-            # preenche, e e o que a tool deve passar a ler no lugar de
-            # `nome_docente`. Aqui coincide com o nome; em componente
-            # curricular sera "codigo — nome", e por isso existe separado.
+            # D1 pede DOIS campos genericos, e eles fazem trabalhos diferentes.
+            #
+            # `id_entidade` e IDENTIDADE: dedupe, chave do RRF, e a juncao do
+            # D4. Sai do id do SIGAA, que nao muda quando reindexamos -- ao
+            # contrario do Document.id do Haystack, que e hash do conteudo e
+            # deu tres valores diferentes para o mesmo docente nas tres
+            # colecoes que existem hoje.
+            #
+            # `rotulo` e EXIBICAO, e so. Aqui coincide com o nome; em
+            # componente curricular sera "codigo — nome". Nao serve de chave:
+            # na listagem de cursos, CIENCIAS BIOLOGICAS aparece duas vezes
+            # (Bacharelado e Licenciatura), mesmo campus, ids distintos.
+            "id_entidade": f"departamento:{id_dep}",
             "rotulo": nome_dep,
             "nome": nome_dep,
             "id_sigaa": id_dep,
             "centro": nome_centro,
+            # Chave do centro no SIGAA. Vira `centro:<id>` quando (e se) centro
+            # for um tipo coletado; por ora e o id cru, que ja e a juncao.
             "centro_id": id_centro,
             "source_url": f"{BASE}/sigaa/public/departamento/portal.jsf?lc=pt_BR&id={id_dep}",
             "scraped_at": agora,
@@ -198,6 +211,7 @@ def main() -> None:
     for nome_dep, id_dep in todos:
         if id_dep not in por_centro:
             entidades.append({
+                "id_entidade": f"departamento:{id_dep}",
                 "rotulo": nome_dep, "nome": nome_dep, "id_sigaa": id_dep,
                 "centro": None, "centro_id": None,
                 "source_url": f"{BASE}/sigaa/public/departamento/portal.jsf?lc=pt_BR&id={id_dep}",
