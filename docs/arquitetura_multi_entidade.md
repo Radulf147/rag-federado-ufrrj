@@ -32,6 +32,99 @@ direções — dentro de um tipo, e atravessando tipos.
 
 ---
 
+## D0 — Reestruturar, não adaptar
+
+> **ACRESCENTADO DEPOIS DAS OUTRAS, e é isso que o torna necessário.**
+>
+> As seis decisões abaixo foram escritas antes desta, e **todas as seis são
+> "mantenha o que existe e estenda"**: D1 acrescenta campos ao esquema atual,
+> D2 acrescenta um filtro à coleção atual, D4 reusa o laço de tool calling
+> atual, D5 recusa explicitamente reestruturar. Justifiquei cada uma
+> isoladamente e **nunca apresentei a alternativa**.
+>
+> Não foi decisão: foi reflexo. Isto devia ter sido o D0 desde o início — a
+> decisão que governa as outras — e só virou pergunta porque o orientando
+> perguntou: *"você está tentando adaptar no que já existe ou reestruturar?"*
+
+**Decisão.** Reestruturar, com um **registro de tipos**.
+
+### O número que decide
+
+Cada tipo novo, no caminho adaptativo, toca cinco lugares: o coletor, a
+`tools.py`, o `SYSTEM_PROMPT`, a indexação e os medidores. Vêm seis tipos
+(departamento, curso, estrutura, componente, extensão em cinco sabores):
+**trinta edições**, cada uma uma chance do erro silencioso que este backlog
+vem catalogando.
+
+Com o registro, tipo novo é **uma entrada**.
+
+```python
+TIPOS = {
+  "docente": Tipo(
+      identidade=lambda e: f"docente:{e['siape']}",
+      rotulo=lambda e: e["nome"],
+      texto_semantico=descritivo,     # None = não entra no Chroma
+      campos_busca=("nome", "departamento"),
+      descricao_llm="professores da UFRRJ, com perfil e áreas de interesse"),
+  "departamento": Tipo(
+      identidade=lambda e: f"departamento:{e['id_sigaa']}",
+      rotulo=lambda e: e["nome"],
+      texto_semantico=None,           # estrutura pura
+      campos_busca=("nome", "centro"),
+      descricao_llm="departamentos e a que instituto pertencem"),
+}
+```
+
+### O que NÃO é reestruturado, e por quê
+
+A camada SQLite **já é genérica** — `entidades_sigaa(tipo_entidade,
+dados_brutos)` e `buscar_entidades_por_campo(tipo, campo, valor)` foram
+desenhadas exatamente para isto. Ela não precisa de mudança; precisa de uso.
+
+Também ficam de fora: grafo de conhecimento (D5 continua valendo), troca do
+banco vetorial, re-scraping, e o laço de tool calling do agente.
+
+### ⚠️ A forma óbvia do registro pioraria o sistema
+
+A forma elegante é **uma tool genérica**: `buscar(tipo, campo, valor)`.
+Bonita no nosso código, e **pior para o LLM** — três parâmetros livres no lugar
+de uma ferramenta nomeada e descrita.
+
+O item 8 mediu em 7 set 2026 que o LLM, neste projeto, é um **mau planejador de
+consulta**: com a pergunta do usuário inteira o `FILIPE BRAIDA` vem em posição
+1; com a reescrita que o próprio agente emitiu, sai do TOP_10. Transferir mais
+decisão para ele é a direção errada, e o registro estaria comprando elegância
+nossa com erro dele.
+
+**Portanto: o registro GERA tools nomeadas.** O LLM continua vendo
+`buscar_docentes_por_departamento`, específica e bem descrita. O que desaparece
+é a duplicação do nosso lado.
+
+> O registro tira trabalho nosso sem transferir trabalho para o LLM.
+
+**O que exige medir, e ainda não foi:** a contagem de tools cresce com os
+tipos. Precisão de escolha de ferramenta degrada quando há muitas, e a bateria
+de roteamento (97,8%) foi medida com três. Ao chegar perto de dez, remedir
+antes de acrescentar mais.
+
+### Critério de aceite — é o que protege as medições
+
+> **Saída idêntica para docente, antes e depois.** Mesma pergunta, mesmo texto
+> de retorno da tool, byte a byte. Mais os 160 testes verdes.
+
+Se a saída mudar, o 97,8% de roteamento e a fase 3 deixam de descrever o mesmo
+sistema, e a reestruturação para até isso ser resolvido.
+
+### Escopo: dois tipos, não seis
+
+O registro é provado com `docente` e `departamento`. Os outros quatro viram uma
+entrada cada, depois — e é exatamente essa diferença que a apresentação mostra.
+
+Reestruturar e acrescentar seis tipos na mesma passada é como um prazo vira o
+seguinte.
+
+---
+
 ## D1 — Esquema de metadados tipado: identidade **e** rótulo
 
 > **CORRIGIDO EM 7 SET 2026, ANTES DE IMPLEMENTAR.** A primeira redação pedia
@@ -120,8 +213,29 @@ Fica registrado para não virar autoridade emprestada.
 
 ## D2 — Uma coleção, com filtro por tipo no metadado
 
-**Decisão.** Tudo na mesma coleção do Chroma. O tipo é metadado, e vira filtro
-quando a pergunta implica um tipo.
+**Decisão.** Uma coleção só do Chroma. O tipo é metadado, e vira filtro quando a
+pergunta implica um tipo.
+
+> **CORRIGIDO 7 set 2026.** A primeira redação dizia "**tudo** na mesma
+> coleção". Errado como generalização: **entra no Chroma quem tem texto livre.**
+>
+> O registro de departamento é estrutura pura — `nome`, `id_sigaa`, `centro`,
+> `source_url` — sem uma linha de texto descritivo. Vetorizá-lo seria indexar um
+> nome de departamento, que é **exatamente o defeito que o item 7 mediu e
+> removeu**: perfis vazios cujo único conteúdo indexado era o nome do
+> departamento ocupavam as 10 vagas, e tirá-los levou o recall de 14% para 27%.
+> Reintroduzi-lo pela porta dos tipos novos desfaria o ganho.
+>
+> No registro do D0 isso é o campo `texto_semantico`: `None` significa **não vai
+> para o Chroma**. Departamento responde pela busca estruturada, que é o
+> caminho certo para estrutura.
+>
+> | tipo | texto livre | caminho |
+> |---|---|---|
+> | departamento | não | só SQLite |
+> | curso | pouco (área CNPq, título profissional) | a decidir |
+> | componente | sim (ementa) | Chroma |
+> | extensão | sim (título, descrição) | Chroma |
 
 **Por quê.** Coleções separadas são o padrão para **modalidades** diferentes
 (grafo, relacional, texto), não para tipos de entidade do mesmo tipo de dado.
@@ -267,12 +381,24 @@ vale.
 
 ## Ordem de implementação
 
-1. **D1** — refatoração de forma, sem risco, destrava todo o resto.
-2. **D6** — guarda barata, entra junto com o primeiro tipo que vence.
-3. **D3** — prefixo, medido contra a régua de docentes antes de valer para os tipos novos.
-4. **D2** — coleção única com filtro, **com a medição de degradação do filtro**.
-5. **D4** — chaves explícitas, e o conjunto multi-salto pré-registrado.
-6. **D7** — reavaliar depois do item 8.
+Revista em 7 set 2026, quando o D0 passou a existir. Apresentação em **17 set**,
+e a ordem está montada para que **parar em qualquer ponto deixe um estado
+íntegro**, não um meio-caminho.
+
+| | passo | risco |
+|---|---|---|
+| 1 | **Teste da identidade** — reprova a versão atual antes de qualquer conserto | nenhum |
+| 2 | **D1** — `id_entidade` e `rotulo`, gravar e ler | baixo; serve à adaptação e à reestruturação |
+| 3 | **D0** — `tipos.py`, o registro, com `docente` declarado | nenhum: ninguém lê ainda |
+| 4 | **D0** — tools geradas pelo registro | **é aqui que dói** — critério da saída idêntica |
+| 5 | **`departamento` entra** como segunda entrada do registro | baixo |
+| 6 | **D2 + D6** — filtro por tipo (com a medição de degradação) e janela de validade | médio |
+| 7 | **D3** — prefixo, medido contra a régua de docentes | médio |
+| 8 | **D4** — chaves explícitas e o conjunto multi-salto pré-registrado | — |
+| 9 | **D7** — reavaliar depois do item 8 do backlog | — |
+
+Os passos 1 e 2 valeriam igual se a decisão tivesse sido adaptar. **Não são
+trabalho perdido caso o D0 se mostre errado no meio.**
 
 ---
 
