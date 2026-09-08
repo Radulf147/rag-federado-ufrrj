@@ -1,0 +1,2381 @@
+{
+  "gerado_em": "2026-09-08T06:31:50",
+  "pre_registro": "docs/pre_registro_roteamento_5_tools.md",
+  "modelo_llm": "qwen2.5:32b-instruct-q4_K_M",
+  "tools_anunciadas": [
+    "buscar_docentes_por_departamento",
+    "busca_vetorial_sigaa",
+    "buscar_docente_por_nome",
+    "buscar_departamentos_por_centro",
+    "buscar_departamento_por_nome"
+  ],
+  "repeticoes": 3,
+  "registros": [
+    {
+      "parte": "A",
+      "id": "est-01",
+      "execucao": 1,
+      "pergunta": "Quantos docentes tem o Departamento de Matemática?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Matemática tem 44 docentes. A lista dos primeiros 40 em ordem alfabética foi retornada, mas como você só perguntou pelo número total, não há necessidade de listá-los aqui. Caso tenha interesse na lista completa ou mais informações sobre algum desses docentes, sinta-se à vontade para pedir!",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-01",
+      "execucao": 2,
+      "pergunta": "Quantos docentes tem o Departamento de Matemática?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Matemática tem 44 docentes. Aqui está a lista dos primeiros 40 em ordem alfabética (os nomes restantes não foram listados, mas o número total é exato):\n\n- ADRIANA OLIVEIRA ANDRADE\n- ALINE MAURICIO BARBOSA\n- ANA LUIZA DA CONCEIÇÃO TENÓRIO\n- ANDRE LUIZ MARTINS PEREIRA\n- ANDRES MAURICIO LOPEZ BARRAGAN\n- ANGEL RAMON SANCHEZ DELGADO\n- ANGELICA FRANCISCA DE ARAUJO\n- ANTONIO CARLOS GONCALVES\n- BRUNO TELCH DOS SANTOS\n- CARLOS ANDRES REYNA VERA TUDELA\n- CELSO GUIMARAES BARBOSA\n- CHARLES EDGAR LOPEZ VEREAU\n- CLAUDIO CESAR SACCOMORI JUNIOR\n- DANIEL REIS DE OLIVEIRA\n- DIEGO DA SILVA BARROS\n- DOUGLAS MONSORES DE MELO SANTOS\n- DUILIO TADEU DA CONCEICAO JUNIOR\n- EDILSON MARCELINO SILVA\n- EDIVALDO FIGUEIREDO FONTES JUNIOR\n- EULINA COUTINHO SILVA DO NASCIMENTO\n- FELIPE LEITE COELHO DA SILVA\n- GISELA MARIA DA FONSECA PINTO\n- JOSIANE DA SILVA CORDEIRO COELHO\n- KARL IGOR MARTINS GUERRA\n- LEANDRO TOMAZ DE ARAUJO\n- LEILIANE COUTINHO DA SILVA RAMOS\n- LUCIANA CAVALCANTI DE MELO\n- LUCIANO VIANNA FELIX\n- LUIS ALBERTO TOSCANO MEDRANO\n- MARCELO JANGARELLI\n- MARIA TERESA CARNEIRO DA CUNHA\n- MOISES CENI DE ALMEIDA\n- MONTAUBAN MOREIRA DE OLIVEIRA JUNIOR\n- OBERDAN MIGUEL RODRIGUES DE SOUZA\n- ORLANDO DOS SANTOS PEREIRA\n- PEDRO ROBERTO DE LIMA\n- RENAN DE SOUZA TEIXEIRA\n- RENATO NUNES PEREIRA\n- ROSANE FERREIRA DE OLIVEIRA\n- SERGIO DRUMOND VENTURA\n\nSe precisar de mais informações sobre algum desses docentes, basta perguntar!",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-01",
+      "execucao": 3,
+      "pergunta": "Quantos docentes tem o Departamento de Matemática?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Matemática possui 44 docentes. Aqui está a lista parcial dos docentes em ordem alfabética:\n\n- ADRIANA OLIVEIRA ANDRADE\n- ALINE MAURICIO BARBOSA\n- ANA LUIZA DA CONCEIÇÃO TENÓRIO\n- ANDRE LUIZ MARTINS PEREIRA\n- ANDRES MAURICIO LOPEZ BARRAGAN\n- ANGEL RAMON SANCHEZ DELGADO\n- ANGELICA FRANCISCA DE ARAUJO\n- ANTONIO CARLOS GONCALVES\n- BRUNO TELCH DOS SANTOS\n- CARLOS ANDRES REYNA VERA TUDELA\n- CELSO GUIMARAES BARBOSA\n- CHARLES EDGAR LOPEZ VEREAU\n- CLAUDIO CESAR SACCOMORI JUNIOR\n- DANIEL REIS DE OLIVEIRA\n- DIEGO DA SILVA BARROS\n- DOUGLAS MONSORES DE MELO SANTOS\n- DUILIO TADEU DA CONCEICAO JUNIOR\n- EDILSON MARCELINO SILVA\n- EDIVALDO FIGUEIREDO FONTES JUNIOR\n- EULINA COUTINHO SILVA DO NASCIMENTO\n- FELIPE LEITE COELHO DA SILVA\n- GISELA MARIA DA FONSECA PINTO\n- JOSIANE DA SILVA CORDEIRO COELHO\n- KARL IGOR MARTINS GUERRA\n- LEANDRO TOMAZ DE ARAUJO\n- LEILIANE COUTINHO DA SILVA RAMOS\n- LUCIANA CAVALCANTI DE MELO\n- LUCIANO VIANNA FELIX\n- LUIS ALBERTO TOSCANO MEDRANO\n- MARCELO JANGARELLI\n- MARIA TERESA CARNEIRO DA CUNHA\n- MOISES CENI DE ALMEIDA\n- MONTAUBAN MOREIRA DE OLIVEIRA JUNIOR\n- OBERDAN MIGUEL RODRIGUES DE SOUZA\n- ORLANDO DOS SANTOS PEREIRA\n- PEDRO ROBERTO DE LIMA\n- RENAN DE SOUZA TEIXEIRA\n- RENATO NUNES PEREIRA\n- ROSANE FERREIRA DE OLIVEIRA\n- SERGIO DRUMOND VENTURA\n\nAlguns docentes não foram listados, mas o número total de 44 é exato.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-02",
+      "execucao": 1,
+      "pergunta": "Quantos professores estão lotados no Departamento de Ciências Sociais?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "No Departamento de Ciências Sociais, há 35 docentes lotados. Aqui está a lista completa:\n\n- ADRIANA DE MAGALHAES CHAVES MARTINS\n- ALESSANDRA DE ANDRADE RINALDI\n- ALEXANDRE MAGNO LOPES GOLLO\n- ANDRE LUIZ VIDEIRA DE FIGUEIREDO\n- ANNELISE CAETANO FRAGA FERNANDEZ\n- APARECIDA MARIA ABRANCHES\n- BEATRIZ WEY\n- BRUNA MOTTA DOS SANTOS\n- CARLY BARBOZA MACHADO\n- CESAR AUGUSTO DA ROS\n- DARLAN FERREIRA MONTENEGRO\n- EDSON MIAGUSKO\n- ELISA GUARANA DE CASTRO\n- FLAVIA BRAGA VIEIRA\n- GLAUBER RABELO MATIAS\n- IZABEL MISSAGIA DE MATTOS\n- JAIME RODRIGO DA SILVA MIRANDA\n- JOSE CLAUDIO SOUZA ALVES\n- LEANDRO AZEVEDO LAPA E SILVA\n- LUENA NASCIMENTO NUNES PEREIRA\n- MANI TEBET AZEVEDO DE MARINS\n- MARCELO DA COSTA MACIEL\n- MARCO ANTONIO PERRUSO\n- MARIA JULIA GIMENEZ\n- MARINA DE CARVALHO CORDEIRO\n- MARTA REGINA CIOCCARI\n- MAURICIO HOELZ VEIGA JUNIOR\n- MOEMA DE CASTRO GUEDES\n- NAARA LUCIA DE ALBUQUERQUE LUNA\n- NALAYNE MENDONCA PINTO\n- PATRICIA REINHEIMER\n- RAFAEL DO VALLE PAIVA\n- SABRINA MARQUES PARRACHO SANT ANNA\n- TAMIS PORFÍRIO COSTA CRISÓSTOMO RAMOS\n- VLADIMYR LOMBARDO JORGE\n\nEsta é a lista completa de acordo com os dados do SIGAA.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-02",
+      "execucao": 2,
+      "pergunta": "Quantos professores estão lotados no Departamento de Ciências Sociais?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "No Departamento de Ciências Sociais, há 35 docentes lotados. Aqui está a lista completa:\n\n- ADRIANA DE MAGALHAES CHAVES MARTINS\n- ALESSANDRA DE ANDRADE RINALDI\n- ALEXANDRE MAGNO LOPES GOLLO\n- ANDRE LUIZ VIDEIRA DE FIGUEIREDO\n- ANNELISE CAETANO FRAGA FERNANDEZ\n- APARECIDA MARIA ABRANCHES\n- BEATRIZ WEY\n- BRUNA MOTTA DOS SANTOS\n- CARLY BARBOZA MACHADO\n- CESAR AUGUSTO DA ROS\n- DARLAN FERREIRA MONTENEGRO\n- EDSON MIAGUSKO\n- ELISA GUARANA DE CASTRO\n- FLAVIA BRAGA VIEIRA\n- GLAUBER RABELO MATIAS\n- IZABEL MISSAGIA DE MATTOS\n- JAIME RODRIGO DA SILVA MIRANDA\n- JOSE CLAUDIO SOUZA ALVES\n- LEANDRO AZEVEDO LAPA E SILVA\n- LUENA NASCIMENTO NUNES PEREIRA\n- MANI TEBET AZEVEDO DE MARINS\n- MARCELO DA COSTA MACIEL\n- MARCO ANTONIO PERRUSO\n- MARIA JULIA GIMENEZ\n- MARINA DE CARVALHO CORDEIRO\n- MARTA REGINA CIOCCARI\n- MAURICIO HOELZ VEIGA JUNIOR\n- MOEMA DE CASTRO GUEDES\n- NAARA LUCIA DE ALBUQUERQUE LUNA\n- NALAYNE MENDONCA PINTO\n- PATRICIA REINHEIMER\n- RAFAEL DO VALLE PAIVA\n- SABRINA MARQUES PARRACHO SANT ANNA\n- TAMIS PORFÍRIO COSTA CRISÓSTOMO RAMOS\n- VLADIMYR LOMBARDO JORGE\n\nCaso precise de mais informações sobre algum docente específico, como áreas de interesse ou atuação, pode me informar que posso buscar essas informações para você.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-02",
+      "execucao": 3,
+      "pergunta": "Quantos professores estão lotados no Departamento de Ciências Sociais?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Ciências Sociais possui 35 docentes lotados. Aqui está a lista completa de professores do departamento:\n\n- ADRIANA DE MAGALHAES CHAVES MARTINS\n- ALESSANDRA DE ANDRADE RINALDI\n- ALEXANDRE MAGNO LOPES GOLLO\n- ANDRE LUIZ VIDEIRA DE FIGUEIREDO\n- ANNELISE CAETANO FRAGA FERNANDEZ\n- APARECIDA MARIA ABRANCHES\n- BEATRIZ WEY\n- BRUNA MOTTA DOS SANTOS\n- CARLY BARBOZA MACHADO\n- CESAR AUGUSTO DA ROS\n- DARLAN FERREIRA MONTENEGRO\n- EDSON MIAGUSKO\n- ELISA GUARANA DE CASTRO\n- FLAVIA BRAGA VIEIRA\n- GLAUBER RABELO MATIAS\n- IZABEL MISSAGIA DE MATTOS\n- JAIME RODRIGO DA SILVA MIRANDA\n- JOSE CLAUDIO SOUZA ALVES\n- LEANDRO AZEVEDO LAPA E SILVA\n- LUENA NASCIMENTO NUNES PEREIRA\n- MANI TEBET AZEVEDO DE MARINS\n- MARCELO DA COSTA MACIEL\n- MARCO ANTONIO PERRUSO\n- MARIA JULIA GIMENEZ\n- MARINA DE CARVALHO CORDEIRO\n- MARTA REGINA CIOCCARI\n- MAURICIO HOELZ VEIGA JUNIOR\n- MOEMA DE CASTRO GUEDES\n- NAARA LUCIA DE ALBUQUERQUE LUNA\n- NALAYNE MENDONCA PINTO\n- PATRICIA REINHEIMER\n- RAFAEL DO VALLE PAIVA\n- SABRINA MARQUES PARRACHO SANT ANNA\n- TAMIS PORFÍRIO COSTA CRISÓSTOMO RAMOS\n- VLADIMYR LOMBARDO JORGE\n\nEsta lista foi fornecida conforme os dados do SIGAA.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-03",
+      "execucao": 1,
+      "pergunta": "Liste os docentes do Departamento de Geociências.",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Geociências possui 10 docentes, que são:\n\n- CLAUDIA MARIA MAGALHAES RIBEIRO MARTINS\n- DANIEL FERNANDES\n- ELISABETE DO NASCIMENTO ROCHA\n- FERNANDO MACHADO DE MELLO\n- FRANCISCO JOSE CORREA MARTINS\n- HEITOR FERNANDES MOTHE FILHO\n- JOSE MIGUEL PETERS GARCIA\n- LUCIO CARRAMILLO CAETANO\n- SERGIO BRANDOLISE CITRONI\n- SORAYA GARDEL CARELLI\n\nSe precisar de mais informações sobre cada um, como áreas de interesse ou formação, é melhor consultar o perfil individual no SIGAA ou currículo Lattes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-03",
+      "execucao": 2,
+      "pergunta": "Liste os docentes do Departamento de Geociências.",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Geociências da UFRRJ tem 10 docentes, que são:\n\n- CLAUDIA MARIA MAGALHÃES RIBEIRO MARTINS\n- DANIEL FERNANDES\n- ELISABETE DO NASCIMENTO ROCHA\n- FERNANDO MACHADO DE MELLO\n- FRANCISCO JOSE CORREA MARTINS\n- HEITOR FERNANDES MOTHE FILHO\n- JOSE MIGUEL PETERS GARCIA\n- LUCIO CARRAMILLO CAETANO\n- SERGIO BRANDOLISE CITRONI\n- SORAYA GARDEL CARELLI",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-03",
+      "execucao": 3,
+      "pergunta": "Liste os docentes do Departamento de Geociências.",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Geociências da UFRRJ conta com 10 docentes. Eles são:\n\n- CLAUDIA MARIA MAGALHAES RIBEIRO MARTINS\n- DANIEL FERNANDES\n- ELISABETE DO NASCIMENTO ROCHA\n- FERNANDO MACHADO DE MELLO\n- FRANCISCO JOSE CORREA MARTINS\n- HEITOR FERNANDES MOTHE FILHO\n- JOSE MIGUEL PETERS GARCIA\n- LUCIO CARRAMILLO CAETANO\n- SERGIO BRANDOLISE CITRONI\n- SORAYA GARDEL CARELLI",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-04",
+      "execucao": 1,
+      "pergunta": "Quantos docentes há no Departamento de Química Analítica?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "No Departamento de Química Analítica, há 10 docentes. São eles:\n\n- CRISTINA MARIA BARRA\n- EVELTON ALVES CASARTELLI\n- FLAVIO COUTO CORDEIRO\n- IDIO ALVES DE SOUSA FILHO\n- INES ROSANE WELTER ZWIRTES DE OLIVEIRA\n- JOSE GERALDO ROCHA JUNIOR\n- MARTHA TERESA PANTOJA DE OLIVEIRA CASTRO\n- SHEISI FONSECA LEITE DA SILVA ROCHA\n- VANESSA GOMES KELLY ALMEIDA\n- WALESKA GIANNINI PEREIRA DA SILVA",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-04",
+      "execucao": 2,
+      "pergunta": "Quantos docentes há no Departamento de Química Analítica?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "No Departamento de Química Analítica, há 10 docentes. São eles:\n- CRISTINA MARIA BARRA\n- EVELTON ALVES CASARTELLI\n- FLAVIO COUTO CORDEIRO\n- IDIO ALVES DE SOUSA FILHO\n- INES ROSANE WELTER ZWIRTES DE OLIVEIRA\n- JOSE GERALDO ROCHA JUNIOR\n- MARTHA TERESA PANTOJA DE OLIVEIRA CASTRO\n- SHEISI FONSECA LEITE DA SILVA ROCHA\n- VANESSA GOMES KELLY ALMEIDA\n- WALESKA GIANNINI PEREIRA DA SILVA",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-04",
+      "execucao": 3,
+      "pergunta": "Quantos docentes há no Departamento de Química Analítica?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Química Analítica tem 10 docentes cadastrados no SIGAA. Eles são:\n- CRISTINA MARIA BARRA\n- EVELTON ALVES CASARTELLI\n- FLAVIO COUTO CORDEIRO\n- IDIO ALVES DE SOUSA FILHO\n- INES ROSANE WELTER ZWIRTES DE OLIVEIRA\n- JOSE GERALDO ROCHA JUNIOR\n- MARTHA TERESA PANTOJA DE OLIVEIRA CASTRO\n- SHEISI FONSECA LEITE DA SILVA ROCHA\n- VANESSA GOMES KELLY ALMEIDA\n- WALESKA GIANNINI PEREIRA DA SILVA",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-05",
+      "execucao": 1,
+      "pergunta": "O Departamento de Engenharia Química tem quantos professores?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Engenharia Química possui 29 professores/docentes. Aqui está a lista deles:\n\n- ANDRE DE ALMEIDA\n- ANTONIO RENATO BIGANSOLLI\n- BEATRIZ AUTULLO RAMOS\n- BELMIRA BENEDITA DE LIMA KUHN\n- CAROLINA GUEDES FIORAVANTE REZENDE\n- CLAUDIA MIRIAM SCHEID PEREIRA\n- CRISTIANO AGENOR OLIVEIRA DE ARAUJO\n- DANIELI MARTINS DO CARMO\n- ELIANE PEREIRA CIPOLATTI\n- FABIOLA OLIVEIRA DA CUNHA\n- FERNANDA PEREIRA BRAGA\n- FILIPE ARANTES FURTADO\n- JOAO VICTOR NICOLINI\n- KETLY PONTES SOARES\n- LEONARDO DE GIL TORRES\n- LINDOVAL DOMICIANO FERNANDES\n- LUIS AMERICO CALCADA\n- LUIZ ANTONIO BORGES JUNIOR\n- LUIZ AUGUSTO DA CRUZ MELEIRO\n- MARCIA PEIXOTO VEGA DOMICIANO\n- MARIA ALICE CRUZ LOPES DE OLIVEIRA\n- MARISA FERNANDES MENDES\n- MAURICIO CORDEIRO MANCINI\n- PAULO JANSEN DE OLIVEIRA\n- RENATA NUNES OLIVEIRA\n- ROBERTA HELENA MENDONCA\n- RUI DE GOES CASQUEIRA\n- SIMONE PEREIRA TAGUCHI BORGES\n- TESSIE GOUVEA DA CRUZ LOPES",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-05",
+      "execucao": 2,
+      "pergunta": "O Departamento de Engenharia Química tem quantos professores?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Engenharia Química tem 29 docentes. Segue a lista deles:\n\n- ANDRE DE ALMEIDA\n- ANTONIO RENATO BIGANSOLLI\n- BEATRIZ AUTULLO RAMOS\n- BELMIRA BENEDITA DE LIMA KUHN\n- CAROLINA GUEDES FIORAVANTE REZENDE\n- CLAUDIA MIRIAM SCHEID PEREIRA\n- CRISTIANO AGENOR OLIVEIRA DE ARAUJO\n- DANIELI MARTINS DO CARMO\n- ELIANE PEREIRA CIPOLATTI\n- FABIOLA OLIVEIRA DA CUNHA\n- FERNANDA PEREIRA BRAGA\n- FILIPE ARANTES FURTADO\n- JOAO VICTOR NICOLINI\n- KETLY PONTES SOARES\n- LEONARDO DE GIL TORRES\n- LINDOVAL DOMICIANO FERNANDES\n- LUIS AMERICO CALCADA\n- LUIZ ANTONIO BORGES JUNIOR\n- LUIZ AUGUSTO DA CRUZ MELEIRO\n- MARCIA PEIXOTO VEGA DOMICIANO\n- MARIA ALICE CRUZ LOPES DE OLIVEIRA\n- MARISA FERNANDES MENDES\n- MAURICIO CORDEIRO MANCINI\n- PAULO JANSEN DE OLIVEIRA\n- RENATA NUNES OLIVEIRA\n- ROBERTA HELENA MENDONCA\n- RUI DE GOES CASQUEIRA\n- SIMONE PEREIRA TAGUCHI BORGES\n- TESSIE GOUVEA DA CRUZ LOPES\n\nSe você precisa de mais detalhes sobre algum desses docentes, posso buscar informações adicionais.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-05",
+      "execucao": 3,
+      "pergunta": "O Departamento de Engenharia Química tem quantos professores?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Engenharia Química possui 29 docentes. Aqui está a lista completa:\n\n1. ANDRE DE ALMEIDA\n2. ANTONIO RENATO BIGANSOLLI\n3. BEATRIZ AUTULLO RAMOS\n4. BELMIRA BENEDITA DE LIMA KUHN\n5. CAROLINA GUEDES FIORAVANTE REZENDE\n6. CLAUDIA MIRIAM SCHEID PEREIRA\n7. CRISTIANO AGENOR OLIVEIRA DE ARAUJO\n8. DANIELI MARTINS DO CARMO\n9. ELIANE PEREIRA CIPOLATTI\n10. FABIOLA OLIVEIRA DA CUNHA\n11. FERNANDA PEREIRA BRAGA\n12. FILIPE ARANTES FURTADO\n13. JOAO VICTOR NICOLINI\n14. KETLY PONTES SOARES\n15. LEONARDO DE GIL TORRES\n16. LINDOVAL DOMICIANO FERNANDES\n17. LUIS AMERICO CALCADA\n18. LUIZ ANTONIO BORGES JUNIOR\n19. LUIZ AUGUSTO DA CRUZ MELEIRO\n20. MARCIA PEIXOTO VEGA DOMICIANO\n21. MARIA ALICE CRUZ LOPES DE OLIVEIRA\n22. MARISA FERNANDES MENDES\n23. MAURICIO CORDEIRO MANCINI\n24. PAULO JANSEN DE OLIVEIRA\n25. RENATA NUNES OLIVEIRA\n26. ROBERTA HELENA MENDONCA\n27. RUI DE GOES CASQUEIRA\n28. SIMONE PEREIRA TAGUCHI BORGES\n29. TESSIE GOUVEA DA CRUZ LOPES\n\nSe precisar de mais detalhes sobre cada um, como áreas de atuação ou formação acadêmica, sugiro acessar o perfil individual de cada docente no SIGAA.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-06",
+      "execucao": 1,
+      "pergunta": "Quais docentes pertencem ao Departamento de Bioquímica?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os docentes que pertencem ao Departamento de Bioquímica são:\n\n- ANA PAULA PEREIRA DA SILVA\n- ANDRE LUIZ GOMES VIEIRA\n- ANDRE MARQUES DOS SANTOS\n- CRISTIANE MARTINS CARDOSO DE SALLES\n- CRISTIANO JORGE RIGER\n- DANIELA COSENTINO GOMES\n- DIEGO DE MELLO CONDE DE BRITO\n- EMERSON GUEDES PONTES\n- MARCELO DE FREITAS LIMA\n- MARCO ANDRE ALVES DE SOUZA\n- MILANE DE SOUZA LEITE\n\nCaso você precise de informações mais detalhadas sobre algum desses docentes, como suas áreas de atuação ou formação acadêmica, por favor me informe!",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-06",
+      "execucao": 2,
+      "pergunta": "Quais docentes pertencem ao Departamento de Bioquímica?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Bioquímica possui 11 docentes, conforme a lista abaixo:\n\n- ANA PAULA PEREIRA DA SILVA\n- ANDRE LUIZ GOMES VIEIRA\n- ANDRE MARQUES DOS SANTOS\n- CRISTIANE MARTINS CARDOSO DE SALLES\n- CRISTIANO JORGE RIGER\n- DANIELA COSENTINO GOMES\n- DIEGO DE MELLO CONDE DE BRITO\n- EMERSON GUEDES PONTES\n- MARCELO DE FREITAS LIMA\n- MARCO ANDRE ALVES DE SOUZA\n- MILANE DE SOUZA LEITE\n\nCaso tenha interesse em informações mais detalhadas sobre algum desses docentes, como formação ou áreas de pesquisa, você pode me perguntar especificamente por um deles!",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-06",
+      "execucao": 3,
+      "pergunta": "Quais docentes pertencem ao Departamento de Bioquímica?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Bioquímica possui 11 docentes, que são:\n\n- ANA PAULA PEREIRA DA SILVA\n- ANDRE LUIZ GOMES VIEIRA\n- ANDRE MARQUES DOS SANTOS\n- CRISTIANE MARTINS CARDOSO DE SALLES\n- CRISTIANO JORGE RIGER\n- DANIELA COSENTINO GOMES\n- DIEGO DE MELLO CONDE DE BRITO\n- EMERSON GUEDES PONTES\n- MARCELO DE FREITAS LIMA\n- MARCO ANDRE ALVES DE SOUZA\n- MILANE DE SOUZA LEITE\n\nSe precisar de mais informações sobre cada um desses docentes, como formação ou áreas de interesse, é possível buscar individualmente por nome.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-07",
+      "execucao": 1,
+      "pergunta": "Em qual departamento trabalha o professor Marcel William Rocha da Silva?",
+      "esperadas": [
+        "buscar_docente_por_nome"
+      ],
+      "chamadas": [
+        "buscar_docente_por_nome"
+      ],
+      "usadas": [
+        "buscar_docente_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O professor MARCEL WILLIAM ROCHA DA SILVA trabalha no DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO do Instituto Multidisciplinar (IM).",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-07",
+      "execucao": 2,
+      "pergunta": "Em qual departamento trabalha o professor Marcel William Rocha da Silva?",
+      "esperadas": [
+        "buscar_docente_por_nome"
+      ],
+      "chamadas": [
+        "buscar_docente_por_nome"
+      ],
+      "usadas": [
+        "buscar_docente_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O professor Marcel William Rocha da Silva trabalha no Departamento de Ciência da Computação do Instituto Multidisciplinar (IM).",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-07",
+      "execucao": 3,
+      "pergunta": "Em qual departamento trabalha o professor Marcel William Rocha da Silva?",
+      "esperadas": [
+        "buscar_docente_por_nome"
+      ],
+      "chamadas": [
+        "buscar_docente_por_nome"
+      ],
+      "usadas": [
+        "buscar_docente_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O professor Marcel William Rocha da Silva trabalha no Departamento de Ciência da Computação, que está vinculado ao Instituto Multidisciplinar (IM).",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-08",
+      "execucao": 1,
+      "pergunta": "Quantos docentes tem o Departamento de Geografia?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Há dois departamentos com o nome 'Geografia' na UFRRJ. Por favor, especifique qual você está interessado:\n\n- O **DEPARTAMENTO DE GEOGRAFIA** tem 16 docentes.\n- O **DEPARTAMENTO DE GEOGRAFIA/IM (Instituto Multidisciplinar)** tem 14 docentes.\n\nQual você gostaria de saber mais?",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-08",
+      "execucao": 2,
+      "pergunta": "Quantos docentes tem o Departamento de Geografia?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Há dois departamentos relacionados à Geografia na UFRRJ. O \"DEPARTAMENTO DE GEOGRAFIA\" possui 16 docentes, enquanto o \"DEPARTAMENTO DE GEOGRAFIA/IM\" tem 14 docentes. Você gostaria de saber sobre um específico?",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-08",
+      "execucao": 3,
+      "pergunta": "Quantos docentes tem o Departamento de Geografia?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Há dois departamentos relacionados à Geografia na UFRRJ:\n\n- O **DEPARTAMENTO DE GEOGRAFIA** tem 16 docentes.\n  \n- O **DEPARTAMENTO DE GEOGRAFIA/IM (Instituto Multidisciplinar)** tem 14 docentes.\n\nSe você estiver procurando por um específico, por favor, especifique qual deles deseja.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-09",
+      "execucao": 1,
+      "pergunta": "Quantos professores tem o Departamento de Ciências Jurídicas?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O termo 'Ciências Jurídicas' corresponde a dois departamentos distintos na UFRRJ. Aqui estão os números de professores para cada um:\n\n- **DEPARTAMENTO DE CIÊNCIAS JURÍDICAS**: 20 docentes\n- **DEPARTAMENTO DE CIÊNCIAS JURÍDICAS/IM (Instituto Multidisciplinar)**: 17 docentes\n\nSe você está buscando informações sobre um departamento específico, por favor, indique qual deles.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-09",
+      "execucao": 2,
+      "pergunta": "Quantos professores tem o Departamento de Ciências Jurídicas?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Há dois departamentos com o nome 'Ciências Jurídicas' na UFRRJ:\n\n- O **DEPARTAMENTO DE CIÊNCIAS JURÍDICAS** tem 20 docentes.\n- O **DEPARTAMENTO DE CIÊNCIAS JURÍDICAS/IM** (pertencente ao Instituto Multidisciplinar) tem 17 docentes.\n\nPor favor, especifique qual deles você deseja saber mais detalhes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "est-09",
+      "execucao": 3,
+      "pergunta": "Quantos professores tem o Departamento de Ciências Jurídicas?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Há dois departamentos com o nome 'Ciências Jurídicas'. Preciso que especifique qual você deseja saber:\n\n- Departamento de Ciências Jurídicas: 20 docentes.\n- Departamento de Ciências Jurídicas/IM (Instituto Multidisciplinar): 17 docentes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-01",
+      "execucao": 1,
+      "pergunta": "Quais docentes pesquisam agroecologia?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei alguns docentes que têm vínculos com a pesquisa em agroecologia:\n\n- **ALEXANDRE MAGNO LOPES GOLLO** do DEPARTAMENTO DE CIÊNCIAS SOCIAIS. Ele trabalha principalmente no desenvolvimento rural e territorial, incluindo a transição agroecológica.\n- **ADRIANA DE MAGALHAES CHAVES MARTINS**, também do DEPARTAMENTO DE CIÊNCIAS SOCIAIS, tem experiência na agricultura familiar e comunidades tradicionais, referenciada na agroecologia.\n\nOutros docentes que podem estar associados a temas relacionados à agroecologia incluem:\n\n- **HENRIQUE VIEIRA DE MENDONCA** do DEPARTAMENTO DE ENGENHARIA AGRÍCOLA E AMBIENTAL, que pesquisou bioenergia e tratamento de resíduos.\n- **ERIKA FLAVIA MACHADO PINHEIRO**, do DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE, que tem trabalhos na área da matéria orgânica do solo e tratamento de resíduos agrícolas.\n- **MARCOS BACIS CEDDIA** também do DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE, com interesses em agricultura digital e física do solo.\n\nEsses docentes podem ter trabalhos interconectados à agroecologia, embora o termo \"agroecologia\" não seja explicitamente mencionado na descrição de todas as pessoas listadas. Para informações mais detalhadas ou para entrar em contato com os docentes, você pode acessar seus currículos Lattes diretamente do SIGAA através dos links fornecidos.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-01",
+      "execucao": 2,
+      "pergunta": "Quais docentes pesquisam agroecologia?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei alguns docentes que pesquisam agroecologia ou têm relacionamento com a área:\n\n- **HENRIQUE VIEIRA DE MENDONCA**, do **DEPARTAMENTO DE ENGENHARIA AGRÍCOLA E AMBIENTAL**. Trabalha em temas como tratamento de resíduos, bioenergia e microalgas.\n  \n- **ERICA SOUTO ABREU LIMA**, do **DEPARTAMENTO DE SOLOS**. Seus interesses incluem a correção do solo e adubação.\n\n- **MARCOS BACIS CEDDIA**, do **DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE**. Tem experiência em física do solo, geoestatística e agroecologia.\n\n- **ALEXANDRE MAGNO LOPES GOLLO**, do **DEPARTAMENTO DE CIÊNCIAS SOCIAIS**. Trabalha em desenvolvimento rural sustentável e transição agroecológica.\n\n- **ADRIANA DE MAGALHAES CHAVES MARTINS**, também do **DEPARTAMENTO DE CIÊNCIAS SOCIAIS**. Suas áreas de interesse incluem agricultura familiar, comunidades tradicionais e agroecologia.\n  \nOs outros docentes listados têm perfis relacionados à área, mas não mencionam explicitamente a agroecologia.\n\nSe precisar de mais detalhes sobre algum desses docentes ou informações adicionais, por favor avise!",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-01",
+      "execucao": 3,
+      "pergunta": "Quais docentes pesquisam agroecologia?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "De acordo com a busca realizada, os docentes que têm vínculos de pesquisa ou interesse em agroecologia são:\n\n- **HENRIQUE VIEIRA DE MENDONCA** do **DEPARTAMENTO DE ENGENHARIA AGRÍCOLA E AMBIENTAL**\n- **ERIC SOUTO ABREU LIMA** do **DEPARTAMENTO DE SOLOS**\n- **MARCOS BACIS CEDDIA** do **DEPARTAMENTO DE AGROTECNOLOGIAS E SUSTENTABILIDADE**\n- **ALEXANDRE MAGNO LOPES GOLLO** do **DEPARTAMENTO DE CIÊNCIAS SOCIAIS**\n- **ADRIANA DE MAGALHAES CHAVES MARTINS** do **DEPARTAMENTO DE CIÊNCIAS SOCIAIS**\n\nOs perfis destes docentes estão disponíveis em seus respectivos currículos no SIGAA. Por exemplo, o currículo Lattes de Henriquede pode ser encontrado em [este link](http://lattes.cnpq.br/8897355054570578). Para os outros docentes, você pode acessar as informações similares por meio dos links correspondentes.\n\nNote que alguns docentes não possuíram detalhes específicos na busca realizada. Recomendo revisitar o perfil deles no SIGAA ou acessarem o currículo Lattes diretamente para obter mais detalhes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-02",
+      "execucao": 1,
+      "pergunta": "Quem trabalha com movimentos sociais na universidade?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os seguintes docentes da UFRRJ trabalham com movimentos sociais:\n\n- MAGDA GISELA CRUZ DOS SANTOS. Departamento: DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE.\n- RAFAEL MAUL DE CARVALHO COSTA. Departamento: DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE.\n- HELCIO HERBERT MOREIRA DA SILVA NETO. Departamento: DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE.\n- RAMOFLY BICALHO DOS SANTOS. Departamento: DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE.\n- EDILEIA DE CARVALHO SOUZA ALVES. Departamento: DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE.\n- ANNA MARIA PEREIRA ESTEVES. Departamento: DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE.\n- MARCELO HENRIQUE BEZERRA RAMOS. Departamento: DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE.\n- RAPHAEL CASTELO BRANCO DA SILVA. Departamento: DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE.\n- FABIANA DE CARVALHO DIAS ARAUJO. Departamento: DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE.\n- SANDRO ROBERTO ARAUJO OITAVEN. Departamento: DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE.\n\nSe você precisar de informações mais detalhadas sobre a formação ou interesses específicos desses docentes, sugiro verificar os currículos Lattes correspondentes ou entrar em contato diretamente com eles através dos e-mails fornecidos.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-02",
+      "execucao": 2,
+      "pergunta": "Quem trabalha com movimentos sociais na universidade?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os docentes que trabalham com movimentos sociais na UFRRJ, de acordo com suas descrições no SIGAA, são:\n\n- **MAGDA GISELA CRUZ DOS SANTOS**\n- **RAFAEL MAUL DE CARVALHO COSTA**\n- **HELCIO HERBERT MOREIRA DA SILVA NETO**\n- **RAMOFLY BICALHO DOS SANTOS**\n- **EDILEIA DE CARVALHO SOUZA ALVES**\n- **ANNA MARIA PEREIRA ESTEVES**\n- **MARCELO HENRIQUE BEZERRA RAMOS**\n- **RAPHAEL CASTELO BRANCO DA SILVA**\n- **FABIANA DE CARVALHO DIAS ARAUJO**\n- **SANDRO ROBERTO ARAUJO OITAVEN**\n\nTodos estão vinculados ao **DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE**.\n\nPara obter mais detalhes sobre a formação e áreas de interesse específicas desses docentes, sugiro acessar seus perfis no SIGAA ou em seu currículo Lattes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-02",
+      "execucao": 3,
+      "pergunta": "Quem trabalha com movimentos sociais na universidade?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os docentes que trabalham com movimentos sociais na UFRRJ, de acordo com o perfil encontrado no SIGAA, são:\n\n1. MAGDA GISELA CRUZ DOS SANTOS\n2. RAFAEL MAUL DE CARVALHO COSTA\n3. HELCIO HERBERT MOREIRA DA SILVA NETO\n4. RAMOFLY BICALHO DOS SANTOS\n5. EDILEIA DE CARVALHO SOUZA ALVES\n6. ANNA MARIA PEREIRA ESTEVES\n7. MARCELO HENRIQUE BEZERRA RAMOS\n8. RAPHAEL CASTELO BRANCO DA SILVA\n9. FABIANA DE CARVALHO DIAS ARAUJO\n10. SANDRO ROBERTO ARAUJO OITAVEN\n\nTodos eles pertencem ao **DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE**.\n\nPara obter informações mais detalhadas sobre a pesquisa ou formação acadêmica desses docentes, é recomendado acessar seus perfis individuais no SIGAA ou em seus currículos Lattes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-03",
+      "execucao": 1,
+      "pergunta": "Que professores atuam na área de formação de professores?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os seguintes professores atuam na área de formação de professores na UFRRJ:\n\n- **MONICA PINHEIRO FERNANDES**, do DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM.\n- **VIVIANE DE SOUZA RODRIGUES XAVIER**, do DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO.\n- **RODRIGO DE AZEVEDO CRUZ LAMOSA**, do DEPARTAMENTO DE EDUCAÇÃO E SOCIEDADE/IM.\n- **FABIANO SOARES DA SILVA**, do DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO.\n- **LANA CLAUDIA DE SOUZA FONSECA**, do DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO.\n- **ANDREIA GOMES DA CRUZ**, do DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM.\n- **JOSE RICARDO DA SILVA RAMOS**, do DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO.\n- **JOYCE ALVES DA SILVA**, do DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM.\n- **LIDIANE BARROS LOBO**, do DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM.\n- **FERNANDO CESAR FERREIRA GOUVEA**, do DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO.\n\nEssa lista foi encontrada através de uma busca no SIGAA utilizando a expressão \"formação de professores\". Para mais informações detalhadas sobre cada professor, como currículo Lattes ou contatos, sugiro acessar diretamente o perfil do docente no SIGAA ou seu currículo Lattes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-03",
+      "execucao": 2,
+      "pergunta": "Que professores atuam na área de formação de professores?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os docentes que atuam na área de formação de professores são:\n\n- MONICA PINHEIRO FERNANDES, do DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM.\n- VIVIANE DE SOUZA RODRIGUES XAVIER, do DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO.\n- RODRIGO DE AZEVEDO CRUZ LAMOSA, do DEPARTAMENTO DE EDUCAÇÃO E SOCIEDADE/IM.\n- FABIANO SOARES DA SILVA, do DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO.\n- LANA CLAUDIA DE SOUZA FONSECA, do DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO.\n- ANDREIA GOMES DA CRUZ, do DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM.\n- JOSE RICARDO DA SILVA RAMOS, do DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO.\n- JOYCE ALVES DA SILVA, do DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM.\n- LIDIANE BARROS LOBO, do DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM.\n- FERNANDO CESAR FERREIRA GOUVEA, do DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO.\n\nCada um desses docentes possui detalhes específicos de formação e áreas de interesse que podem ser encontrados em seus perfis individuais no SIGAA ou em seus currículos Lattes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-03",
+      "execucao": 3,
+      "pergunta": "Que professores atuam na área de formação de professores?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei alguns docentes que atuam na área de formação de professores no SIGAA:\n\n- **MONICA PINHEIRO FERNANDES** — DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM  \n  E-mail: monicapinheiro@uol.com.br\n\n- **ANDREIA GOMES DA CRUZ** — DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM  \n  E-mail: andreiagomes25@yahoo.com.br\n\n- **JOYCE ALVES DA SILVA** — DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM  \n  E-mail: joyce.alves@ufrrj.br\n\n- **LIDIANE BARROS LOBO** — DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM  \n  E-mail: lidlobo@gmail.com\n  \nAlém disso, alguns docentes do **DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO** também estão envolvidos nessa área:\n\n- **VIVIANE DE SOUZA RODRIGUES XAVIER**\n  - Áreas de interesse: Economia e Política da Educação, Sociologia da Educação, Gestão Educacional\n  - E-mail: vivianerodrigues@ufrrj.br\n\n- **RODRIGO DE AZEVEDO CRUZ LAMOSA** \n  - Áreas de interesse: Política Educacional; Estado e Poder; Currículo\n  - E-mail: rodrigo1281@yahoo.com.br\n  \n- **FABIANO SOARES DA SILVA**\n  - E-mail: fabianosoares@ufrrj.br\n\n- **LANA CLAUDIA DE SOUZA FONSECA** \n  - E-mail: lfonseca@ufrrj.br\n\n- **JOSE RICARDO DA SILVA RAMOS** \n  - E-mail: jricardo@ufrrj.br\n  \n- **FERNANDO CESAR FERREIRA GOUVEA**\n  - Áreas de interesse: História da Educação Latino-Americana\n  - E-mail: gouveafcf@uol.com.br\n\nSe precisar de mais informações, como currículos Lattes ou detalhes específicos, é melhor consultar os links dos perfis individuais no SIGAA ou entrar em contato diretamente com os docentes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-04",
+      "execucao": 1,
+      "pergunta": "Há docentes que pesquisam segurança alimentar?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei vários docentes do Departamento de Tecnologia de Alimentos que possuem pesquisa relacionada à segurança alimentar. Aqui estão alguns exemplos:\n\n- AMANDA MATTOS DIAS MARTINS: Tem experiência em assuntos regulatórios e segurança de alimentos.\n- ELISA HELENA DA ROCHA FERREIRA: Possui especialização em Segurança de Alimentos e Qualidade Nutricional.\n\nOs demais docentes do resultado também podem estar envolvidos com a área, dado o vínculo com Tecnologia de Alimentos, mas as informações específicas sobre segurança alimentar não foram explicitamente mencionadas em seus perfis. Para mais detalhes, você pode verificar o currículo Lattes dos docentes ou entrar em contato diretamente com eles através dos e-mails listados no SIGAA.\n\nSe precisar de informações adicionais, sinta-se à vontade para perguntar!",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-04",
+      "execucao": 2,
+      "pergunta": "Há docentes que pesquisam segurança alimentar?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei docentes do Departamento de Tecnologia de Alimentos da UFRRJ que têm relação com segurança alimentar em seus perfis. Aqui estão alguns exemplos:\n\n- **AMANDA MATTOS DIAS MARTINS**: Possui mais de 12 anos de experiência em consultoria nas áreas de assuntos regulatórios e segurança de alimentos.\n- **ELISA HELENA DA ROCHA FERREIRA**: Tem experiência na área de Ciência e Tecnologia de Alimentos, com ênfase também em Segurança de Alimentos.\n\nOs outros docentes listados não têm uma menção explícita a \"segurança alimentar\" em seus perfis disponíveis no SIGAA. Para mais informações detalhadas sobre cada um dos docentes mencionados ou para acessar currículos completos, sugiro verificar diretamente o Currículo Lattes deles ou entrar em contato através das informações de email fornecidas.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-04",
+      "execucao": 3,
+      "pergunta": "Há docentes que pesquisam segurança alimentar?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei vários docentes do Departamento de Tecnologia de Alimentos que têm interesses relacionados à segurança alimentar. Aqui estão alguns exemplos:\n\n- **AMANDA MATTOS DIAS MARTINS**: É Engenheira de Alimentos com experiência em assuntos regulatórios e segurança dos alimentos.\n\n- **ELISA HELENA DA ROCHA FERREIRA**: Tem especialização em Segurança de Alimentos e Qualidade Nutricional e atua em temas como gestão e controle de qualidade na indústria de alimentos.\n\nOutros docentes do departamento podem ter vínculos com a segurança alimentar, mas as informações específicas não foram encontradas no perfil. Para mais detalhes sobre outros docentes ou para informações mais precisas, sugiro verificar diretamente seus perfis completos no SIGAA ou em seus currículos Lattes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-05",
+      "execucao": 1,
+      "pergunta": "Qual é a formação acadêmica de Filipe Braida do Carmo?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "buscar_docente_por_nome",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docente_por_nome"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": false,
+      "confusao_estruturada": true,
+      "resposta": "A formação acadêmica de FILIPE BRAIDA DO CARMO é a seguinte:\n\n- Graduação em Ciência da Computação pela Universidade Federal do Rio de Janeiro (UFRJ) em 2009.\n- Mestrado em Engenharia de Sistemas e Computação pela COPPE/UFRRJ em 2013.\n- Doutorado em Engenharia de Sistemas e Computação também pela COPPE/UFRRJ em 2018.\n\nEle pertence ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO do Instituto Multidisciplinar (IM) da UFRRJ. Para mais detalhes sobre o currículo de Filipe Braida do Carmo, você pode acessar seu [Currículo Lattes](http://lattes.cnpq.br/0335454210905441).",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-05",
+      "execucao": 2,
+      "pergunta": "Qual é a formação acadêmica de Filipe Braida do Carmo?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A formação acadêmica de FILIPE BRAIDA DO CARMO é a seguinte:\n\n- Graduação em Ciência da Computação pela Universidade Federal do Rio de Janeiro (UFRJ) em 2009.\n- Mestrado em Engenharia de Sistemas e Computação pela UFRJ, obtido em 2013.\n- Doutorado em Engenharia de Sistemas e Computação também pela UFRJ, concluído em 2018.\n\nPara mais detalhes sobre o perfil acadêmico ou profissional do professor Filipe Braida do Carmo, você pode acessar seu currículo no [Lattes](http://lattes.cnpq.br/0335454210905441).",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-05",
+      "execucao": 3,
+      "pergunta": "Qual é a formação acadêmica de Filipe Braida do Carmo?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A formação acadêmica de **FILＩＰE BＲＡＩDＡ DＯ CＡRＭO** é a seguinte:\n\n- Graduação em Ciência da Computação pela Universidade Federal do Rio de Janeiro (UFRJ) em 2009.\n- Mestrado em Engenharia de Sistemas e Computação pela COPPE/UFRRJ, obtido em 2013.\n- Doutorado em Engenharia de Sistemas e Computação pela COPPE/UFRRJ, obtido em 2018.\n\nEle está vinculado ao **DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO** do Instituto Multidisciplinar da UFRRJ. Para mais detalhes, você pode consultar o seu perfil no [Currículo Lattes](http://lattes.cnpq.br/0335454210905441).",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-06",
+      "execucao": 1,
+      "pergunta": "Quais são as áreas de interesse de Marcel William Rocha da Silva?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "buscar_docente_por_nome",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docente_por_nome"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": false,
+      "confusao_estruturada": true,
+      "resposta": "De acordo com a informação recuperada, MARCEL WILLIAM ROCHA DA SILVA pertence ao DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM. No entanto, o campo de áreas de interesse não foi preenchido em seu perfil no SIGAA.\n\nPara obter mais detalhes sobre as áreas de interesse de MARCEL WILLIAM ROCHA DA SILVA, você pode consultar diretamente seu [Currículo Lattes](http://lattes.cnpq.br/7821964888212839).",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-06",
+      "execucao": 2,
+      "pergunta": "Quais são as áreas de interesse de Marcel William Rocha da Silva?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Conforme o perfil recuperado, as áreas de interesse específicas do docente MARCEL WILLIAM ROCHA DA SILVA não foram explicitamente mencionadas no SIGAA. Para obter mais detalhes sobre suas áreas de interesse, sugiro verificar diretamente seu currículo Lattes disponível em [este link](http://lattes.cnpq.br/7821964888212839).",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-06",
+      "execucao": 3,
+      "pergunta": "Quais são as áreas de interesse de Marcel William Rocha da Silva?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei o perfil de MARCEL WILLIAM ROCHA DA SILVA no departamento DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM, mas não há informações específicas sobre suas áreas de interesse disponíveis na plataforma SIGAA. Para obter mais detalhes sobre as áreas de interesse do docente, recomendo verificar seu currículo Lattes disponível em: http://lattes.cnpq.br/7821964888212839.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-07",
+      "execucao": 1,
+      "pergunta": "Quem pesquisa ecologia?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os docentes que atuam na pesquisa de ecologia na UFRRJ, conforme recuperado do SIGAA, são:\n\n1. **JAYME MAGALHAES SANTANGELO** - DEPARTAMENTO DE CIÊNCIAS AMBIENTAIS.\n2. **FLAVIA SOUZA ROCHA** - DEPARTAMENTO DE CIÊNCIAS AMBIENTAIS.\n3. **HENRIQUE VIEIRA DE MENDONCA** - DEPARTAMENTO DE ENGENHARIA AGRÍCOLA E AMBIENTAL.\n4. **CLAUDIA MOSTER** - DEPARTAMENTO DE CIÊNCIAS AMBIENTAIS.\n5. **MARCONDES GERALDO COELHO JUNIOR** - DEPARTAMENTO DE CIÊNCIAS AMBIENTAIS.\n\nOs detalhes específicos de cada perfil podem ser encontrados em seus currículos Lattes ou contatando diretamente os docentes pelos emails fornecidos, caso haja interesse mais aprofundado. Além dessas pessoas, outros docentes também podem atuar na área de ecologia; sugiro verificar o currículo Lattes dos professores para informações mais detalhadas e atualizadas.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-07",
+      "execucao": 2,
+      "pergunta": "Quem pesquisa ecologia?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei diversos docentes que pesquisam na área de Ecologia na UFRRJ, aqui estão alguns exemplos:\n\n1. **Docente:** JAYME MAGALHAES SANTANGELO  \n   **Departamento:** DEPARTAMENTO DE CIÊNCIAS AMBIENTAIS  \n   **Perfil:** Atua em Ecologia com foco principal em sistemas aquáticos de água doce.\n   \n2. **Docente:** FLAVIA SOUZA ROCHA  \n   **Departamento:** DEPARTAMENTO DE CIÊNCIAS AMBIENTAIS  \n   **Formação:** Possui doutorado em Ecologia (USP).\n   \n3. **Docente:** HENRIQUE VIEIRA DE MENDONCA  \n   **Departamento:** DEPARTAMENTO DE ENGENHARIA AGRÍCOLA E AMBIENTAL  \n   **Perfil:** PhD em Ecologia com enfoque em tratamento de resíduos por processos biológicos para produção de bioenergia.\n   \n4. **Docente:** ERICA SOUTO ABREU LIMA  \n   **Departamento:** DEPARTAMENTO DE SOLOS  \n   **Perfil:** Atua na área de Física do Solo, Química e Poluição do Solo.\n\nAlém desses docentes, há outros que também podem ter interesses relacionados à Ecologia dentro dos respectivos departamentos. Para obter mais informações ou contatos específicos sobre esses pesquisadores, você pode acessar seus currículos Lattes diretamente a partir das fontes listadas ou entrar em contato através dos e-mails mencionados.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-07",
+      "execucao": 3,
+      "pergunta": "Quem pesquisa ecologia?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei alguns docentes que atuam na área de Ecologia no SIGAA:\n\n1. **JAYME MAGALHAES SANTANGELO** - DEPARTAMENTO DE CIÊNCIAS AMBIENTAIS.\n2. **FLAVIA SOUZA ROCHA** - DEPARTAMENTO DE CIÊNCIAS AMBIENTAIS.\n3. **HENRIQUE VIEIRA DE MENDONCA** - DEPARTAMENTO DE ENGENHARIA AGRÍCOLA E AMBIENTAL.\n4. **ERIKA CORTINES** - DEPARTAMENTO DE CIÊNCIAS DO MEIO AMBIENTE/ITR.\n\nPara informações mais detalhadas sobre a formação e as áreas de interesse desses docentes, sugiro acessar os links dos perfis SIGAA ou os currículos Lattes fornecidos.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-08",
+      "execucao": 1,
+      "pergunta": "Que docentes trabalham com literatura?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Aqui estão alguns docentes da UFRRJ que trabalham com literatura:\n\n- **CARMEN PIMENTEL**, vinculada ao DEPARTAMENTO DE LETRAS/IM. Ela tem interesse em áreas como Leitura Literária e Escrita Criativa, Ensino de Língua Portuguesa e Literatura Infantojuvenil.\n\n- **LUIS CARLOS ALVES DE MELO**, do DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL. Seus interesses incluem Literaturas de Língua Portuguesa, Literatura Negro-brasileira, Literaturas Contemporâneas e Estudos de Literatura Comparada.\n\n- **VALERIA ROSITO FERREIRA**, também do DEPARTAMENTO DE LETRAS/IM. Ela se dedica a áreas como Literatura Comparada, Literatura e Cultura Brasileiras, Literatura e Cultura Afro-brasileira e Estudos Feministas.\n\n- **ROSEMARY GONCALO AFONSO**, do DEPARTAMENTO DE LETRAS/IM. Atua nas literaturas portuguesa e africanas em língua portuguesa contemporâneas.\n\n- **ELISA LIMA ABRANTES**, vinculada ao DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL, se dedica a áreas como Literaturas de Língua Inglesa, Estudos Irlandeses e Modernismo Anglófono.\n\n- **ANDERSON SOARES GOMES**, também do DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL. Suas principais áreas são literatura distópica, relação entre imagem técnica e literatura, ficção climática e literaturas canadense e estadunidense contemporâneas.\n\n- **CHRISTIAN MARIE VICTOR SIMON DUTILLEUX**, do DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL. Ele trabalha com Literatura Comparada, Literatura de Testemunho e representação da violência na cultura brasileira.\n\nAlguns outros docentes foram encontrados, mas informações detalhadas sobre suas áreas de interesse em literatura não estavam disponíveis no SIGAA ou estavam parcialmente preenchidas. Para mais detalhes específicos sobre esses professores, sugiro consultar seus currículos Lattes ou entrar em contato diretamente com eles através dos e-mails fornecidos.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-08",
+      "execucao": 2,
+      "pergunta": "Que docentes trabalham com literatura?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Aqui estão alguns docentes que trabalham com literatura na UFRRJ, conforme seus perfis acadêmicos:\n\n- **CARMEN PIMENTEL** (DEPARTAMENTO DE LETRAS/IM) - Pesquisadora nas áreas de Leitura Literária e Escrita Criativa.\n  \n- **LUIS CARLOS ALVES DE MELO** (DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL) - Interesses em literaturas de língua portuguesa, literatura negro-brasileira, literaturas contemporâneas e estudos comparados.\n\n- **VALERIA ROSITO FERREIRA** (DEPARTAMENTO DE LETRAS/IM) - Atuação nas áreas de Literatura Comparada, literatura brasileira e africanas em língua portuguesa.\n\n- **ROSEMARY GONCALO AFONSO** (DEPARTAMENTO DE LETRAS/IM) - Especializada em literaturas portuguesa e africanas contemporâneas.\n\n- **ELISA LIMA ABRANTES** (DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL) - Pesquisadora em literaturas de língua inglesa, modernismo anglófono e ficção contemporânea.\n\n- **ANDERSON SOARES GOMES** (DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL) - Interesses na área de literatura distópica, imagem técnica e literatura canadense e americana contemporâneas.\n\n- **CHRISTIAN MARIE VICTOR SIMON DUTILLEUX** (DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL) - Atuação em literatura comparada e representação da violência na cultura brasileira.\n\nEsses docentes são exemplos de quem atua na área de literatura, mas há outros que também podem ter interesse ou experiência no tema. Para uma visão mais detalhada, você pode acessar os currículos Lattes dos docentes mencionados ou entrar em contato diretamente com eles através dos e-mails fornecidos.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-08",
+      "execucao": 3,
+      "pergunta": "Que docentes trabalham com literatura?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei vários docentes que trabalham com literatura na UFRRJ. Aqui está uma lista parcial baseada nos perfis disponíveis no SIGAA:\n\n- **CARMEN PIMENTEL** (DEPARTAMENTO DE LETRAS/IM) - Pesquisa em áreas como Literatura e Crítica Literária, Leitura Literária e Escrita Criativa.\n  \n- **LUIS CARLOS ALVES DE MELO** (DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL) - Seus interesses incluem Literaturas de Língua Portuguesa, Literatura Negro-brasileira, Literaturas Contemporâneas e Estudos de Literatura Comparada.\n\n- **VALERIA ROSITO FERREIRA** (DEPARTAMENTO DE LETRAS/IM) - Possui interesses em Literatura Comparada, Literatura e Cultura Brasileiras, Literatura e Cultura Afro-brasileira.\n\n- **ROSEMARY GONCALO AFONSO** (DEPARTAMENTO DE LETRAS/IM) - Atua nas áreas de Literaturas portuguesa e africanas em língua portuguesa contemporâneas.\n\n- **ELISA LIMA ABRANTES** (DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL) - Pesquisadora na área de Estudos Irlandeses, Modernismo Anglófono e ficção contemporânea.\n\n- **ANDERSON SOARES GOMES** (DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL) - Seus interesses incluem Literatura Distópica e Historicidade, Ficção Climática, Literatura Canadense Contemporânea e Literatura Estadunidense Contemporânea.\n\n- **CHRISTIAN MARIE VICTOR SIMON DUTILLEUX** (DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL) - Tem experiência na área de Letras, com ênfase em Literaturas Estrangeiras Modernas e Literatura Comparada.\n\nEsses docentes estão envolvidos em diversas áreas da literatura. Se você precisar de informações mais detalhadas sobre algum deles, recomendo verificar diretamente seus perfis no SIGAA ou o currículo Lattes para obter uma visão completa das suas pesquisas e atividades acadêmicas.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-09",
+      "execucao": 1,
+      "pergunta": "Algum professor atua com didática?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei alguns professores que atuam com didática:\n\n- **DORA SORAIA KINDEL** - Departamento de Formação Docente/IM. Suas áreas de interesse incluem Educação matemática e Formação de Professores.\n\n- **GISELA MARIA DA FONSECA PINTO** - Departamento de Matemática. Seus interesses de pesquisa estão relacionados à Educação matemática, Educação Inclusiva, Formação de Professores e Tecnologias em Educação.\n\nOs outros docentes listados não especificaram didática como área de interesse ou atuação. Para informações mais detalhadas sobre esses professores, você pode acessar seus perfis no SIGAA ou verificá-los diretamente pelo Currículo Lattes se disponível.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-09",
+      "execucao": 2,
+      "pergunta": "Algum professor atua com didática?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei alguns docentes que têm envolvimento com didática em seus perfis no SIGAA:\n\n- **DORA SORAIA KINDEL**, do **DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM**.\n- **GISELA MARIA DA FONSECA PINTO**, do **DEPARTAMENTO DE MATEMÁTICA**.\n\nEsses docentes têm interesses em formação de professores e educação matemática, temas que frequentemente incluem aspectos de didática. Para informações mais detalhadas sobre as atividades específicas relacionadas à didática desses docentes, sugiro verificar seus currículos Lattes ou entrar em contato diretamente com eles pelos emails fornecidos.\n\nPara outros docentes listados, o perfil não menciona explicitamente a atuação na área de didática. Por favor, verifique se há mais informações no Currículo Lattes dos docentes interessados.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "sem-09",
+      "execucao": 3,
+      "pergunta": "Algum professor atua com didática?",
+      "esperadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei alguns docentes que possuem vínculo com a área de didática:\n\n- **DORA SORAIA KINDEL** - DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM. Suas áreas de interesse incluem Formação de Professores e Educação Matemática.\n  \n- **GISELA MARIA DA FONSECA PINTO** - DEPARTAMENTO DE MATEMÁTICA. Ela também atua na área de Formação de Professores, além de outras áreas como Educação Inclusiva.\n\n- **JUACIARA BARROZO GOMES** - DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO. Embora o currículo Lattes não tenha sido informado, seu departamento é diretamente relacionado à planejamento e teoria do ensino.\n\n- **LANA CLAUDIA DE SOUZA FONSECA** - DEPARTAMENTO DE TEORIA E PLANEJAMENTO DE ENSINO. Seu departamento sugere uma possível atuação em didática, embora a informação detalhada sobre suas áreas de interesse não esteja disponível.\n\nPara obter informações mais específicas e detalhadas sobre cada docente, é recomendável acessar seus respectivos currículos Lattes ou contatá-los diretamente pelos emails informados.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-01",
+      "execucao": 1,
+      "pergunta": "Quem do Departamento de Matemática pesquisa estatística?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei os seguintes docentes do Departamento de Matemática que pesquisam em estatística:\n\n- **ADRIANA OLIVEIRA ANDRADE**\n  - Perfil: Professora Adjunta de Estatística. Experiência na área de Pesquisa Social com ênfase em métodos quantitativos de análise.\n  - Currículo Lattes: [http://lattes.cnpq.br/7172444996910335](http://lattes.cnpq.br/7172444996910335)\n\n- **CELSO GUIMARAES BARBOSA**\n  - Perfil: Professor Titular atuando principalmente nas áreas de Bioestatística e Estatística Experimental.\n  - Currículo Lattes: [http://lattes.cnpq.br/6404264413419246](http://lattes.cnpq.br/6404264413419246)\n\n- **EDILSON MARCELINO SILVA**\n  - Perfil: Pesquisa em Regressão, estatística experimental e inferência bayesiana.\n  - Currículo Lattes: [http://lattes.cnpq.br/6864946985884001](http://lattes.cnpq.br/6864946985884001)\n\n- **LUCIANA CAVALCANTI DE MELO**\n  - Perfil: Pesquisa em estatística aplicada ao adoecimento humano.\n  - Currículo Lattes: [http://lattes.cnpq.br/5296090049853972](http://lattes.cnpq.br/5296090049853972)\n\n- **ANTONIO CARLOS GONCALVES**\n  - Perfil: Atuação na área de Estatística e Pesquisa Operacional.\n  - Currículo Lattes: [http://lattes.cnpq.br/6834501846928998](http://lattes.cnpq.br/6834501846928998)\n\n- **WAGNER DE SOUZA TASSINARI**\n  - Perfil: Atuação em Probabilidade e Estatística, Modelos Estatísticos em Vigilância Epidemiológica.\n  - Currículo Lattes: [http://lattes.cnpq.br/3648148709641027](http://lattes.cnpq.br/3648148709641027)\n\n- **WELSON ANTONIO DE OLIVEIRA**\n  - Perfil: Graduado em Matemática, mestrando e doutorando em Estatística.\n  - Currículo Lattes: [http://lattes.cnpq.br/1524496378730717](http://lattes.cnpq.br/1524496378730717)\n\nNote que a lista não incluiu todos os docentes do Departamento de Matemática, mas sim aqueles cujos perfis mencionam estatística. Para mais detalhes sobre cada um desses professores, você pode acessar seus currículos Lattes ou entrar em contato diretamente através dos dados de contato fornecidos no SIGAA da UFRRJ.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-01",
+      "execucao": 2,
+      "pergunta": "Quem do Departamento de Matemática pesquisa estatística?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Conforme a minha busca, dentre os docentes do Departamento de Matemática que pesquisam estatística na UFRRJ estão:\n\n- **WELSON ANTONIO DE OLIVEIRA**\n- **ANTONIO CARLOS GONCALVES**\n- **EDILSON MARCELINO SILVA** \n- **ADRIANA OLIVEIRA ANDRADE** \n- **CELSO GUIMARAES BARBOSA**  \n- **WAGNER DE SOUZA TASSINARI**\n\nPara mais detalhes sobre a pesquisa e atividades desses docentes, sugiro consultar seus perfis completos no SIGAA ou seguir os links para currículos Lattes que foram encontrados. \n\nHouve também alguns resultados de outros departamentos que não são do Departamento de Matemática, mas que pesquisam estatística. Se você estiver interessado em docentes desses departamentos também, posso fornecer essas informações!",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-01",
+      "execucao": 3,
+      "pergunta": "Quem do Departamento de Matemática pesquisa estatística?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "De acordo com a minha pesquisa no SIGAA, os docentes do Departamento de Matemática que têm vínculo com estatística são:\n\n- WELSON ANTONIO DE OLIVEIRA (Graduação em Matemática e Mestrado/Doutorado em Estatística pela Universidade Federal de Lavras)\n- ANTONIO CARLOS GONCALVES (Experiência há mais de 30 anos na área da Estatística)\n- EDILSON MARCELINO SILVA (Doutor e mestre em Estatística pela Universidade Federal de Lavras)\n- ADRIANA OLIVEIRA ANDRADE (Perfis incluem experiência em estatística aplicada, modelagem estatística e estatística multivariada)\n- CELSO GUIMARAES BARBOSA (Áreas de interesse que incluem Bioestatística e Estatística Experimental)\n- WAGNER DE SOUZA TASSINARI (Estatístico formado pela UERJ, com mestrado em Saúde Coletiva na área de Epidemiologia/Bioestatística)\n\nPara informações mais detalhadas, você pode acessar o currículo Lattes de cada docente a partir do SIGAA ou diretamente pelo link fornecido.\n\nSe precisar de mais detalhes sobre outros membros da equipe ou outras áreas de pesquisa, me avise!",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-02",
+      "execucao": 1,
+      "pergunta": "Quais docentes de Ciências Sociais trabalham com movimentos sociais?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A minha busca pelo vínculo com movimentos sociais entre os docentes do DEPARTAMENTO DE CIÊNCIAS SOCIAIS não retornou nenhum resultado específico. No entanto, a partir da busca pela frase 'movimentos sociais' em todos os perfis dos docentes no SIGAA, encontrei diversos docentes que trabalham com o tema de movimentos sociais, mas pertencem ao DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE. Aqui estão alguns exemplos:\n\n1. **MAGDA GISELA CRUZ DOS SANTOS** — [Email](magda.santos@ufrrj.br)\n2. **RAFAEL MAUL DE CARVALHO COSTA** — [Email](rafamaulc2@gmail.com)\n3. **HELCIO HERBERT MOREIRA DA SILVA NETO** — [Email](helcio@ufrrj.br)\n4. **RAMOFLY BICALHO DOS SANTOS** — [Email](ramofly@gmail.com)\n5. **EDILEIA DE CARVALHO SOUZA ALVES** — [Email](dilacarvalho@gmail.com)\n6. **ANNA MARIA PEREIRA ESTEVES** — [Email](annaesteves@ufrrj.br)\n\nPara obter mais informações detalhadas sobre a atuação desses docentes, sugiro verificar os respectivos perfis no SIGAA ou contatá-los diretamente pelos e-mails fornecidos.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-02",
+      "execucao": 2,
+      "pergunta": "Quais docentes de Ciências Sociais trabalham com movimentos sociais?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "De acordo com a busca no SIGAA da UFRRJ, nenhum dos docentes do DEPARTAMENTO DE CIÊNCIAS SOCIAIS aparece explicitamente associado ao tema de movimentos sociais em seus perfis. No entanto, foi possível encontrar vários docentes de outros departamentos, como o DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE, que trabalham com esse tema.\n\nSe você está procurando especificamente por docentes do Departamento de Ciências Sociais, pode ser necessário verificar diretamente no perfil dos docentes ou em outras fontes como o currículo Lattes para encontrar essa informação. Caso contrário, os docentes listados a seguir são conhecidos pelo seu trabalho com movimentos sociais:\n\n1. MAGDA GISELA CRUZ DOS SANTOS\n2. RAFAEL MAUL DE CARVALHO COSTA\n3. HELCIO HERBERT MOREIRA DA SILVA NETO\n4. RAMOFLY BICALHO DOS SANTOS\n5. EDILEIA DE CARVALHO SOUZA ALVES\n6. ANNA MARIA PEREIRA ESTEVES\n7. MARCELO HENRIQUE BEZERRA RAMOS\n8. RAPHAEL CASTELO BRANCO DA SILVA\n9. FABIANA DE CARVALHO DIAS ARAUJO\n10. SANDRO ROBERTO ARAUJO OITAVEN\n\nSe você tiver mais detalhes ou precisar de uma informação específica, por favor, me avise!",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-02",
+      "execucao": 3,
+      "pergunta": "Quais docentes de Ciências Sociais trabalham com movimentos sociais?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os docentes do DEPARTAMENTO DE CIÊNCIAS SOCIAIS listados na minha primeira consulta não foram encontrados trabalhando especificamente com movimentos sociais no SIGAA. A pesquisa indicou, porém, que alguns docentes vinculados ao DEPARTAMENTO DE EDUCAÇÃO DO CAMPO, MOVIMENTOS SOCIAIS E DIVERSIDADE têm vínculos com essa área de interesse. Aqui estão eles:\n\n- MAGDA GISELA CRUZ DOS SANTOS\n- RAFAEL MAUL DE CARVALHO COSTA\n- HELCIO HERBERT MOREIRA DA SILVA NETO\n- RAMOFLY BICALHO DOS SANTOS \n- EDILEIA DE CARVALHO SOUZA ALVES\n- ANNA MARIA PEREIRA ESTEVES \n- MARCELO HENRIQUE BEZERRA RAMOS\n- RAPHAEL CASTELO BRANCO DA SILVA  \n- FABIANA DE CARVALHO DIAS ARAUJO\n- SANDRO ROBERTO ARAUJO OITAVEN\n\nOs detalhes específicos sobre suas atividades em movimentos sociais podem ser encontrados nos perfis de cada um no SIGAA ou nos respectivos currículos Lattes. Para mais informações, sugiro consultar os contatos disponíveis ou acessar diretamente o perfil dos docentes mencionados na base do SIGAA.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-03",
+      "execucao": 1,
+      "pergunta": "Há alguém no Departamento de Ciência da Computação que pesquise inteligência artificial?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Encontrei que pelo menos um docente do Departamento de Ciência da Computação pesquisa Inteligência Artificial. É RONALDO E SILVA VIEIRA, cujos interesses incluem Jogos, Inteligência Artificial, Ciência de Dados e Estudos de Jogos. Para mais detalhes sobre suas pesquisas ou outros docentes do departamento com interesse similar, sugiro conferir o currículo Lattes de cada um ou entrar em contato diretamente via e-mail: ronaldoesv@gmail.com.\n\nOutros docentes do Departamento de Ciência da Computação não foram explicitamente associados à pesquisa em Inteligência Artificial neste recorte. Porém, é possível que haja outras pessoas interessadas no tema — para verificar com mais detalhes, sugiro consultar o currículo Lattes dos demais professores ou entrar em contato diretamente com o departamento.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-03",
+      "execucao": 2,
+      "pergunta": "Há alguém no Departamento de Ciência da Computação que pesquise inteligência artificial?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Há pelo menos um docente no Departamento de Ciência da Computação que pesquisa Inteligência Artificial. Trata-se do professor RONALDO E SILVA VIEIRA, cujas áreas de interesse incluem Inteligência Artificial. \n\nPara obter mais informações sobre o trabalho específico dele na área de inteligência artificial ou para entrar em contato com ele, você pode consultar seu currículo Lattes através deste link: [Currículo Lattes do Profº Ronaldo E Silva Vieira](http://lattes.cnpq.br/1934898535152067) ou enviar um e-mail para ronaldoesv@gmail.com.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-03",
+      "execucao": 3,
+      "pergunta": "Há alguém no Departamento de Ciência da Computação que pesquise inteligência artificial?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "De acordo com os dados disponíveis no SIGAA da UFRRJ, entre os docentes do DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO/IM, há pelo menos um que pesquisa Inteligência Artificial:\n\n- RONALDO E SILVA VIEIRA\n\nSua área de interesse inclui Inteligência Artificial. Para mais detalhes sobre suas pesquisas e publicações você pode acessar seu currículo Lattes em: http://lattes.cnpq.br/1934898535152067.\n\nOs demais docentes do departamento não apresentam Inteligência Artificial explicitamente como área de interesse no SIGAA. Se quiser saber mais sobre outros campos de pesquisa ou detalhes específicos, sugiro conferir os currículos Lattes dos professores ou entrar em contato diretamente com o departamento.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-04",
+      "execucao": 1,
+      "pergunta": "Quem no Departamento de Letras e Comunicação Social estuda literatura?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "De acordo com a minha busca, no **DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL**, os docentes que têm vínculo de pesquisa ou interesse em literatura são:\n\n- **LUIS CARLOS ALVES DE MELO** tem interesse nas seguintes áreas: Literaturas de Língua Portuguesa (Portugal, Brasil, Áfricas e países orientais), Literatura Afro-brasileira, Literaturas Contemporâneas e Estudos de Literatura Comparada, entre outros.\n\n- **ELISA LIMA ABRANTES** é pesquisadora na área de Literaturas de Língua Inglesa. Ela trabalha com literaturas irlandesas, modernismo anglófono e ficção contemporânea.\n\n- **ANDERSON SOARES GOMES**, cujas áreas de interesse incluem literatura distópica e historicidade, relação entre imagem técnica e literatura, ficção climática, literatura canadense contemporânea e literatura estadunidense contemporânea.\n\n- **CHRISTIAN MARIE VICTOR SIMON DUTILLEUX** tem interesse na Literatura comparada e representações da violência e do esquecimento na cultura brasileira.\n\nNote que outros docentes podem ter interesses em literatura que não foram explicitamente mencionados nos perfis disponíveis no SIGAA. Para informações mais detalhadas, você pode consultar diretamente os currículos Lattes ou entrar em contato com o departamento de Letras e Comunicação Social.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-04",
+      "execucao": 2,
+      "pergunta": "Quem no Departamento de Letras e Comunicação Social estuda literatura?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Baseado nos dados recuperados, os docentes do Departamento de Letras e Comunicação Social que estudam literatura são:\n\n- **LUIS CARLOS ALVES DE MELO** - Interesses em Literaturas de Língua Portuguesa, Literatura Negro-brasileira, Literaturas Contemporâneas e Estudos de Literatura Comparada.\n- **ELISA LIMA ABRANTES** - Especialista em Literaturas de Língua Inglesa, Estudos Irlandeses, Modernismo Anglófono e ficção contemporânea.\n- **ANDERSON SOARES GOMES** - Doutor em Estudos de Literatura com ênfase em literatura distópica, imagem técnica e literatura, ficção climática, literatura canadense e estadunidense contemporânea.\n\nPara mais detalhes sobre esses docentes ou outros que possam estar relacionados à pesquisa de literatura no Departamento de Letras e Comunicação Social, sugiro verificar seus perfis completos no SIGAA ou em seus currículos Lattes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-04",
+      "execucao": 3,
+      "pergunta": "Quem no Departamento de Letras e Comunicação Social estuda literatura?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Baseado na minha pesquisa, os seguintes docentes do **DEPARTAMENTO DE LETRAS E COMUNICAÇÃO SOCIAL** têm vínculo com o estudo de literatura:\n\n1. **LUIZ CARLOS ALVES DE MELO**: Doutor em Letras (Teoria da Literatura e Literatura Comparada) pela UERJ, tem interesse em várias áreas relacionadas à Literatura, incluindo Literaturas de Língua Portuguesa, Literatura Negro-brasileira, Literaturas Contemporâneas e Estudos de Literatura Comparada. [Currículo Lattes](link não informado). E-mail: `luiiscam@outlook.com`.\n\n2. **ELISA LIMA ABRANTES**: Professora Associada em Letras, Elisa tem sua pesquisa voltada para áreas como Literaturas de Lingua Inglesa e Estudos Irlandeses. [Currículo Lattes](http://lattes.cnpq.br/2342167752171086). E-mail: `elisa.abrantes2012@gmail.com`.\n\n3. **ANDERSON SOARES GOMES**: Tem formação em Letras com ênfase em Literaturas Estrangeiras Modernas, atuando principalmente na área de literatura distópica e historicidade. [Currículo Lattes](http://lattes.cnpq.br/6125369589221740). E-mail: `anderson.gomes@gmail.com`.\n\n4. **CHRISTIAN MARIE VICTOR SIMON DUTILLEUX**: Professor de Teoria Literária e Literatura Comparada na UFRRJ, com pesquisas em literatura comparada e representação da violência na cultura brasileira. [Currículo Lattes](http://lattes.cnpq.br/5980984935689337). E-mail: `christian@ufrrj.br`.\n\nPara maiores detalhes sobre a formação ou áreas de interesse desses docentes, você pode acessar seus currículos Lattes (quando disponíveis) ou entrar em contato diretamente com eles pelos e-mails mencionados.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-05",
+      "execucao": 1,
+      "pergunta": "Quantos docentes do Departamento de História e Relações Internacionais pesquisam política?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Dos 26 docentes do Departamento de História e Relações Internacionais, encontrei um docente que possui interesse em política no seu perfil:\n\n- LUIZ FELIPE ROCHA BENITES, que pesquisa temas relacionados a Antropologia da Política entre outros tópicos.\n\nPara obter informações mais detalhadas sobre os demais docentes e suas pesquisas, é recomendado consultar diretamente o currículo de cada um ou o departamento.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-05",
+      "execucao": 2,
+      "pergunta": "Quantos docentes do Departamento de História e Relações Internacionais pesquisam política?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "De acordo com a busca realizada, dentre os 26 docentes do Departamento de História e Relações Internacionais, encontrei que GABRIEL LECZNIESKI KANAAN possui em seu perfil temáticas relacionadas à Política. Ele pesquisa temas associados à História do Brasil Republicano e Política Externa.\n\nPortanto, pelo menos um docente desse departamento está vinculado a pesquisas sobre política, com base na informação disponível no SIGAA. Para obter uma resposta mais completa, é possível que haja outros docentes cujas áreas de interesse também incluam a pesquisa em política, mas não foram identificados pela busca vetorial realizada. Recomendo acessar diretamente o currículo Lattes ou entrar em contato com os demais professores para obter informações adicionais.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-05",
+      "execucao": 3,
+      "pergunta": "Quantos docentes do Departamento de História e Relações Internacionais pesquisam política?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Dos 26 docentes do Departamento de História e Relações Internacionais, encontrei dois que possuem interesses relacionados à política:\n\n- **LUIZ FELIPE ROCHA BENITES** possui áreas de interesse em Antropologia da Política.\n  \nNenhum outro dos docentes listados tem seu perfil detalhadamente mencionando pesquisa na área de política. Para obter informações mais precisas, sugiro verificar diretamente os perfis individuais no SIGAA ou os currículos Lattes dos demais professores do departamento.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-06",
+      "execucao": 1,
+      "pergunta": "Algum professor de Engenharia Agrícola e Ambiental trabalha com agroecologia?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_departamento_por_nome",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_departamento_por_nome"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": false,
+      "confusao_estruturada": true,
+      "resposta": "Os docentes ANDERSON GOMIDE COSTA, MARINALDO FERREIRA PINTO e WAGNER DIAS DE SOUZA do DEPARTAMENTO DE ENGENHARIA AGRÍCOLA E AMBIENTAL têm referências à agroecologia em seus perfis no SIGAA. Para detalhes específicos sobre como cada um desses docentes trabalha com a agroecologia, sugiro verificar diretamente o perfil deles no SIGAA ou contatá-los através dos e-mails fornecidos.\n\nNão encontrei menção específica à agroecologia nos perfis dos outros docentes do departamento. Se precisar de mais informações sobre algum desses professores, é possível que essas estejam disponíveis em seus currículos Lattes, que podem ser acessados diretamente ou por meio de suas páginas no SIGAA (para aqueles com links disponíveis).",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-06",
+      "execucao": 2,
+      "pergunta": "Algum professor de Engenharia Agrícola e Ambiental trabalha com agroecologia?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa"
+      ],
+      "rota": "semantica",
+      "ferramenta_correta": false,
+      "confusao_estruturada": false,
+      "resposta": "Os seguintes docentes do DEPARTAMENTO DE ENGENHARIA AGRÍCOLA E AMBIENTAL possuem informações que sugerem trabalho com agroecologia no seu perfil:\n\n- ANDERSON GOMIDE COSTA: [mais detalhes](https://sigaa.ufrrj.br/sigaa/public/docente/portal.jsf?siape=2161955)\n- MARINALDO FERREIRA PINTO: [mais detalhes](https://sigaa.ufrrj.br/sigaa/public/docente/portal.jsf?siape=2132414)\n- WAGNER DIAS DE SOUZA: [mais detalhes](https://sigaa.ufrrj.br/sigaa/public/docente/portal.jsf?siape=1080577)\n- ALESSANDRA SVONKA PALMEIRO: [mais detalhes](https://sigaa.ufrrj.br/sigaa/public/docente/portal.jsf?siape=1711498)\n- JORGE FELIPE EURIQUES: [mais detalhes](http://lattes.cnpq.br/5195288434270899)\n- MARCUS VINICIUS MORAIS DE OLIVEIRA: [mais detalhes](https://sigaa.ufrrj.br/sigaa/public/docente/portal.jsf?siape=1827405)\n- DANIEL MARIANO LEITE: [mais detalhes](https://sigaa.ufrrj.br/sigaa/public/docente/portal.jsf?siape=1037345)\n- MADELON RODRIGUES SA BRAZ: [mais detalhes](https://sigaa.ufrrj.br/sigaa/public/docente/portal.jsf?siape=2723072)\n- PRISCILA DE LIMA E SILVA: [mais detalhes](https://sigaa.ufrrj.br/sigaa/public/docente/portal.jsf?siape=3132531)\n- CONAN AYADE SALVADOR: [mais detalhes](https://sigaa.ufrrj.br/sigaa/public/docente/portal.jsf?siape=2131822)\n\nPara obter uma resposta mais precisa sobre a atuação de cada um desses docentes em agroecologia, você deve consultar diretamente o currículo Lattes ou entrar em contato com eles pelos e-mails disponibilizados.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-06",
+      "execucao": 3,
+      "pergunta": "Algum professor de Engenharia Agrícola e Ambiental trabalha com agroecologia?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "De acordo com as informações encontradas na plataforma SIGAA, entre os docentes do Departamento de Engenharia Agrícola e Ambiental da UFRRJ, **HENRIQUE VIEIRA DE MENDONCA** e **DINARA GRASIELA ALVES** são mencionados por trabalharem com temas relacionados à agroecologia. \n\n- O perfil de **HENRIQUE VIEIRA DE MENDONCA** indica que ele possui interesse em áreas como o tratamento de resíduos sólidos, líquidos e gasosos, microalgas, biomassa e bioenergia, otimização de processos para produção de biogás, desenvolvimento de reatores para tratamento de águas residuárias e wetlands construídos. Embora não seja especificamente mencionada a agroecologia no seu perfil, esses temas estão relacionados à área.\n\n- Infelizmente, o perfil do **DINARA GRASIELA ALVES** não indica explicitamente trabalhos com agroecologia na sua descrição. No entanto, é possível que ela desenvolva pesquisas nessa área e talvez essa informação esteja mais detalhada em seu currículo Lattes ou em outros documentos acadêmicos.\n\nSe precisar de informações mais específicas sobre a atuação desses docentes em agroecologia, sugiro verificar seus respectivos currículos Lattes:\n\n- Currículo Lattes de HENRIQUE VIEIRA DE MENDONCA: [http://lattes.cnpq.br/8897355054570578](http://lattes.cnpq.br/8897355054570578)\n- Currículo Lattes de DINARA GRASIELA ALVES: [http://lattes.cnpq.br/2325866065029383](http://lattes.cnpq.br/2325866065029383)\n\nSe houver outros docentes do mesmo departamento que você esteja interessado, é possível que eles também desenvolvam trabalhos relacionados à agroecologia. Recomendo verificar individualmente os perfis dos demais professores ou entrar em contato diretamente com o Departamento de Engenharia Agrícola e Ambiental para mais informações.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-07",
+      "execucao": 1,
+      "pergunta": "Entre os docentes do Departamento de Formação Docente do IM, quem atua com didática?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "De acordo com a consulta realizada, dentre os docentes do **DEPARTAMENTO DE FORMAÇÃO DOCENTE/IM**, encontrei **DORA SORAIA KINDEL** que possui áreas de interesse relacionadas à formação de professores. Essa área de atuação inclui didática. \n\nPara mais detalhes sobre a formação e outras áreas de interesse, você pode acessar o perfil dela no [Currículo Lattes](https://lattes.cnpq.br/4640914548778898).",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-07",
+      "execucao": 2,
+      "pergunta": "Entre os docentes do Departamento de Formação Docente do IM, quem atua com didática?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Entre os docentes do **Departamento de Formação Docente/IM**, encontrei um que atua com didática:\n\n- **DORA SORAIA KINDEL**. Suas áreas de interesse incluem a Formação de Professores, o que é relacionado à didática.\n\nSe precisar de mais detalhes sobre Dora ou outros docentes do departamento, posso buscar informações adicionais no SIGAA ou sugerir verificar diretamente seu currículo Lattes.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "amb-07",
+      "execucao": 3,
+      "pergunta": "Entre os docentes do Departamento de Formação Docente do IM, quem atua com didática?",
+      "esperadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento",
+        "busca_vetorial_sigaa"
+      ],
+      "usadas": [
+        "busca_vetorial_sigaa",
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "ambigua",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Entre os docentes do Departamento de Formação Docente do IM, encontrei **DORA SORAIA KINDEL** com vínculos a áreas relacionadas à didática. O perfil dela menciona formação e atuação em Educação matemática e Formação de Professores.\n\nPara obter informações mais detalhadas sobre o trabalho de Dora Soraia Kindel, você pode acessar seu currículo Lattes através do seguinte link: [Currículo Lattes](https://lattes.cnpq.br/4640914548778898).\n\nOutros docentes podem ter atuação em didática não explicitada nos dados recuperados. Para uma consulta mais abrangente, seria necessário acessar os currículos Lattes dos demais professores ou entrar em contato com o Departamento de Formação Docente diretamente.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-01",
+      "execucao": 1,
+      "pergunta": "Qual a previsão do tempo para amanhã em Seropédica?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A previsão do tempo não está dentro dos meus dados institucionais do SIGAA da UFRRJ. Você pode verificar o site de um serviço meteorológico confiável para obter essa informação.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-01",
+      "execucao": 2,
+      "pergunta": "Qual a previsão do tempo para amanhã em Seropédica?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A previsão do tempo não está dentro dos dados que posso recuperar sobre os docentes da UFRRJ. Para essa informação, sugiro consultar um serviço meteorológico confiável.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-01",
+      "execucao": 3,
+      "pergunta": "Qual a previsão do tempo para amanhã em Seropédica?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A previsão do tempo não está dentro dos meus dados institucionais do SIGAA da UFRRJ. Para essa informação, sugiro consultar um serviço meteorológico confiável.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-02",
+      "execucao": 1,
+      "pergunta": "Como faço minha inscrição no vestibular da UFRRJ?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Sinto muito, mas fazer inscrição no vestibular da UFRRJ não está dentro das minhas funcionalidades. Eu só tenho acesso a informações sobre os docentes através do SIGAA e não posso fornecer assistência com o processo de inscrição no vestibular. Recomendo que você visite o site oficial da UFRRJ ou entre em contato com a Pró-Reitoria de Graduação para obter as instruções corretas sobre como se inscrever no vestibular.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-02",
+      "execucao": 2,
+      "pergunta": "Como faço minha inscrição no vestibular da UFRRJ?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A inscrição no vestibular da UFRRJ não é algo que eu possa ajudar diretamente com os dados do SIGAA, pois isso está relacionado aos processos de seleção e não às informações sobre docentes. Para saber como fazer sua inscrição no vestibular, sugiro acessar o site oficial da UFRRJ ou entrar em contato com a Pró-Reitoria de Graduação (PROGRAD) para obter as orientações corretas e atualizadas.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-02",
+      "execucao": 3,
+      "pergunta": "Como faço minha inscrição no vestibular da UFRRJ?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A sua pergunta está fora do meu escopo, pois eu sou especializado em fornecer informações sobre os docentes da UFRRJ através dos dados institucionais disponíveis no SIGAA. Para obter informações sobre como se inscrever no vestibular da UFRRJ, sugiro que você visite o site oficial da universidade ou entre em contato com a Pró-Reitoria de Graduação (PROGRAD). Essas fontes terão as informações mais atualizadas e precisas para ajudá-lo nesse processo.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-03",
+      "execucao": 1,
+      "pergunta": "Qual o horário de funcionamento da biblioteca central?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A consulta sobre o horário de funcionamento da Biblioteca Central não está dentro dos dados que posso recuperar do SIGAA, que se concentra em informações sobre docentes e departamentos. Recomendo verificar diretamente com a Biblioteca Central ou no site oficial da UFRRJ para obter essa informação.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-03",
+      "execucao": 2,
+      "pergunta": "Qual o horário de funcionamento da biblioteca central?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A informação sobre o horário de funcionamento da Biblioteca Central não está disponível através dos dados do SIGAA. Para essa informação, sugiro que você entre em contato diretamente com a secretaria da biblioteca ou procure no site da UFRRJ, onde geralmente há esses detalhes atualizados.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-03",
+      "execucao": 3,
+      "pergunta": "Qual o horário de funcionamento da biblioteca central?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A consulta sobre o horário de funcionamento da Biblioteca Central não está disponível através dos dados que tenho acesso no SIGAA. Recomendo contatar diretamente a secretaria ou a própria biblioteca para obter essa informação.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-04",
+      "execucao": 1,
+      "pergunta": "Qual o salário dos professores do Departamento de Matemática?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Não encontrei essa informação no SIGAA. Para detalhes sobre salários, você pode consultar a secretaria do Departamento de Matemática ou os órgãos responsáveis pela administração financeira da UFRRJ.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-04",
+      "execucao": 2,
+      "pergunta": "Qual o salário dos professores do Departamento de Matemática?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Não encontrei essa informação no SIGAA. O cadastro não inclui dados sobre salários dos docentes. Você pode verificar diretamente com a secretaria do Departamento de Matemática ou o setor de recursos humanos da UFRRJ para obter essas informações.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-04",
+      "execucao": 3,
+      "pergunta": "Qual o salário dos professores do Departamento de Matemática?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Não encontrei essa informação no SIGAA. O cadastro não inclui detalhes sobre salários dos docentes. Você pode consultar a secretaria do Departamento de Matemática ou o setor de Recursos Humanos da UFRRJ para obter esses dados.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-05",
+      "execucao": 1,
+      "pergunta": "Qual foi a nota do curso de Computação no ENADE?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A consulta sobre a nota do curso de Computação no ENADE não está dentro dos dados institucionais que tenho acesso através do SIGAA. Recomendo verificar o site oficial do INEP ou a página da UFRRJ para informações específicas sobre as notas do ENADE.",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-05",
+      "execucao": 2,
+      "pergunta": "Qual foi a nota do curso de Computação no ENADE?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A consulta sobre as notas dos cursos no ENADE não está disponível através das ferramentas que tenho acesso aqui, que são focadas nos dados institucionais e em informações sobre os docentes da UFRRJ. Para obter essa informação específica sobre o curso de Computação, você pode acessar o site do INEP ou a página do curso na UFRRJ, onde geralmente esse tipo de dado é disponibilizado. Se precisar de alguma outra informação sobre docentes, estou à disposição!",
+      "erro": null
+    },
+    {
+      "parte": "A",
+      "id": "nen-05",
+      "execucao": 3,
+      "pergunta": "Qual foi a nota do curso de Computação no ENADE?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "A consulta que você fez sobre as notas do curso de Computação no ENADE não está dentro dos dados que eu posso recuperar diretamente através do SIGAA. Recomendo verificar o site oficial do INEP ou a página da UFRRJ para obter essas informações específicas.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-01",
+      "execucao": 1,
+      "pergunta": "Quais departamentos fazem parte do Instituto Multidisciplinar?",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Instituto Multidisciplinar da UFRRJ é composto por 11 departamentos, que são:\n\n- Departamento de Administração e Turismo/IM\n- Departamento de Administração/IM\n- Departamento de Ciência da Computação/IM\n- Departamento de Ciências Econômicas/IM\n- Departamento de Ciências Jurídicas/IM\n- Departamento de Educação e Sociedade/IM\n- Departamento de Formação Docente/IM\n- Departamento de Geografia/IM\n- Departamento de História/IM\n- Departamento de Letras/IM\n- Departamento de Tecnologias e Linguagens/IM",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-01",
+      "execucao": 2,
+      "pergunta": "Quais departamentos fazem parte do Instituto Multidisciplinar?",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os departamentos que compõem o Instituto Multidisciplinar são:\n\n- Departamento de Administração e Turismo/IM\n- Departamento de Administração/IM\n- Departamento de Ciência da Computação/IM\n- Departamento de Ciências Econômicas/IM\n- Departamento de Ciências Jurídicas/IM\n- Departamento de Educação e Sociedade/IM\n- Departamento de Formação Docente/IM\n- Departamento de Geografia/IM\n- Departamento de História/IM\n- Departamento de Letras/IM\n- Departamento de Tecnologias e Linguagens/IM",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-01",
+      "execucao": 3,
+      "pergunta": "Quais departamentos fazem parte do Instituto Multidisciplinar?",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os departamentos que fazem parte do Instituto Multidisciplinar são:\n\n- Departamento de Administração e Turismo/IM\n- Departamento de Administração/IM \n- Departamento de Ciência da Computação/IM\n- Departamento de Ciências Econômicas/IM\n- Departamento de Ciências Jurídicas/IM\n- Departamento de Educação e Sociedade/IM\n- Departamento de Formação Docente/IM\n- Departamento de Geografia/IM\n- Departamento de História/IM\n- Departamento de Letras/IM\n- Departamento de Tecnologias e Linguagens/IM",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-02",
+      "execucao": 1,
+      "pergunta": "Que departamentos tem o Instituto de Ciências Exatas?",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Instituto de Ciências Exatas tem os seguintes departamentos:\n\n- Departamento de Computação\n- Departamento de Física\n- Departamento de Matemática\n- Departamento de Química",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-02",
+      "execucao": 2,
+      "pergunta": "Que departamentos tem o Instituto de Ciências Exatas?",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Instituto de Ciências Exatas tem os seguintes departamentos:\n\n- Departamento de Computação\n- Departamento de Física\n- Departamento de Matemática\n- Departamento de Química",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-02",
+      "execucao": 3,
+      "pergunta": "Que departamentos tem o Instituto de Ciências Exatas?",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Instituto de Ciências Exatas possui os seguintes departamentos:\n\n- Departamento de Computação\n- Departamento de Física\n- Departamento de Matemática\n- Departamento de Química",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-03",
+      "execucao": 1,
+      "pergunta": "A que instituto pertence o Departamento de Ciência da Computação?",
+      "esperadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "chamadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Ciência da Computação pertence ao Instituto Multidisciplinar.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-03",
+      "execucao": 2,
+      "pergunta": "A que instituto pertence o Departamento de Ciência da Computação?",
+      "esperadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "chamadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Ciência da Computação pertence ao Instituto Multidisciplinar.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-03",
+      "execucao": 3,
+      "pergunta": "A que instituto pertence o Departamento de Ciência da Computação?",
+      "esperadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "chamadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Ciência da Computação pertence ao Instituto Multidisciplinar.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-04",
+      "execucao": 1,
+      "pergunta": "O Departamento de Matemática fica em qual instituto?",
+      "esperadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "chamadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Matemática pertence ao Instituto de Ciências Exatas.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-04",
+      "execucao": 2,
+      "pergunta": "O Departamento de Matemática fica em qual instituto?",
+      "esperadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "chamadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Matemática faz parte do Instituto de Ciências Exatas.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-04",
+      "execucao": 3,
+      "pergunta": "O Departamento de Matemática fica em qual instituto?",
+      "esperadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "chamadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Matemática está vinculado ao Instituto de Ciências Exatas.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-05",
+      "execucao": 1,
+      "pergunta": "Quantos departamentos tem o Instituto de Veterinária?",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Instituto de Veterinária possui 4 departamentos:\n\n1. Departamento de Epidemiologia e Saúde Pública\n2. Departamento de Medicina e Cirurgia Veterinária\n3. Departamento de Microbiologia e Imunologia Veterinária\n4. Departamento de Parasitologia Animal",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-05",
+      "execucao": 2,
+      "pergunta": "Quantos departamentos tem o Instituto de Veterinária?",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Instituto de Veterinária tem 4 departamentos, que são:\n- DEPARTAMENTO DE EPIDEMIOLOGIA E SAÚDE PÚBLICA\n- DEPARTAMENTO DE MEDICINA E CIRURGIA VETERINÁRIA\n- DEPARTAMENTO DE MICROBIOLOGIA E IMUNOLOGIA VETERINÁRIA\n- DEPARTAMENTO DE PARASITOLOGIA ANIMAL",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-05",
+      "execucao": 3,
+      "pergunta": "Quantos departamentos tem o Instituto de Veterinária?",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Instituto de Veterinária tem 4 departamentos. São eles:\n- DEPARTAMENTO DE EPIDEMIOLOGIA E SAÚDE PÚBLICA\n- DEPARTAMENTO DE MEDICINA E CIRURGIA VETERINÁRIA\n- DEPARTAMENTO DE MICROBIOLOGIA E IMUNOLOGIA VETERINÁRIA\n- DEPARTAMENTO DE PARASITOLOGIA ANIMAL",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-06",
+      "execucao": 1,
+      "pergunta": "O Departamento de Arte e Cultura pertence a qual instituto?",
+      "esperadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "chamadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Arte e Cultura está cadastrado na UFRRJ, mas o seu vínculo com um instituto ou centro não foi informado no SIGAA. Para obter informações mais atualizadas, sugiro entrar em contato diretamente com a secretaria do departamento ou consultar outros canais oficiais da universidade.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-06",
+      "execucao": 2,
+      "pergunta": "O Departamento de Arte e Cultura pertence a qual instituto?",
+      "esperadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "chamadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "De acordo com os dados do SIGAA, o Departamento de Arte e Cultura não tem um centro associado cadastrado. É possível que essa informação não esteja preenchida no sistema ou que seja uma situação temporária. Para obter a informação mais atualizada, você pode contatar diretamente o departamento ou a administração acadêmica da UFRRJ.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-06",
+      "execucao": 3,
+      "pergunta": "O Departamento de Arte e Cultura pertence a qual instituto?",
+      "esperadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "chamadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Arte e Cultura não possui um centro ou instituto associado registrado no SIGAA. Isso pode significar que o departamento opera independentemente ou a informação simplesmente não foi atualizada no sistema. Para informações mais detalhadas, sugiro consultar diretamente o departamento ou a administração da UFRRJ.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-07",
+      "execucao": 1,
+      "pergunta": "Quantos docentes tem o Departamento de Ciência da Computação?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Ciência da Computação tem 15 docentes. Aqui está a lista completa:\n\n- ADRIA RAMOS DE LYRA\n- BRUNO JOSE DEMBOGURSKI\n- DANIEL FABIO DOMINGUES POSNER\n- FELLIPE RIBEIRO DUARTE\n- FERNANDA VIEIRA DIAS COUTO\n- FILIPE BRAIDA DO CARMO\n- JULIANA MENDES NASCENTE E SILVA ZAMITH\n- LEANDRO GUIMARAES MARQUES ALVIM\n- LIGIA MARIA SOARES PASSOS\n- MARCEL WILLIAM ROCHA DA SILVA\n- MARCELO PANARO DE MORAES ZAMITH\n- NATALIA CHAVES LESSA\n- RICARDO CORDEIRO CORREA\n- RONALDO E SILVA VIEIRA\n- UBIRATAM CARVALHO DE PAULA JUNIOR",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-07",
+      "execucao": 2,
+      "pergunta": "Quantos docentes tem o Departamento de Ciência da Computação?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Ciência da Computação possui 15 docentes. Aqui está a lista deles:\n\n- ADRIA RAMOS DE LYRA\n- BRUNO JOSE DEMBOGURSKI\n- DANIEL FABIO DOMINGUES POSNER\n- FELLIPE RIBEIRO DUARTE\n- FERNANDA VIEIRA DIAS COUTO\n- FILIPE BRAIDA DO CARMO\n- JULIANA MENDES NASCENTE E SILVA ZAMITH\n- LEANDRO GUIMARAES MARQUES ALVIM\n- LIGIA MARIA SOARES PASSOS\n- MARCEL WILLIAM ROCHA DA SILVA\n- MARCELO PANARO DE MORAES ZAMITH\n- NATALIA CHAVES LESSA\n- RICARDO CORDEIRO CORREA\n- RONALDO E SILVA VIEIRA\n- UBIRATAM CARVALHO DE PAULA JUNIOR",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-07",
+      "execucao": 3,
+      "pergunta": "Quantos docentes tem o Departamento de Ciência da Computação?",
+      "esperadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "chamadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "usadas": [
+        "buscar_docentes_por_departamento"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O Departamento de Ciência da Computação tem 15 docentes. Esses são eles:\n\n- ADRIA RAMOS DE LYRA\n- BRUNO JOSE DEMBOGURSKI\n- DANIEL FABIO DOMINGUES POSNER\n- FELLIPE RIBEIRO DUARTE\n- FERNANDA VIEIRA DIAS COUTO\n- FILIPE BRAIDA DO CARMO\n- JULIANA MENDES NASCENTE E SILVA ZAMITH\n- LEANDRO GUIMARAES MARQUES ALVIM\n- LIGIA MARIA SOARES PASSOS\n- MARCEL WILLIAM ROCHA DA SILVA\n- MARCELO PANARO DE MORAES ZAMITH\n- NATALIA CHAVES LESSA\n- RICARDO CORDEIRO CORREA\n- RONALDO E SILVA VIEIRA\n- UBIRATAM CARVALHO DE PAULA JUNIOR",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-08",
+      "execucao": 1,
+      "pergunta": "A que instituto pertence o departamento onde trabalha o Filipe Braida?",
+      "esperadas": [
+        "buscar_departamento_por_nome",
+        "buscar_docente_por_nome"
+      ],
+      "chamadas": [
+        "buscar_docente_por_nome",
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome",
+        "buscar_docente_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O departamento onde trabalha o Filipe Braida, DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO, pertence ao INSTITUTO MULTIDISCIPLINAR.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-08",
+      "execucao": 2,
+      "pergunta": "A que instituto pertence o departamento onde trabalha o Filipe Braida?",
+      "esperadas": [
+        "buscar_departamento_por_nome",
+        "buscar_docente_por_nome"
+      ],
+      "chamadas": [
+        "buscar_docente_por_nome",
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome",
+        "buscar_docente_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O departamento onde trabalha Filipe Braida, o DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO, pertence ao INSTITUTO MULTIDISCIPLINAR.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-08",
+      "execucao": 3,
+      "pergunta": "A que instituto pertence o departamento onde trabalha o Filipe Braida?",
+      "esperadas": [
+        "buscar_departamento_por_nome",
+        "buscar_docente_por_nome"
+      ],
+      "chamadas": [
+        "buscar_docente_por_nome",
+        "buscar_departamento_por_nome"
+      ],
+      "usadas": [
+        "buscar_departamento_por_nome",
+        "buscar_docente_por_nome"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "O departamento onde trabalha FILIPE BRAIDA DO CARMO, o DEPARTAMENTO DE CIÊNCIA DA COMPUTAÇÃO, pertence ao INSTITUTO MULTIDISCIPLINAR.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-09",
+      "execucao": 1,
+      "pergunta": "Liste os departamentos do Instituto de Educação.",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os departamentos do Instituto de Educação são:\n\n- Departamento de Educação do Campo, Movimentos Sociais e Diversidade\n- Departamento de Educação Física e Desportos\n- Departamento de Psicologia e Orientação\n- Departamento de Teoria e Planejamento de Ensino",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-09",
+      "execucao": 2,
+      "pergunta": "Liste os departamentos do Instituto de Educação.",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os departamentos do Instituto de Educação são:\n\n1. Departamento de Educação do Campo, Movimentos Sociais e Diversidade\n2. Departamento de Educação Física e Desportos\n3. Departamento de Psicologia e Orientação\n4. Departamento de Teoria e Planejamento de Ensino",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-09",
+      "execucao": 3,
+      "pergunta": "Liste os departamentos do Instituto de Educação.",
+      "esperadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "chamadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "usadas": [
+        "buscar_departamentos_por_centro"
+      ],
+      "rota": "estruturada",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Os departamentos do Instituto de Educação são:\n\n- Departamento de Educação do Campo, Movimentos Sociais e Diversidade\n- Departamento de Educação Física e Desportos\n- Departamento de Psicologia e Orientação\n- Departamento de Teoria e Planejamento de Ensino",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-10",
+      "execucao": 1,
+      "pergunta": "Quantos institutos tem a UFRRJ?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Infelizmente, com as ferramentas disponíveis para mim, não consigo fornecer diretamente o número total de institutos da UFRRJ. Eu posso listar os departamentos por um centro ou instituto específico, mas não tenho uma função que liste todos os institutos da universidade. Para obter essa informação, sugiro verificar a página oficial da UFRRJ ou entrar em contato com a administração acadêmica.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-10",
+      "execucao": 2,
+      "pergunta": "Quantos institutos tem a UFRRJ?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Não encontrei diretamente o número total de institutos na UFRRJ através das ferramentas disponíveis. Recomendo verificar com a administração da universidade para obter essa informação precisa.",
+      "erro": null
+    },
+    {
+      "parte": "B",
+      "id": "dep-10",
+      "execucao": 3,
+      "pergunta": "Quantos institutos tem a UFRRJ?",
+      "esperadas": [],
+      "chamadas": [],
+      "usadas": [],
+      "rota": "nenhuma",
+      "ferramenta_correta": true,
+      "confusao_estruturada": false,
+      "resposta": "Não encontrei essa informação diretamente nos dados que tenho acesso no SIGAA. Minhas ferramentas são focadas em informações sobre docentes e departamentos, não na estrutura geral da universidade como a quantidade de institutos ou centros. Para obter esta informação, sugiro verificar o site oficial da UFRRJ ou entrar em contato com a administração da universidade.",
+      "erro": null
+    }
+  ]
+}
