@@ -187,8 +187,82 @@ DOCENTE = Tipo(
 )
 
 
+# --------------------------------------------------------------------------
+# DEPARTAMENTO — a segunda entrada, e o teste da promessa do D0
+#
+# ⚠️ `texto_semantico=None`: estrutura pura, NÃO vai para o Chroma. O registro
+# de um departamento é nome, id, centro e URL — sem uma linha de texto livre.
+# Vetorizá-lo seria indexar um nome de departamento, que é exatamente o defeito
+# que o item 7 do backlog mediu e removeu para levar o recall de 14% para 27%.
+#
+# ⚠️ RISCO DE ROTEAMENTO QUE ESTE TIPO CRIA, E QUE NÃO EXISTIA ANTES.
+# `buscar_departamento_por_nome` e `buscar_docentes_por_departamento` aceitam
+# ambas um nome de departamento e devolvem coisas diferentes. É a primeira
+# colisão semântica entre tools deste projeto, e as descrições abaixo foram
+# escritas para desfazê-la — cada uma abre pelo que DEVOLVE e nomeia
+# explicitamente a outra como destino do que ela não tem, que é a lição da
+# reescrita de `buscar_docente_por_nome` (bateria de 5 set 2026).
+#
+# **Isto precisa ser medido.** A acurácia de roteamento de 97,8% foi medida com
+# três tools e sem colisão nenhuma; agora são cinco, duas delas parecidas. Até
+# uma bateria nova, o 97,8% descreve o sistema anterior a este commit.
+# --------------------------------------------------------------------------
+DEPARTAMENTO = Tipo(
+    nome="departamento",
+    identidade=lambda e: f"departamento:{e.get('id_sigaa')}",
+    rotulo=lambda e: e.get("nome") or "",
+    singular="departamento",
+    plural="departamentos",
+    referente="o departamento",
+    campo_rotulo="nome",
+    campo_vinculo="centro",
+    texto_semantico=None,
+    buscas=(
+        Busca(
+            campo="centro",
+            nome_tool="buscar_departamentos_por_centro",
+            formato="agrupado",
+            singular_do_campo="centro",
+            plural_do_campo="centros",
+            descricao=(
+                "Lista os DEPARTAMENTOS que compõem um instituto ou centro da "
+                "UFRRJ (ex: Instituto Multidisciplinar, Instituto de Ciências "
+                "Exatas). Devolve nomes de departamentos, e nada sobre as "
+                "pessoas que trabalham neles — para contar ou listar docentes "
+                "use buscar_docentes_por_departamento."
+            ),
+            parametro="centro",
+            descricao_parametro=(
+                "Nome do instituto ou centro (ex: Instituto Multidisciplinar, "
+                "Instituto de Veterinária)"
+            ),
+        ),
+        Busca(
+            campo="nome",
+            nome_tool="buscar_departamento_por_nome",
+            formato="um_ou_ambiguo",
+            singular_do_campo="nome",
+            plural_do_campo="nomes",
+            descricao=(
+                "Vínculo de UM departamento: dado o nome dele, diz a que "
+                "instituto ou centro ele pertence. Isso é tudo o que devolve. "
+                "NÃO diz quantos docentes ele tem nem quem são — para isso use "
+                "buscar_docentes_por_departamento, mesmo que a pergunta cite o "
+                "nome do departamento."
+            ),
+            parametro="nome",
+            descricao_parametro=(
+                "Nome, ou parte do nome, do departamento procurado "
+                "(ex: Ciência da Computação, Matemática)"
+            ),
+        ),
+    ),
+)
+
+
 TIPOS: dict[str, Tipo] = {
     DOCENTE.nome: DOCENTE,
+    DEPARTAMENTO.nome: DEPARTAMENTO,
 }
 
 

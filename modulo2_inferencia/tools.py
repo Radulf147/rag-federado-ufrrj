@@ -82,9 +82,18 @@ def _schema_da_busca(busca) -> dict:
 # Tool que o registro conhece e esta lista nao menciona entra no fim, em vez de
 # sumir em silencio.
 ORDEM_DAS_TOOLS = (
+    # As tres primeiras nesta ordem exata: e o prefixo do prompt com que o
+    # roteamento de 97,8% da fase 3 foi medido.
     "buscar_docentes_por_departamento",
     "busca_vetorial_sigaa",
     "buscar_docente_por_nome",
+    # Tipo `departamento`, acrescentado em 8 set 2026. Vem DEPOIS de proposito:
+    # assim as tres acima mantem posicao, e a mudanca no prompt e estritamente
+    # aditiva. Isso nao torna o 97,8% valido para esta versao — cinco tools,
+    # duas delas semanticamente proximas, e configuracao nova e precisa de
+    # bateria propria.
+    "buscar_departamentos_por_centro",
+    "buscar_departamento_por_nome",
 )
 
 
@@ -100,6 +109,12 @@ def _montar_schema() -> list[dict]:
 
 
 TOOLS_SCHEMA = _montar_schema()
+
+
+# Rotulo do grupo quando a entidade nao tem o vinculo preenchido. Explicito, e
+# nao vazio, porque um grupo sem nome na saida parece defeito da ferramenta
+# quando na verdade e um fato sobre o SIGAA.
+SEM_VINCULO = "(não informado no SIGAA)"
 
 
 def _entidades(tipo, busca, valor: str) -> list[dict]:
@@ -148,7 +163,18 @@ def buscar_agrupado(tipo, busca, valor: str) -> str:
     # valor plausivel e errado. Ambiguidade e relatada, nao escondida.
     por_grupo: dict[str, list[str]] = {}
     for r in resultados:
-        por_grupo.setdefault(r[busca.campo], []).append(r[tipo.campo_rotulo])
+        # ⚠️ VINCULO AUSENTE E DADO, NAO DEFEITO. 4 dos 72 departamentos nao
+        # pertencem a instituto nenhum — pendem de pro-reitoria (ARTE E CULTURA,
+        # ESPORTE E LAZER, PROGRAMAS E PROJETOS DE EXTENSAO, RELACOES
+        # COMUNITARIAS). Sem esta linha, a chave do grupo viria None e
+        # `sorted()` levantaria TypeError ao comparar None com str: a tool
+        # quebraria numa busca ampla, e so nela.
+        #
+        # Nenhum docente cai aqui (0 de 1302 sem departamento, conferido em
+        # 8 set 2026), entao a saida do tipo docente e identica a de antes.
+        por_grupo.setdefault(
+            r.get(busca.campo) or SEM_VINCULO, []
+        ).append(r[tipo.campo_rotulo])
 
     if len(por_grupo) > 1:
         linhas = [
@@ -219,7 +245,8 @@ def buscar_um_ou_ambiguo(tipo, busca, valor: str) -> str:
         # contexto do LLM custa mais do que informa. O total continua exato.
         TETO = 15
         linhas = "\n".join(
-            f"- {r.get(tipo.campo_rotulo)}: {r.get(tipo.campo_vinculo)}"
+            f"- {r.get(tipo.campo_rotulo)}: "
+            f"{r.get(tipo.campo_vinculo) or SEM_VINCULO}"
             for r in resultados[:TETO]
         )
         if len(resultados) > TETO:
@@ -231,9 +258,18 @@ def buscar_um_ou_ambiguo(tipo, busca, valor: str) -> str:
         )
 
     unico = resultados[0]
+    vinculo = unico.get(tipo.campo_vinculo)
+    if not vinculo:
+        # Sem esta guarda a resposta seria "X pertence ao None." — plausivel
+        # o bastante para o LLM repassar, e falsa. Ausencia de vinculo e um
+        # fato sobre a entidade, e vai dito como fato.
+        return (
+            f"Acesso à Base Estruturada: {unico.get(tipo.campo_rotulo)} existe, "
+            f"mas não tem {tipo.campo_vinculo} informado no SIGAA."
+        )
     return (
         f"Acesso à Base Estruturada: {unico.get(tipo.campo_rotulo)} pertence ao "
-        f"{unico.get(tipo.campo_vinculo)}."
+        f"{vinculo}."
     )
 
 

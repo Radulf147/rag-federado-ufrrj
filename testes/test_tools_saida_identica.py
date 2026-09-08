@@ -87,7 +87,31 @@ class TestSchemaAnunciadoAoLLM:
     nome de tool: uma descrição reescrita mantém o nome e muda o comportamento.
     """
 
-    def test_schema_identico(self, gravado):
+    def test_as_tres_originais_intactas_e_na_mesma_ordem(self, gravado):
+        """
+        O schema PODE crescer — tipo novo acrescenta tools, e é o objetivo do
+        D0. O que não pode é as três originais mudarem de texto ou de posição:
+        elas são o prefixo do prompt com que o roteamento de 97,8% foi medido.
+
+        Por isso a comparação é de prefixo, e não de igualdade: igualdade
+        estrita transformaria "adicionamos um tipo" em falha de teste, e a
+        tentação seria regravar o instantâneo — que é justamente o gesto que
+        apaga a referência.
+        """
         from modulo2_inferencia.tools import TOOLS_SCHEMA
 
-        assert TOOLS_SCHEMA == gravado["__schema__"]
+        originais = gravado["__schema__"]
+        assert TOOLS_SCHEMA[: len(originais)] == originais
+
+    def test_toda_busca_do_registro_e_anunciada(self):
+        """
+        Tool declarada no registro e ausente do schema não seria anunciada ao
+        LLM — existiria no despachante e jamais seria chamada. Falha silenciosa
+        e completa.
+        """
+        from interfaces.tipos import TIPOS
+        from modulo2_inferencia.tools import TOOLS_SCHEMA
+
+        anunciadas = {s["function"]["name"] for s in TOOLS_SCHEMA}
+        declaradas = {b.nome_tool for t in TIPOS.values() for b in t.buscas}
+        assert declaradas <= anunciadas, f"nao anunciadas: {declaradas - anunciadas}"
