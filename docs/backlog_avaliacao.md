@@ -774,3 +774,99 @@ docentes" são 1301 pessoas, e ela é contada nos dois departamentos.
 Fica registrado sem correção. Deduplicar por e-mail mudaria contagem
 institucional a partir de uma inferência nossa, e contagem é o que a base
 estruturada existe para responder exatamente.
+
+---
+
+## 11. ⚠️ A resposta certa é "nenhum", e o instrumento não reprova nenhuma das erradas (8 set 2026)
+
+Apareceu na bateria de roteamento de 8 set (`docs/roteamento_5_tools.json`,
+commit `c7dbebb`), **fora do escopo dela** — aquela bateria não julga resposta,
+por desenho. Fica aqui.
+
+A pergunta é a **amb-06** do conjunto de avaliação:
+
+> *Algum professor de Engenharia Agrícola e Ambiental trabalha com agroecologia?*
+
+### O gabarito da realidade
+
+Consultado no ChromaDB, coleção `rag_sigaa`, 1302 documentos:
+
+| | |
+|---|---|
+| docentes com `agroecolog` no perfil, no corpus inteiro | **12** |
+| destes, no Departamento de Engenharia Agrícola e Ambiental | **0** |
+
+Os 12 estão em Educação do Campo, Agrotecnologias e Sustentabilidade, Ciências
+Sociais, Desenvolvimento/Agricultura e Sociedade, Geografia/IM, Entomologia e
+Fitopatologia, Teoria e Planejamento de Ensino. **Nenhum no departamento da
+pergunta.**
+
+**A resposta correta para a amb-06 é "nenhum".**
+
+### O que o agente respondeu nas três execuções
+
+| | ferramentas | nomes citados | quem |
+|---|---|---|---|
+| ex1 | vetorial + `buscar_departamento_por_nome` ✗ | 3 | ANDERSON GOMIDE, MARINALDO FERREIRA, WAGNER DIAS |
+| ex2 | só vetorial ✗ | 10 | os 3 acima **+ 7 outros** |
+| ex3 | vetorial + `buscar_docentes_por_departamento` ✓ | 2 | HENRIQUE VIEIRA, DINARA GRASIELA |
+
+Conferido um a um: **nenhum dos cinco tem `agroecolog` no perfil.** As três
+respostas são falsas, e nenhuma delas é "nenhum".
+
+⚠️ Correção de um registro anterior: a mensagem do commit `c7dbebb` descreve
+estas execuções como "conjuntos disjuntos" e atribui 3 nomes à ex1 e à ex2.
+Está impreciso. A ex1 é **subconjunto** da ex2 (3 dentro de 10); só a ex3 é
+disjunta. O erro é meu e não foi corrigido no commit, que já está no remoto.
+
+### Por que as três passam no critério atual
+
+O gabarito da amb-06 é `"subconjunto"`, e `interfaces/comparar.py` **já declara
+esta cegueira no próprio código**:
+
+> *LIMITE HONESTO 2: só nomes FORA do elenco são examinados. Atribuição falsa
+> sobre alguém de dentro é invisível aqui, por desenho.*
+
+Os cinco nomes citados **pertencem** ao departamento. O que é falso não é a
+lotação — é o "trabalha com agroecologia". Exatamente o que o critério não olha.
+
+E o LIMITE HONESTO 1 do mesmo bloco fecha a armadilha pelo outro lado:
+
+> *um agente que responda sempre "não encontrei" passa.*
+
+Ou seja: aqui a resposta certa é justamente "nenhum", e o instrumento não sabe
+distinguir o "nenhum" correto do "nenhum" preguiçoso. **A pergunta cai no vão
+entre os dois limites declarados.**
+
+### Compõe com o item 7
+
+Os 31 docentes do departamento têm perfil de 134 a 3282 caracteres, mediana
+**373**, e **14 dos 31 abaixo de 200** — praticamente só texto institucional.
+Os três nomeados nas ex1/ex2 estão entre os curtos:
+
+    ANDERSON GOMIDE .... 143 caracteres
+    MARINALDO FERREIRA . 150
+    WAGNER DIAS ........ 185
+
+É o "documento curto vence o ranking" do item 7 chegando **até a resposta**: o
+perfil quase vazio é recuperado e depois afirmado como tendo o tema.
+
+### O que isto NÃO é
+
+Não é instabilidade de roteamento. A **ex3 roteou certo** e produziu a resposta
+mais abertamente contraditória das três: nomeia HENRIQUE e DINARA e, na mesma
+resposta, admite que o perfil de nenhum dos dois menciona agroecologia —
+*"Embora não seja especificamente mencionada a agroecologia no seu perfil"*,
+*"não indica explicitamente trabalhos com agroecologia"*. Acerta a ferramenta e
+erra a resposta, citando duas pessoas que ela própria diz não terem o dado.
+
+### Correção — não é uma, são duas, e nenhuma é trivial
+
+1. Um critério que reprove **afirmação falsa sobre quem está no elenco**
+   (o limite 2), sem o qual atribuir tema a qualquer docente do departamento
+   certo é gratuito.
+2. Um critério que distinga **"nenhum" correto de "não encontrei" preguiçoso**
+   (o limite 1), sem o qual o conserto do item acima é passável com evasão.
+
+São o mesmo par de cegueiras já pré-registrado para a fase 4. Fixar a medida
+**antes** de mexer no agente, como nos itens 7 e 9.
