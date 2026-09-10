@@ -35,6 +35,7 @@ Três mudanças:
    do achado 07, e é detectável sem julgamento semântico.
 """
 
+import argparse
 import hashlib
 import json
 import os
@@ -54,8 +55,30 @@ from modulo2_inferencia.agent import SYSTEM_PROMPT
 from modulo2_inferencia.llm_setup import NUM_CTX, REASONING_EFFORT, montar_componentes
 from modulo2_inferencia.pipelines import PIPELINES, ResultadoPipeline
 
-SAIDA = Path("docs/avaliacao_fase3.md")
-REGISTRO = Path("docs/avaliacao_fase3.jsonl")
+# ⚠️ OS CAMINHOS SÃO SOBREPONÍVEIS DESDE 10 SET 2026 — e antes disso NÃO ERAM.
+#
+# Eram duas constantes fixas, e rodar a bateria uma segunda vez fazia duas
+# coisas silenciosas e ruins:
+#
+#   `SAIDA` é escrita com `write_text` .... SOBRESCREVE o relatório publicado
+#                                           da fase 3, com os 97,8% / 93,3% /
+#                                           91,7% que já foram comunicados
+#   `REGISTRO` é aberto com "a" .......... ANEXA, misturando as 150 linhas de
+#                                           5 set (a régua) com as da rodada
+#                                           nova no mesmo arquivo
+#
+# O campo `execucao` distingue as duas, então nada se perde de verdade — e é
+# exatamente por isso que o defeito é perigoso: uma apuração feita sem filtrar
+# por `execucao` mistura duas medições e devolve um número plausível e errado.
+#
+# O anexar continua sendo o padrão de propósito: uma bateria interrompida deixa
+# dado aproveitável, que é o motivo de o registro bruto existir. O que mudou é
+# poder mandar a rodada nova para um arquivo próprio.
+SAIDA_PADRAO = Path("docs/avaliacao_fase3.md")
+REGISTRO_PADRAO = Path("docs/avaliacao_fase3.jsonl")
+
+SAIDA = SAIDA_PADRAO
+REGISTRO = REGISTRO_PADRAO
 
 ESPERA_OLLAMA = int(os.getenv("ESPERA_OLLAMA", 180))
 
@@ -787,5 +810,61 @@ def executar_comparacao() -> None:
         raise SystemExit(1)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """
+    Ponto de entrada. Existe para que a rodada diga, ANTES de começar, para
+    onde vai escrever — e para que uma bateria nova possa nascer em arquivo
+    próprio em vez de por cima da régua.
+    """
+    global SAIDA, REGISTRO
+
+    parser = argparse.ArgumentParser(
+        description="Bateria dos três pipelines — mede roteamento, não texto.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Sem argumentos, escreve por cima do relatório da fase 3 e anexa ao\n"
+            "registro dela. Para uma medição NOVA, aponte os dois para arquivos\n"
+            "próprios:\n\n"
+            "    python -m interfaces.comparar \\\n"
+            "        --saida    docs/comparacao_30_abordagens.md \\\n"
+            "        --registro docs/comparacao_30_abordagens.jsonl\n"
+        ),
+    )
+    parser.add_argument(
+        "--saida", type=Path, default=SAIDA_PADRAO,
+        help=f"relatório markdown (padrão: {SAIDA_PADRAO}) — SOBRESCREVE",
+    )
+    parser.add_argument(
+        "--registro", type=Path, default=REGISTRO_PADRAO,
+        help=f"registro bruto jsonl (padrão: {REGISTRO_PADRAO}) — ANEXA",
+    )
+    args = parser.parse_args()
+
+    SAIDA = args.saida
+    REGISTRO = args.registro
+
+    # O aviso não impede nada: impedir quebraria retomar uma bateria
+    # interrompida, que é meio do registro bruto existir. Ele só torna visível
+    # o que antes acontecia calado.
+    print(f"  relatorio ...... {SAIDA}" + (" (JA EXISTE, sera SOBRESCRITO)" if SAIDA.exists() else ""))
+    print(f"  registro ....... {REGISTRO}", end="")
+    if REGISTRO.exists():
+        try:
+            anteriores = {
+                json.loads(linha).get("execucao")
+                for linha in REGISTRO.read_text(encoding="utf-8").splitlines()
+                if linha.strip()
+            }
+        except (json.JSONDecodeError, OSError):
+            anteriores = {"(ilegível)"}
+        print(f"  ⚠️  JA CONTEM {len(anteriores)} execucao(oes): {sorted(anteriores)}")
+        print("      A rodada nova sera ANEXADA. Filtre por `execucao` ao apurar.")
+    else:
+        print()
+    print()
+
     executar_comparacao()
+
+
+if __name__ == "__main__":
+    main()

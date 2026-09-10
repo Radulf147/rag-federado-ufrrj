@@ -415,3 +415,73 @@ class TestContextoPersistidoNoRegistro:
         )
         assert linha["contexto"] == ""
         assert linha["contexto_caracteres"] == 0
+
+
+class TestCaminhosDeSaidaSobreponiveis:
+    """
+    10 set 2026. `SAIDA` e `REGISTRO` eram constantes fixas, e rodar a bateria
+    uma segunda vez SOBRESCREVIA `docs/avaliacao_fase3.md` — o relatório
+    publicado da fase 3 — e ANEXAVA ao registro dela, misturando duas medições
+    num arquivo só.
+
+    O campo `execucao` distingue as duas, e é por isso que o defeito é
+    perigoso em vez de fatal: nada se perde, mas uma apuração feita sem filtrar
+    devolve um número plausível e errado.
+
+    ⚠️ O teste confere que o caminho novo é REALMENTE usado por `_gravar`, e
+    não só guardado numa variável. Um `main()` que aceitasse o argumento e
+    escrevesse no lugar de sempre passaria em qualquer teste de parsing.
+    """
+
+    def _rodar_main(self, monkeypatch, argv):
+        import interfaces.comparar as comparar
+
+        monkeypatch.setattr(comparar, "SAIDA", comparar.SAIDA_PADRAO)
+        monkeypatch.setattr(comparar, "REGISTRO", comparar.REGISTRO_PADRAO)
+        visto = {}
+        monkeypatch.setattr(
+            comparar,
+            "executar_comparacao",
+            lambda: visto.update(saida=comparar.SAIDA, registro=comparar.REGISTRO),
+        )
+        monkeypatch.setattr("sys.argv", argv)
+        comparar.main()
+        return comparar, visto
+
+    def test_sem_argumento_usa_os_caminhos_da_fase3(self, monkeypatch):
+        comparar, visto = self._rodar_main(monkeypatch, ["comparar"])
+        assert visto["saida"] == comparar.SAIDA_PADRAO
+        assert visto["registro"] == comparar.REGISTRO_PADRAO
+
+    def test_os_argumentos_trocam_os_caminhos(self, monkeypatch, tmp_path):
+        md, jsonl = tmp_path / "novo.md", tmp_path / "novo.jsonl"
+        _, visto = self._rodar_main(
+            monkeypatch,
+            ["comparar", "--saida", str(md), "--registro", str(jsonl)],
+        )
+        assert visto["saida"] == md
+        assert visto["registro"] == jsonl
+
+    def test_o_gravar_escreve_no_caminho_novo_e_nao_no_padrao(
+        self, monkeypatch, tmp_path
+    ):
+        from types import SimpleNamespace
+
+        md, jsonl = tmp_path / "novo.md", tmp_path / "novo.jsonl"
+        comparar, _ = self._rodar_main(
+            monkeypatch,
+            ["comparar", "--saida", str(md), "--registro", str(jsonl)],
+        )
+        comparar._gravar(
+            "exec-nova",
+            SimpleNamespace(id="y-01"),
+            1,
+            ResultadoPipeline(pipeline="3-agente", pergunta="p", resposta="r"),
+            {},
+        )
+        assert jsonl.exists()
+        assert json.loads(jsonl.read_text(encoding="utf-8").strip())["execucao"] == (
+            "exec-nova"
+        )
+        # E o padrão continua onde estava — este é o ponto do teste.
+        assert comparar.REGISTRO_PADRAO != jsonl
