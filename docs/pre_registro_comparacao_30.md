@@ -246,14 +246,95 @@ no mesmo texto, o que dá mais margem para o LLM atribuir errado.
 
 ---
 
+## ⚠️ EM QUAL CÓDIGO a rodada acontece — decidido antes, e não é detalhe
+
+A primeira redação deste documento dizia "rodar as 30 nas três pipelines" e
+**não dizia em qual estado do código**. Era um buraco: escolher o branch depois
+de ver o resultado seria escolher o que favorece.
+
+**A rodada acontece no `main`.**
+
+### Por quê
+
+O `master` tem **cinco** ferramentas desde `273ac61` — o tipo `departamento`
+entrou no registro de tipos, e cada `Busca` declarada vira uma tool nomeada. A
+régua da tabela lá em cima (5/16, 13/16, 44/48) foi medida com **três**.
+
+E a diferença não é hipótese. A bateria de 8 set
+(`docs/pre_registro_roteamento_5_tools.md`, no `master`) rodou **estas mesmas 30
+perguntas** com cinco ferramentas:
+
+| | 3 tools (5 set) | 5 tools (8 set) |
+|---|---|---|
+| acurácia de roteamento | 97,8% | 96,7% |
+| estabilidade | 93,3% | 90,0% |
+
+Houve inclusive uma colisão de ferramenta na `amb-06`, que é uma pergunta do
+grupo A. Rodar a comparação no `master` misturaria dois sistemas numa tabela só.
+
+O `main` também é o estado que a apresentação descreve e o que se baixa do
+repositório (tag `docentes-v1`, em `9039e93`).
+
+### O que foi trazido do `master` para o `main`, e por quê
+
+| commit | o que traz | por que não quebra a régua |
+|---|---|---|
+| `10129ed` | `_gravar` persiste o texto do contexto | roda **depois** do pipeline e só escreve no arquivo |
+| `6c4feeb` | gabarito e ranking chaveados por identidade | scripts de medição; o agente não os importa |
+| `940f0c4` | item 11 do backlog | documentação |
+| `3f02510` | este documento | documentação |
+
+### O que foi deixado para trás DE PROPÓSITO
+
+    modulo2_inferencia/tools.py ............... as 12 linhas do D1 que trocariam
+                                                nome_docente por rotulo() no
+                                                cabeçalho
+    modulo2_inferencia/tipos.py ............... o registro de tipos (as 5 tools)
+    modulo1_etl/coletar_departamentos.py ...... coleta nova
+    modulo1_etl/parte2_scraping_docentes.py ... metadados novos, só têm efeito
+                                                com re-scraping
+
+As 12 linhas do `tools.py` quase certamente dariam **saída idêntica** —
+`rotulo()` recua para `nome_docente`, e o corpus não tem o campo `rotulo`. Não
+vieram assim mesmo: *"quase certamente idêntico"* não é base para uma régua.
+
+Re-scraping também está fora, pelo motivo oposto e mais forte — trocaria o
+corpus **debaixo** da régua.
+
+### Como isso foi conferido, e não só afirmado
+
+```
+git diff --quiet docentes-v1 HEAD -- modulo2_inferencia/tools.py \
+                                     modulo2_inferencia/agent.py \
+                                     modulo2_inferencia/pipelines.py
+    -> sem diferença
+
+schema anunciado ao LLM -> 3 tools:
+    buscar_docentes_por_departamento
+    busca_vetorial_sigaa
+    buscar_docente_por_nome
+
+suíte -> 174 passando
+```
+
+**O agente que vai rodar é o mesmo que produziu os 97,8%.** O que mudou foi o
+que se mede e o que se registra.
+
+⚠️ E o corpus não foi recarregado: `identidade()` recua para `docente:{siape}`
+quando falta `id_entidade`, e o corpus tem `siape` em **1302 de 1302** e
+`id_entidade` em **0 de 1302**. A correção funciona sem tocar no dado.
+
+---
+
 ## Ordem de execução, e por que ela é essa
 
-1. **Este arquivo, commitado.** ← e nenhum número novo antes disso
-2. Corrigir `interfaces/comparar.py::_gravar` para persistir o texto do
-   contexto — hoje ele grava `f"<{len(r.contexto)} caracteres>"`, que é o item 1
-   do backlog e a razão de o grupo E não ser auditável nos dados de 5 set
-3. Rodar as 30 nas três pipelines
-4. Apurar A (já feito), B, C, D, E e montar a tabela única
+1. ✅ **Este arquivo, commitado** — `d5c466e` no `master` (9 set), trazido para
+   o `main` em `3f02510`. ← e nenhum número novo antes disso
+2. ✅ **`interfaces/comparar.py::_gravar` persiste o texto do contexto** —
+   `10129ed`. Ele gravava `f"<{len(r.contexto)} caracteres>"`, que é o item 1 do
+   backlog e a razão de o grupo E não ser auditável nos dados de 5 set
+3. ⬜ Rodar as 30 nas três pipelines, **no `main`** (ver a seção acima)
+4. ⬜ Apurar A (já feito), B, C, D, E e montar a tabela única
 
 O passo 2 antes do 3 é o que impede a rodada de nascer já sem o dado que o grupo
 E precisa — que é exatamente o que aconteceu em 5 set.
