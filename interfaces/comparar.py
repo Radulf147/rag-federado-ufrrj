@@ -500,9 +500,31 @@ def _gravar(execucao: str, pergunta, repeticao: int, r: ResultadoPipeline, aval:
         "avaliacao": aval,
         **_carimbo(),
     }
-    # O contexto pode ter dezenas de KB; o registro guarda só o tamanho, porque
-    # o que a checagem precisa dele já virou `nomes_sem_respaldo`.
-    linha["contexto"] = f"<{len(r.contexto)} caracteres>"
+    # ⚠️ O CONTEXTO É GRAVADO INTEIRO DESDE 9 SET 2026 — e antes disso NÃO ERA.
+    # A linha que estava aqui trocava o texto pelo tamanho:
+    #
+    #     linha["contexto"] = f"<{len(r.contexto)} caracteres>"
+    #
+    # O comentário que a justificava dizia que "o que a checagem precisa dele já
+    # virou `nomes_sem_respaldo`". Isso é verdade para a checagem automática
+    # DAQUELA execução, e falso para qualquer auditoria depois: sem o texto,
+    # `nomes_sem_respaldo` não é recomputável, e o 100% que a fase 3 reporta é o
+    # que a bateria produziu, não o que alguém conferiu — a ressalva está no §9
+    # de `docs/relatorio_fase5.md`. É o item 1 de `docs/backlog_avaliacao.md`.
+    #
+    # Foi o que impediu o grupo E de `docs/pre_registro_comparacao_30.md` de ser
+    # apurado sobre os dados de 5 set: "nenhum nome afirmado fora do contexto
+    # recuperado" precisa do contexto recuperado.
+    #
+    # `asdict(r)` já trouxe o texto — basta não jogá-lo fora. O tamanho continua
+    # gravado, agora num campo próprio, porque é barato e alguém já dependia
+    # dele para ler o registro.
+    #
+    # ⚠️ Isto NÃO muda o que o agente faz. `_gravar` roda depois do pipeline,
+    # recebe o `ResultadoPipeline` pronto e só escreve no arquivo. É o que
+    # permite comparar uma bateria nova com a de 5 set sem ressalva de
+    # comportamento — o que muda é o que fica registrado, não o que aconteceu.
+    linha["contexto_caracteres"] = len(r.contexto)
     with REGISTRO.open("a", encoding="utf-8") as arquivo:
         arquivo.write(json.dumps(linha, ensure_ascii=False) + "\n")
 

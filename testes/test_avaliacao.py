@@ -331,3 +331,87 @@ class TestChecagemDeVinculo:
             "É importante dizer: ele é do Departamento de Geografia.",
             "DEPARTAMENTO DE GEOGRAFIA/IM",
         )
+
+
+class TestContextoPersistidoNoRegistro:
+    """
+    Item 1 do `docs/backlog_avaliacao.md`, corrigido em 9 set 2026.
+
+    `_gravar` trocava o texto do contexto pelo tamanho dele:
+
+        linha["contexto"] = f"<{len(r.contexto)} caracteres>"
+
+    Consequência: `nomes_sem_respaldo` deixava de ser recomputável, e o 100%
+    de "interpretativas sem afirmação sem respaldo" da fase 3 virava o que a
+    bateria produziu, não o que alguém conferiu (§9 de `relatorio_fase5.md`).
+
+    É também o que impedia o grupo E de `docs/pre_registro_comparacao_30.md`
+    de existir sobre os dados de 5 set — o critério é "nenhum nome afirmado
+    fora do contexto recuperado", e o contexto recuperado tinha sido jogado
+    fora.
+
+    ⚠️ Este teste não confere formatação: confere que o texto SOBREVIVE. Um
+    registro que guarda o tamanho passa em qualquer teste de esquema e falha
+    na única coisa que o campo existe para permitir.
+    """
+
+    def _gravar_em_temporario(self, tmp_path, resultado):
+        from types import SimpleNamespace
+
+        import interfaces.comparar as comparar
+
+        alvo = tmp_path / "registro.jsonl"
+        original = comparar.REGISTRO
+        comparar.REGISTRO = alvo
+        try:
+            comparar._gravar(
+                "exec-teste", SimpleNamespace(id="x-01"), 1, resultado, {"ok": True}
+            )
+        finally:
+            comparar.REGISTRO = original
+        return json.loads(alvo.read_text(encoding="utf-8").strip())
+
+    def test_o_texto_do_contexto_chega_inteiro_ao_registro(self, tmp_path):
+        texto = "Docente: FULANO DE TAL. Departamento: DEP DE TESTE. " * 40
+        linha = self._gravar_em_temporario(
+            tmp_path,
+            ResultadoPipeline(
+                pipeline="3-agente", pergunta="p?", resposta="r", contexto=texto
+            ),
+        )
+        assert linha["contexto"] == texto
+
+    def test_nao_sobrou_o_placeholder_de_tamanho(self, tmp_path):
+        # A regressão exata: o campo voltar a ser "<N caracteres>". Escrito
+        # separado do teste acima porque um placeholder novo, com outro texto,
+        # também precisa falhar.
+        linha = self._gravar_em_temporario(
+            tmp_path,
+            ResultadoPipeline(
+                pipeline="1-vetorial", pergunta="p?", resposta="r", contexto="ABC"
+            ),
+        )
+        assert "caracteres>" not in linha["contexto"]
+
+    def test_o_tamanho_continua_disponivel_em_campo_proprio(self, tmp_path):
+        texto = "x" * 137
+        linha = self._gravar_em_temporario(
+            tmp_path,
+            ResultadoPipeline(
+                pipeline="3-agente", pergunta="p?", resposta="r", contexto=texto
+            ),
+        )
+        assert linha["contexto_caracteres"] == 137
+
+    def test_contexto_vazio_nao_quebra(self, tmp_path):
+        # O `2-estruturado` pode devolver contexto vazio quando não casa
+        # departamento nenhum. Sem este caso a correção passaria e a bateria
+        # morreria na primeira pergunta fora de escopo.
+        linha = self._gravar_em_temporario(
+            tmp_path,
+            ResultadoPipeline(
+                pipeline="2-estruturado", pergunta="p?", resposta="r", contexto=""
+            ),
+        )
+        assert linha["contexto"] == ""
+        assert linha["contexto_caracteres"] == 0
