@@ -172,12 +172,20 @@ def gabarito(documentos: list, tema: str) -> set[str]:
 
     Efeito colateral correto: quem tem perfil vazio não pode entrar em gabarito
     nenhum. Se a pessoa não escreveu, não há o que o sistema devesse achar.
+
+    ⚠️ A CHAVE É A IDENTIDADE, NÃO O NOME (D1, 7 set 2026). Um `set` de nomes
+    funde duas pessoas homônimas numa entrada só: a segunda sai do denominador
+    e o recall fica artificialmente melhor. `FERNANDA SILVA FERREIRA CHAER`
+    está duas vezes no corpus. Não move nenhuma das 6 medições — ela não
+    escreveu nenhum dos temas —, e o argumento não é o tamanho do efeito: é que
+    os tipos novos multiplicam homônimos (`CIÊNCIAS BIOLÓGICAS` é dois cursos).
     """
+    from interfaces.identidade import identidade
     from interfaces.respaldo import texto_descritivo
 
     alvo = _normalizar(tema)
     return {
-        d.meta.get("nome_docente")
+        identidade(d.meta)
         for d in documentos
         if alvo in _normalizar(texto_descritivo(d.content or ""))
     }
@@ -185,9 +193,11 @@ def gabarito(documentos: list, tema: str) -> set[str]:
 
 def gabarito_contaminado(documentos: list, tema: str) -> set[str]:
     """A versão antiga, mantida só para reportar o TAMANHO do erro."""
+    from interfaces.identidade import identidade
+
     alvo = _normalizar(tema)
     return {
-        d.meta.get("nome_docente")
+        identidade(d.meta)
         for d in documentos
         if alvo in _normalizar(d.content or "")
     }
@@ -221,11 +231,17 @@ def medir(componentes, documentos: list, tema: str, ks: tuple[int, ...],
         query_embedding=embedding, top_k=len(documentos)
     )["documents"]
 
-    posicao = {
-        d.meta.get("nome_docente"): i
-        for i, d in enumerate(ranking, 1)
-        if d.meta.get("nome_docente") not in ()
-    }
+    # Chaveado por identidade, não por nome: dois documentos de mesmo nome
+    # ocupam duas posições no ranking, e um dicionário por nome guardaria só a
+    # última — em silêncio, e sempre a pior das duas.
+    from interfaces.identidade import identidade
+
+    posicao = {}
+    for i, d in enumerate(ranking, 1):
+        chave = identidade(d.meta)
+        # A PRIMEIRA aparição é a que vale: recall pergunta em que posição o
+        # documento foi encontrado, e encontrar mais cedo é o que conta.
+        posicao.setdefault(chave, i)
     posicoes = sorted(posicao[n] for n in esperados if n in posicao)
 
     return {
