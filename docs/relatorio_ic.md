@@ -81,13 +81,25 @@ Extrai os dados do SIGAA e os carrega nas duas bases.
 O resultado são **duas bases que se complementam**:
 
 ```
-SQLite   ->  nome, departamento, siape           1302 registros
+SQLite   ->  nome, departamento, siape           1302 docentes
 ChromaDB ->  o texto do perfil, vetorizado       1302 documentos
 ```
 
 As duas batem em 1302, e isso é verificação, não coincidência: o ETL trata cada
 execução como **retrato completo**, apagando antes de inserir. Ver o achado 10
 em `CLAUDE.md`.
+
+> ⚠️ **O arquivo do SQLite tem 1374 linhas, não 1302** — as outras 72 são
+> departamentos, escritos pelo trabalho de expansão. O diretório de dados é
+> volume montado e **não muda quando se troca de branch**, então o banco usado
+> nas medições deste relatório contém dado que este relatório não descreve.
+>
+> Isso foi verificado, não suposto: as três ferramentas consultam
+> `buscar_entidades_por_campo("docente", …)` e `total_de_entidades("docente")`,
+> e o filtro por tipo está no SQL. **As 72 linhas não alcançam nenhuma resposta
+> do agente.** No ChromaDB nem chegam — um departamento não tem texto livre, e
+> indexar um nome de departamento é exatamente o defeito que a seção 6.1
+> descreve.
 
 ### 3.2 Módulo 2 — inferência (`modulo2_inferencia/`)
 
