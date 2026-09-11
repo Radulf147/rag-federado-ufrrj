@@ -485,3 +485,44 @@ class TestCaminhosDeSaidaSobreponiveis:
         )
         # E o padrão continua onde estava — este é o ponto do teste.
         assert comparar.REGISTRO_PADRAO != jsonl
+
+
+class TestRessalvaDoValorAutomatico:
+    """
+    11 set 2026. A tabela de métricas do relatório gerado não dizia que os
+    valores são os AUTOMÁTICOS, e a falta produziu um erro concreto: o 91,7%
+    de `docs/avaliacao_fase3.md` quase foi citado num e-mail ao orientador
+    como "o resultado da fase 3". O resultado é o intervalo auditado
+    [95,83% ; 100%], de `docs/relatorio_fase5.md`.
+
+    A ressalva mora no RENDERIZADOR, e não no .md, porque o .md é gerado —
+    escrita à mão no arquivo, uma execução sem `--saida` a levaria junto.
+
+    ⚠️ Este teste existe para que a ressalva sobreviva a refatoração. Um
+    relatório sem ela volta a parecer um veredito.
+    """
+
+    def _render(self):
+        import interfaces.comparar as comparar
+
+        return comparar._renderizar(
+            [], comparar.calcular_metricas([]), "exec-teste", [], False
+        )
+
+    def test_o_relatorio_diz_que_os_valores_sao_automaticos(self):
+        assert "AUTOMÁTICOS" in self._render()
+
+    def test_o_relatorio_aponta_para_o_documento_do_metodo(self):
+        # Sem o ponteiro a ressalva vira só um aviso vago: quem lê precisa
+        # saber ONDE está a política de denominador.
+        assert "docs/criterios_avaliacao.md" in self._render()
+
+    def test_o_relatorio_avisa_que_X_nao_e_criterio_reprovado(self):
+        texto = self._render()
+        assert "não significa critério reprovado" in texto
+
+    def test_a_ressalva_vem_depois_da_tabela_das_metricas(self):
+        # Antes da tabela ela seria lida como preâmbulo e pulada; o lugar que
+        # funciona é logo abaixo dos números.
+        texto = self._render()
+        assert texto.index("Acurácia de roteamento") < texto.index("AUTOMÁTICOS")

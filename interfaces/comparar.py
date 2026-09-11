@@ -682,6 +682,32 @@ def _renderizar(registros, metricas, execucao, esperas, abortou) -> str:
         "automaticamente: todo docente que a resposta afirma tem de aparecer no "
         "contexto que as ferramentas devolveram.",
         "",
+        # ⚠️ ESTA RESSALVA É IMPRESSA EM TODA RODADA, DE PROPÓSITO.
+        #
+        # Ela não estava aqui, e a falta dela produziu um erro concreto: em
+        # 9 set 2026 o 91,7% de `docs/avaliacao_fase3.md` quase foi citado num
+        # e-mail ao orientador como "o resultado da fase 3". O resultado é o
+        # intervalo auditado [95,83% ; 100%], que está em `relatorio_fase5.md`.
+        #
+        # A diferença não é erro de ninguém: é a política de denominador. Este
+        # renderizador não sabe julgar item ambíguo, então conta como reprovado
+        # — e um ❌ aqui não quer dizer critério reprovado.
+        #
+        # Escrever a ressalva à mão no .md não resolvia: o arquivo é gerado, e
+        # uma execução sem `--saida` a levaria junto. Por isso ela mora no
+        # código que gera o arquivo.
+        "> ⚠️ **Estes são os valores AUTOMÁTICOS.** Item que o instrumento não "
+        "consegue julgar com segurança entra aqui como reprovado, porque é o "
+        "único palpite conservador que um cálculo sabe dar. A política de "
+        "denominador e o **intervalo de robustez** — resolver todos os ambíguos "
+        "como reprovados, depois todos como aprovados, e só declarar veredito "
+        "quando as duas pontas caem do mesmo lado — estão em "
+        "`docs/criterios_avaliacao.md`.",
+        ">",
+        "> **Um ❌ nesta tabela não significa critério reprovado**, e um ✅ não "
+        "significa auditado. O veredito de uma fase sai da apuração contra o "
+        "pré-registro dela, não daqui.",
+        "",
         "### Condicional por tipo de checagem",
         "",
         "| Tipo | Corretas |",

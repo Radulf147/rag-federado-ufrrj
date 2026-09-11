@@ -593,7 +593,7 @@ Havia zero `test_*.py` e `pytest` fora do `requirements`. Rodar `pytest`
 coletava zero testes e saía com sucesso — que se lê facilmente como "está tudo
 passando". Não estava: não havia o que passar.
 
-Agora há **177 testes** em `testes/`, e cada um é a memória de um defeito que de
+Agora há **181 testes** em `testes/`, e cada um é a memória de um defeito que de
 fato aconteceu:
 
 | Arquivo | Cobre |
