@@ -352,9 +352,35 @@ Fonte: **`docs/backlog_avaliacao.md`**, itens 8 e 9.
 Fonte: **`docs/criterios_avaliacao.md`** e **item 11 do backlog**.
 
 O critério de atribuição **só examina nomes de fora do departamento**. Atribuição
-falsa sobre alguém de dentro é invisível para ele, por desenho. Medido na
-prática: numa pergunta cuja resposta correta é *"nenhum"*, as três abordagens
-citaram nomes, **todas erraram, e o critério aprovou as três**.
+falsa sobre alguém de dentro é invisível para ele, por desenho — e o código diz
+isso em voz alta, num comentário chamado *"limite honesto"*.
+
+**Medido na prática**, na pergunta `amb-06`:
+
+> *"Algum professor de Engenharia Agrícola e Ambiental trabalha com
+> agroecologia?"*
+
+O departamento tem **31 docentes**. No corpus, **12 pessoas** escreveram
+"agroecologia" no perfil — e **nenhuma delas é desse departamento**. A resposta
+certa é **"nenhum"**.
+
+| | o que respondeu | com o tema no perfil | o critério aprovou? |
+|---|---|---|---|
+| RAG clássico | *"não encontrei menção explícita a nenhum professor…"* | — | sim |
+| só banco | listou os **31** docentes do departamento | 0 | **sim** |
+| agente r1 | 1 nome | 0 | **sim** |
+| agente r2 | 2 nomes | 0 | **sim** |
+| agente r3 | 3 nomes | 1 — mas de **outro** departamento | **sim** |
+
+**O critério aprovou as cinco execuções**, inclusive a que despejou um
+departamento inteiro. Ele está certo em aprovar: atribuição departamental é tudo
+o que ele julga, e todas as atribuições estavam corretas. O que é falso não é a
+lotação das pessoas — é o *"trabalha com agroecologia"*, e isso o critério não
+olha.
+
+E a única que acertou foi o **RAG clássico**, dizendo que não encontrou. É a
+mesma assimetria da seção 6.3: na metade interpretativa, o agente não está à
+frente do caminho mais simples.
 
 ---
 
