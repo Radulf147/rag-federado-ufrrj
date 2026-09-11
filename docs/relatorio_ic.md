@@ -370,11 +370,6 @@ nenhuma previsão falha é um trabalho cujas previsões não eram arriscadas.
 | 704 docentes | **1302** | o scraper perdia metade por corrida de sessão |
 | "inflação de 82% por duplicatas do SIGAA" | eram **do nosso scraper** | depois de corrigir, 30 listados → 30 pessoas distintas |
 | "a SIAPE caducou, o SIGAA remapeou ids" | **falso** | ids são estáveis quando buscados em série |
-| "o Instituto Multidisciplinar tem 22 departamentos" † | **11** | a tabela tem 22 âncoras, metade vazias |
-
-† Este último veio do trabalho de expansão, no `master`, e está registrado lá.
-Entra aqui porque é do mesmo tipo dos outros: eu li a evidência certa e contei
-errado.
 
 O primeiro é o mais grave: **toda contagem registrada antes de 4 set 2026 está
 errada por um fator próximo de dois.** A evidência que eu tinha estava certa; a
@@ -387,18 +382,23 @@ causa que atribuí a ela, não.
 | 9 | a mediana do recall dobraria (barra: 28%) | **27%** — não atendida por um ponto |
 | 12 | o híbrido nunca ficaria abaixo da melhor das duas | ficou abaixo **nas duas** partes |
 | 13 | o modo de falha seria inventar | foi **negar que o docente existe** — minha rubrica não tinha essa categoria |
-| 22 ‡ | o multi-salto entre ferramentas falharia | acertou **3 de 3** |
 | 23 | diferença menor que 15 pontos na precisão interpretativa | **36,4 pontos**, e com o agente pior |
 | 25 | alguém inventaria áreas de interesse num perfil vazio | **ninguém inventou** |
 
-‡ A 22 é da bateria de cinco ferramentas, que roda no `master` — está fora do
-escopo deste relatório e entra só para não maquiar o placar de previsões.
-
-Nenhuma foi reescrita depois do resultado. As que valem para este branch estão
-em `docs/pre_registro_troca_colecao.md` (13),
+Nenhuma foi reescrita depois do resultado. Estão em
+`docs/pre_registro_troca_colecao.md` (13),
 `docs/pre_registro_comparacao_30.md` (23 e 25) e no item 7 de
 `docs/backlog_avaliacao.md` (9 e 12), todos commitados antes das respectivas
 rodadas.
+
+> ⚠️ **Esta lista é recortada, e o recorte é declarado.** As rodadas feitas
+> durante a expansão para as outras abas **não entram — nem as previsões que
+> erraram, nem as que acertaram.** Elas medem um agente com cinco ferramentas, e
+> ficam registradas no `master`.
+>
+> O recorte é simétrico: nada da expansão foi mantido neste relatório, em
+> nenhuma direção. Uma lista de erros silenciosamente encurtada seria pior que
+> uma lista curta declarada.
 
 ### 7.3 Sobre o próprio instrumento
 
@@ -447,13 +447,20 @@ passou a custar **uma entrada**, em vez de edições em cinco arquivos.
 O primeiro tipo novo, `departamento`, entrou assim — e os **72 departamentos** já
 estão coletados.
 
-> ⚠️ **Isso muda o sistema medido.** O agente passa de três para cinco
-> ferramentas, e a bateria de 8 set mediu as mesmas 30 perguntas com cinco:
-> roteamento **96,7%** e estabilidade **90,0%**, contra 97,8% e 93,3% com três.
-> São sistemas diferentes, e os números dos dois **não se somam**.
+> ⚠️ **Isso muda o sistema medido, e o argumento não depende de medir.** O
+> agente passa a anunciar cinco ferramentas, **duas delas aceitando o mesmo tipo
+> de argumento e devolvendo coisas diferentes** — um nome de departamento serve
+> tanto para "quantos docentes tem" quanto para "a que instituto pertence". O
+> texto que o modelo lê para decidir é outro, e uma acurácia de roteamento medida
+> sobre um conjunto de ferramentas não descreve outro.
 >
-> Por isso este relatório descreve o `main`, e toda medição citada aqui foi feita
-> nele.
+> A bateria foi de fato repetida com as cinco, e **os números mudaram**. Eles não
+> aparecem aqui de propósito: são métrica de outro sistema, e este relatório se
+> apresenta como o estado final da aba Docentes. Quem quiser vê-los, estão no
+> `master`.
+>
+> Por isso **toda medição citada neste relatório foi feita no `main`**, com três
+> ferramentas.
 
 ---
 
