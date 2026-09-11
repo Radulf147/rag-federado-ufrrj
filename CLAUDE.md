@@ -12,7 +12,75 @@ institucionais da UFRRJ, com objetivo final de integração a uma rede
 social federada (Mastodon/ActivityPub). Orientador: Marcel William Rocha
 da Silva.
 
-## ▶ Estado atual (4 set 2026) — leia isto primeiro
+## ▶ Estado atual (10 set 2026) — leia isto primeiro
+
+A fase 3 fechou e a comparação das três abordagens foi apurada. **Este bloco é o
+topo da pilha; a seção seguinte (4 set) continua valendo para o ETL e para os
+dez achados, que é o que ela descreve.**
+
+Branch `main`, agente com **três** ferramentas. O `master` tem cinco, porque o
+tipo `departamento` entrou no registro — ver o fim desta seção.
+
+### O que está medido e fecha critério
+
+| | critério | medido | onde |
+|---|---|---|---|
+| Acurácia de roteamento | ≥ 95% | **97,8%** | `docs/relatorio_fase5.md` |
+| Estabilidade | ≥ 90% | **93,3%** | idem |
+| Condicional objetiva | ≥ 95% | **[95,83% ; 100%]** robusta | idem |
+
+A bateria foi refeita em 10 set, no mesmo código, e **reproduziu**: roteamento
+97,8% de novo, estabilidade 96,7% e condicional automática 95,8% (era 91,7%). O
+pipeline determinístico deu 13/16 nas duas rodadas, e as checagens que não
+dependem do LLM bateram exatamente.
+
+As três abordagens, nas mesmas 30 perguntas (`docs/comparacao_abordagens.md`):
+
+| grupo | RAG clássico | só banco | agente |
+|---|---|---|---|
+| 16 objetivas | 25,0% | 81,3% | **95,8%** |
+| 6 sem dado (recusa) | 100% | 83,3% | **100%** |
+| 7 semânticas (precisão) | **72,4%** | 16,7% | 36,0% |
+
+**O agente perde do RAG puro na metade interpretativa**, e a causa é o item 3 do
+backlog: nome de departamento temático contamina a busca pelo tema.
+
+### O que está medido e NÃO fecha
+
+- **recall@10 na mediana: 14%.** Reindexar só o texto descritivo levaria a 27%,
+  mas a troca está **suspensa** — no teste ao nível da resposta o agente passou a
+  dizer que um docente real podia não ser da instituição. Item 7 do backlog.
+- **Precisão interpretativa do agente: 36,0%**, contra 72,4% do RAG puro.
+- **556 de 1302 docentes (42,7%)** não têm texto descritivo no perfil. Pelo
+  princípio 1, isso é da fonte, não nosso — mas afeta todo número de cobertura.
+
+### O que nunca foi medido
+
+Federação (Mastodon/ActivityPub) — não iniciada. Contexto de thread, injeção de
+prompt e anáfora obrigatória estão pré-registrados em `docs/pre_registro_fase4.md`
+e **não foram medidos**.
+
+### Onde está cada coisa
+
+    docs/relatorio_fase5.md .............. fecha as métricas da fase 3
+    docs/comparacao_abordagens.md ........ as três abordagens nas 30
+    docs/criterios_avaliacao.md .......... o método, e os limites declarados
+    docs/backlog_avaliacao.md ............ 11 defeitos achados, o que foi corrigido
+    docs/pre_registro_*.md ............... o que foi previsto antes de cada rodada
+    docs/historico/ ...................... versões superadas, preservadas
+
+### A expansão, que está no `master` e não aqui
+
+O tipo `departamento` entrou num registro de tipos — `interfaces/tipos.py`, que
+**existe no `master` e não neste branch** — e cada busca declarada ali vira uma
+tool nomeada, por isso o `master` anuncia cinco. A bateria
+de 8 set mediu as mesmas 30 perguntas com cinco ferramentas: roteamento **96,7%**
+e estabilidade **90,0%**, contra 97,8% e 93,3% com três. **São sistemas
+diferentes, e números dos dois não se somam.**
+
+---
+
+## ▶ Estado do ETL e os dez achados (4 set 2026)
 
 A primeira bateria real de comparação dos três pipelines expôs sete defeitos.
 Ao corrigi-los e auditar os perfis em 4 set 2026 apareceram mais três — e os
@@ -525,7 +593,7 @@ Havia zero `test_*.py` e `pytest` fora do `requirements`. Rodar `pytest`
 coletava zero testes e saía com sucesso — que se lê facilmente como "está tudo
 passando". Não estava: não havia o que passar.
 
-Agora há **160 testes** em `testes/`, e cada um é a memória de um defeito que de
+Agora há **177 testes** em `testes/`, e cada um é a memória de um defeito que de
 fato aconteceu:
 
 | Arquivo | Cobre |
@@ -1027,15 +1095,36 @@ docker compose --profile agente run --rm agente python -m interfaces.comparar
   delega para `agent.processar_pergunta` em vez de reimplementar o loop, para
   a comparação medir o agente real. Histórico novo a cada pergunta, senão uma
   contamina a seguinte.
-- `interfaces/comparar.py` — roda o conjunto de perguntas (editável em
-  `PERGUNTAS`) e escreve `docs/testes_pipelines.md`. O `docs/` virou volume
-  montado no `docker-compose.yml`, senão o relatório morreria no container.
-- O runner preenche automaticamente só a **fonte** de cada resposta (é
-  verificável: de qual banco o dado saiu). **Qualidade** e **Alucinou?** ficam
-  em branco para preenchimento manual — nota automática de qualidade seria
-  fabricar o resultado do experimento.
+- `interfaces/comparar.py` — roda o conjunto **pré-registrado** de
+  `interfaces/conjunto_avaliacao.py` e escreve `docs/avaliacao_fase3.md`. O
+  `docs/` virou volume montado no `docker-compose.yml`, senão o relatório
+  morreria no container.
 
-**Registro bruto — `docs/testes_pipelines.jsonl`.** Uma linha por
+  > ⚠️ Os caminhos são **sobreponíveis desde `d9f3c1d`**, e usá-los é
+  > obrigatório numa medição nova. Sem argumento, a bateria escreve **por cima**
+  > de `docs/avaliacao_fase3.md` — o relatório publicado da fase 3 — e **anexa**
+  > ao registro dela, misturando duas medições num arquivo só:
+  >
+  > ```
+  > python -m interfaces.comparar \
+  >     --saida    docs/<nome>.md \
+  >     --registro docs/<nome>.jsonl
+  > ```
+- O runner calcula as três métricas da fase 3 e verifica a atribuição contra o
+  gabarito do corpus. O que ele **não** faz é dar nota de qualidade de texto:
+  isso seria fabricar o resultado do experimento.
+
+  > A redação anterior desta linha dizia que **Qualidade** e **Alucinou?**
+  > ficavam em branco para preenchimento manual. Isso descrevia o runner de
+  > antes de 4 set 2026, que rodava 7 perguntas sem rótulo e media impressão de
+  > leitor. Ficou no guia por uma semana depois de deixar de ser verdade.
+
+  > ⚠️ **O contexto recuperado é persistido desde `10129ed`** (10 set 2026).
+  > Antes, o registro trocava o texto pelo tamanho — `"<5353 caracteres>"` —, e
+  > o critério de tolerância zero *"todo docente afirmado aparece no contexto"*
+  > **não era recomputável**. Era o item 1 de `docs/backlog_avaliacao.md`.
+
+**Registro bruto — `docs/avaliacao_fase3.jsonl`.** Uma linha por
 (pergunta × pipeline × repetição), gravada assim que a célula termina. **Não é
 backup do markdown: é o dado primário**, e o markdown é uma projeção dele. Duas
 razões: a métrica de estabilidade precisa saber a rota escolhida em CADA

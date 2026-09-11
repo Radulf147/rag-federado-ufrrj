@@ -3,10 +3,31 @@
 Registrado, não implementado. Cada item existe porque uma limitação foi
 encontrada em uso, não porque pareceu uma boa ideia.
 
-## 1. Persistir o contexto recuperado (5 set 2026)
+## 1. ✅ Persistir o contexto recuperado (5 set 2026 — CORRIGIDO em 10 set)
 
-**O que falta.** `interfaces/comparar.py::_gravar` grava o contexto apenas como
-tamanho:
+> **CORRIGIDO em `10129ed`.** `_gravar` guarda o texto inteiro do contexto, e o
+> tamanho passou a um campo próprio, `contexto_caracteres`. A correção mexe
+> **apenas no que é gravado**: `_gravar` roda depois do pipeline, recebe o
+> `ResultadoPipeline` pronto e só escreve no arquivo — por isso uma bateria nova
+> continua comparável com a de 5 set sem ressalva de comportamento.
+>
+> **O que isso destravou.** O grupo E de `docs/pre_registro_comparacao_30.md` —
+> *"nenhum nome afirmado fora do contexto recuperado"* — passou a existir. Na
+> rodada de 10 set (`docs/comparacao_abordagens.md`) ele foi recomputado **por
+> fora** da bateria e o resultado é **zero pessoas inventadas em 120 execuções**:
+> as 3 violações que a métrica estrita marca são todas `MARCEL WILLIAM ROCHA DA
+> SILVA`, nomeado no próprio enunciado das duas perguntas.
+>
+> **Consequência para a fase 3.** O §9 de `docs/relatorio_fase5.md` declarava o
+> critério de tolerância zero como não auditável. Deixou de ser — ver a nota lá.
+>
+> Coberto por `testes/test_avaliacao.py::TestContextoPersistidoNoRegistro`, cujos
+> três primeiros testes **reprovam** a versão antiga.
+
+O registro do defeito, como estava escrito antes da correção:
+
+**O que faltava.** `interfaces/comparar.py::_gravar` gravava o contexto apenas
+como tamanho:
 
 ```python
 linha["contexto"] = f"<{len(r.contexto)} caracteres>"

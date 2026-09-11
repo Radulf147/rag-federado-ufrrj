@@ -1,5 +1,27 @@
 # Avaliação da fase 3 — acurácia de roteamento
 
+> ⚠️ **LEIA ANTES DA TABELA (nota acrescentada em 10 set 2026).**
+>
+> Os valores abaixo são os que o instrumento calculou **automaticamente**. Dois
+> deles foram depois **auditados**, e a auditoria é que fecha a fase:
+>
+> | | aqui (automático) | auditado, em `docs/relatorio_fase5.md` |
+> |---|---|---|
+> | Condicional (objetivas) | 91,7% ❌ | **[95,83% ; 100%]** ✅ robusta |
+> | Interpretativas sem afirmação solta | 100% | 100% ⚠️ não recomputável nesta bateria |
+>
+> A diferença na primeira linha é a **política de denominador**, fixada antes de
+> rodar: itens que o instrumento não consegue julgar não podem ser contados como
+> reprovados nem como aprovados. O intervalo reporta os dois extremos, e as duas
+> pontas ficam acima do critério — o veredito não depende de escolha nenhuma.
+> O método está em `docs/criterios_avaliacao.md`.
+>
+> **Citar o 91,7% como resultado da fase 3 é errado.** Esta nota existe porque
+> isso quase aconteceu ao redigir um e-mail em 9 set.
+>
+> Nota escrita à mão. Este arquivo é gerado por `interfaces/comparar.py`, e uma
+> execução nova sem `--saida` o sobrescreve — levando a nota junto.
+
 Gerado por `interfaces/comparar.py` em 2026-09-05 18:49. Execução `20260905T170958`.
 
 - Conjunto pré-registrado: **30** perguntas (`interfaces/conjunto_avaliacao.py`, commitado antes desta execução)

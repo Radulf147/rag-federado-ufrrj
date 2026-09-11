@@ -272,13 +272,29 @@ idênticos — 19 APROVA · 0 REPROVA · 2 AMBÍGUO. Registrado como iteração 
 
 ## 9. O que não é recomputável, e continua congelado
 
-`atribuicao_ok` e `nomes_sem_respaldo` — a verificação de tolerância zero das
-interpretativas — **não podem ser reconferidos**, porque o JSONL grava o contexto
-recuperado apenas como tamanho (`"<8254 caracteres>"`). Os valores da bateria
-permanecem: **100%**, sem possibilidade de auditoria.
+> ⚠️ **ATUALIZAÇÃO DE 10 SET 2026 — esta seção descreve a bateria de 5 set, e
+> deixou de valer para as baterias novas.** A lacuna foi fechada em `10129ed`:
+> `_gravar` passou a persistir o texto do contexto. Os dados **desta** bateria
+> continuam congelados, porque o texto que eles não gravaram não volta — mas o
+> critério deixou de ser inauditável no sistema.
+>
+> Na bateria de 10 set (`docs/comparacao_abordagens.md`), recomputado por fora
+> do instrumento: **zero pessoas inventadas em 120 execuções**. A métrica estrita
+> marca 3 violações, todas `MARCEL WILLIAM ROCHA DA SILVA`, nomeado no enunciado
+> das duas perguntas em que aparece — e a regra 1 do pré-registro daquela rodada,
+> escrita antes de rodar, diz que nome vindo da pergunta não conta.
+>
+> **O 100% abaixo continua sendo o que a bateria produziu, não o que alguém
+> conferiu.** O que mudou é que agora existe um número conferido, e ele está em
+> outro documento.
 
-É a terceira cobrança da mesma lacuna nesta fase. Registrada em
-`docs/backlog_avaliacao.md`.
+`atribuicao_ok` e `nomes_sem_respaldo` — a verificação de tolerância zero das
+interpretativas — **não podem ser reconferidos** nesta bateria, porque o JSONL
+gravou o contexto recuperado apenas como tamanho (`"<8254 caracteres>"`). Os
+valores permanecem: **100%**, sem possibilidade de auditoria.
+
+Era a terceira cobrança da mesma lacuna nesta fase. Registrada como item 1 de
+`docs/backlog_avaliacao.md`, e corrigida cinco dias depois.
 
 ---
 
@@ -740,6 +756,12 @@ nomeado acima, e nada no resultado autoriza a afirmar que o agente é bom naquil
 | Interpretativas — zero afirmação sem respaldo | 100% | 100% | ⚠️ não auditável (§9) |
 
 A ressalva da última linha é a mesma da seção 9 e não é decorativa: o
-`nomes_sem_respaldo` da bateria **não é recomputável**, porque o JSONL não gravou
-o texto do contexto recuperado. O 100% é o que a bateria produziu, não o que
-alguém conferiu.
+`nomes_sem_respaldo` **desta** bateria **não é recomputável**, porque o JSONL não
+gravou o texto do contexto recuperado. O 100% é o que a bateria produziu, não o
+que alguém conferiu.
+
+> **10 set 2026 — a lacuna foi fechada, e o número conferido existe.** `10129ed`
+> passou a persistir o contexto; a bateria de 10 set foi auditada por fora do
+> instrumento e deu **zero pessoas inventadas em 120 execuções**. Detalhe em
+> `docs/comparacao_abordagens.md`, grupo E. Os dados **desta** bateria seguem
+> congelados — o texto que eles não gravaram não volta.
