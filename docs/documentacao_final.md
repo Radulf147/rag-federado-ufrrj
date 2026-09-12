@@ -1,104 +1,311 @@
-1. Introdução e Objetivos
+# Arquitetura e operação — Agente RAG para dados institucionais da UFRRJ
 
-Sistemas acadêmicos universitários, como o Sistema Integrado de Gestão de Atividades Acadêmicas (SIGAA), concentram um vasto volume de dados cruciais para a comunidade discente e docente. Contudo, a navegação fragmentada e a arquitetura de informação complexa frequentemente resultam em desinformação, dificultando o acesso rápido a dados como contatos de docentes, ementas de disciplinas, editais de bolsas e serviços institucionais.
+> **O que este documento é.** A descrição da arquitetura, das decisões de
+> projeto e de como rodar o sistema.
+>
+> **O que ele não é.** Não é o relatório de resultados. Nenhum número de
+> avaliação é defendido aqui; quando um aparece, é para justificar uma decisão
+> de engenharia, e a apuração está em [`relatorio_ic.md`](relatorio_ic.md).
+>
+> **Escopo.** Só a aba de docentes do SIGAA. É o recorte que foi medido.
+>
+> Retrato do repositório em 12 set 2026, commit `f1501ff`.
 
-Para mitigar este problema, este trabalho propõe o desenvolvimento de um Agente RAG (Retrieval-Augmented Generation) Federado. A solução visa acoplar a capacidade de compreensão de linguagem natural dos Grandes Modelos de Linguagem (LLMs) a uma base de conhecimento atualizada e extraída dinamicamente do SIGAA.
+---
 
-O objetivo principal é construir uma arquitetura descentralizada, baseada na rede Mastodon (Fediverso), onde um agente autônomo atue como um facilitador de informações (semelhante ao assistente "Grok" da rede X/Twitter). Para garantir a precisão das respostas e mitigar o fenômeno da alucinação (geração de informações falsas pelo LLM), o projeto evolui do paradigma de Naive RAG para uma abordagem de Agentic RAG com Armazenamento Híbrido, separando consultas semânticas de consultas determinísticas.
+## 1. O problema
 
-2. Arquitetura do Sistema e Metodologia
+O SIGAA concentra dados que a comunidade acadêmica precisa, mas a navegação é
+fragmentada: achar em qual departamento um docente está, quem dá aula de certo
+tema, ou a lista completa de um departamento exige saber de antemão por onde
+entrar. A informação existe e não está acessível.
 
-A arquitetura do sistema foi projetada sob os princípios de modularidade, desacoplamento e escalabilidade. O ciclo de vida dos dados e a inferência do modelo estão divididos em três módulos principais.
+A proposta é um agente que receba a pergunta em linguagem natural e responda a
+partir dos dados do próprio SIGAA — com a exigência de **não inventar**. Num
+sistema que fala sobre pessoas reais de uma instituição real, uma resposta
+inventada é pior que nenhuma resposta.
 
-2.1. Módulo 1: Pipeline ETL e Armazenamento Híbrido
+O destino é uma rede social federada (Mastodon / ActivityPub), onde o agente
+seria acionado por menção. **Essa parte não está implementada** — ver §2.3.
 
-O pipeline de Extração, Transformação e Carga (ETL) é responsável por manter a base de conhecimento do agente sincronizada com o SIGAA. A extração (Scraping) ocorre de forma assíncrona, navegando em múltiplos níveis hierárquicos (ex.: varredura de departamentos seguida da coleta de perfis individuais de docentes). O texto extraído passa por um processo de Chunking estrutural (divisão por sentenças com sobreposição) e, em seguida, é vetorizado através de modelos da arquitetura Transformer.
+---
 
-Para suportar a complexidade das consultas futuras, a persistência dos dados adota uma Arquitetura Híbrida:
+## 2. Arquitetura
 
-Vector Store (ChromaDB): Armazena os embeddings de textos longos e descritivos (ex.: biografias, ementas, áreas de pesquisa). Otimizado para cálculo de distância vetorial e busca de similaridade semântica.
+Três camadas, desacopladas: uma prepara os dados, uma responde, uma entrega.
 
-Document Store Genérico (SQLite): Dados estruturados que exigem determinismo e precisão absoluta (ex.: a lista exata de docentes de um departamento ou diretórios de serviços) são salvos no formato JSON (schema-less) numa tabela genérica relacional.
+### 2.1. Módulo 1 — ETL (`modulo1_etl/`)
 
-2.2. Módulo 2: Motor de Inferência (Agentic RAG)
+Mantém a base sincronizada com o SIGAA. O scraping é assíncrono
+(`httpx` + `asyncio`), o parsing tolerante ao HTML antigo do SIGAA
+(`BeautifulSoup4`).
 
-Neste módulo, ocorre a interação com o usuário. Utilizando o framework Haystack 2.x, o LLM local (Mistral, servido via Ollama) não atua apenas como um gerador de texto, mas como um Agente Autônomo. Através da técnica de Tool Calling (Function Calling), o modelo é equipado com ferramentas sistêmicas. Em tempo real, o LLM interpreta a intenção da pergunta do usuário e decide dinamicamente:
+| etapa | arquivo | o que faz |
+|---|---|---|
+| 2 | `parte2_scraping_docentes.py` | varre os departamentos, depois cada perfil individual |
+| 3 | `parte3_chunking.py` | divide em blocos de 5 sentenças com 1 de sobreposição (`CHUNK_SENTENCES = 5`, `CHUNK_OVERLAP = 1`) |
+| 4 | `parte4_embedding.py` | vetoriza com `BAAI/bge-m3`, 1024 dimensões |
+| 5 | `parte5_carga.py` | valida e carrega no ChromaDB; também orquestra o pipeline inteiro |
+| — | `db_manager.py` | escreve o SQLite |
+| — | `deduplicacao.py` | remove perfis repetidos antes da carga |
 
-Se deve formular e executar uma query (consulta) na base SQLite para responder a perguntas exatas.
+**`parte1_scraping_sigaa.py` está desligada de propósito**
+([`parte5_carga.py:181`](../modulo1_etl/parte5_carga.py#L181)). Ela é a
+varredura ampla do SIGAA; ligada, o vetor store passa a conter material que a
+base estruturada não enxerga, e a comparação entre os pipelines deixa de ser
+entre abordagens e passa a ser entre corpora diferentes. Reativar quando a
+varredura ampla entrar em escopo.
 
-Se deve acionar o motor de busca vetorial no ChromaDB para responder a perguntas interpretativas ou conceituais.
+**Armazenamento híbrido.** Os mesmos dados vão para dois lugares, com papéis
+distintos:
 
-2.3. Módulo 3: Integração Federada Descentralizada
+- **ChromaDB (vetorial)** — os textos descritivos (formação, áreas de atuação,
+  lattes). Otimizado para similaridade semântica: responde "quem trabalha com
+  tema X" sem que a palavra X apareça literalmente.
+- **SQLite (estruturado)** — tabela genérica `entidades_sigaa`, com
+  `tipo_entidade` indexado e `dados_brutos` em JSON (*schema-less*). Responde
+  "quantos" e "quais todos" com precisão exata e custo desprezível.
 
-Como camada de interface, o sistema transcende as interfaces web tradicionais e integra-se à rede Mastodon via ActivityPub. O agente opera como um bot escutando menções na rede. Ao ser acionado por um aluno de qualquer instância conectada à UFRRJ, o conteúdo do post (toot) atua como prompt. A resposta gerada pelo Módulo 2 é então publicada em resposta (thread), democratizando o acesso à informação em um ecossistema descentralizado.
+Uma nota de honestidade sobre o SQLite: a escolha original foi motivada pelo
+suporte nativo a `json_extract`, mas **o código não usa mais isso**. Hoje só o
+filtro por `tipo_entidade` fica no SQL (é indexado) e o casamento do campo é
+feito em Python, com normalização de acento e caixa
+([`db_manager.py:97-113`](../modulo1_etl/db_manager.py#L97-L113)). A escolha
+continua defensável — banco embutido, sem servidor, sem schema —, mas não pela
+razão que foi escrita antes.
 
-2.4. Decisões de Design: O Paradoxo da Estruturação
+### 2.2. Módulo 2 — inferência (`modulo2_inferencia/`)
 
-Durante o desenvolvimento do Módulo 2, desafios inerentes aos sistemas RAG tradicionais exigiram a adoção de soluções de engenharia avançadas, consolidando o abandono de técnicas rudimentares em favor do estado da arte.
+Aqui o LLM não é só um gerador de texto: é quem decide onde buscar. Via
+**tool calling**, o modelo lê a pergunta e escolhe a ferramenta.
 
-Por que o banco vetorial (ChromaDB) não é suficiente sozinho?
+| arquivo | papel |
+|---|---|
+| `llm_setup.py` | monta as peças: `ChromaDocumentStore`, embedder, retriever, `OllamaChatGenerator` |
+| `tools.py` | schema e implementação das três ferramentas |
+| `agent.py` | o laço de decisão, no máximo `MAX_RODADAS_TOOL = 4` rodadas |
+| `pipelines.py` | as três abordagens comparadas, isoladas uma da outra |
 
-A premissa básica do RAG clássico (Naive RAG) é buscar os $K$ fragmentos de texto (chunks) cujos vetores são mais próximos matematicamente à pergunta do usuário. Contudo, essa abordagem de Busca Semântica é fundamentalmente ineficiente para agregações exaustivas e contagens.
+As três ferramentas registradas hoje:
 
-Se um usuário solicitar "Liste todos os professores do Departamento de Computação", o banco vetorial não retornará a totalidade do departamento, mas apenas um subconjunto limitado pelo hiperparâmetro top_k. Aumentar o top_k artificialmente para tentar englobar todos os registros gera um novo problema: o esgotamento da Janela de Contexto do LLM. Enviar dezenas de milhares de tokens ao modelo resulta em latência extrema, estouro de memória (VRAM) e no fenômeno conhecido como Lost in the Middle — onde o modelo sofre "amnésia seletiva" e ignora informações localizadas no meio do prompt.
+| ferramenta | vai em | responde |
+|---|---|---|
+| `buscar_docentes_por_departamento` | SQLite | "quem são todos do departamento X", contagens |
+| `buscar_docente_por_nome` | SQLite | "onde o professor Y está lotado" |
+| `busca_vetorial_sigaa` | ChromaDB | "quem trabalha com tema X" |
 
-A solução arquitetural foi o acoplamento de um Document Store determinístico (SQLite). Ao persistir dados de listagem como JSONs brutos (schema-less) no SQLite, o sistema consegue realizar operações de contagem (COUNT) e filtragem com 100% de precisão e custo computacional quase nulo, enviando ao LLM apenas o resultado consolidado e mitigando o risco de alucinação.
+O casamento dos argumentos nas duas ferramentas de SQLite é por **substring,
+ignorando caixa e acento** ([`db_manager.py:59`](../modulo1_etl/db_manager.py#L59)).
+Isso não é detalhe: o `LIKE` do SQLite só é *case-insensitive* para ASCII, e
+`LIKE '%Ciência da Computação%'` devolvia 0 resultados onde
+`'%CIÊNCIA DA COMPUTAÇÃO%'` devolvia 6 — o SIGAA grava em caixa alta, o LLM
+escreve o argumento em caixa mista com acento, e a tool falhava em quase toda
+pergunta acentuada. O agente então respondia, com honestidade, que não havia
+docentes naquele departamento.
 
-Por que abandonamos Expressões Regulares (Regex) em favor de Tool Calling?
+Duas decisões de resposta que valem registro, porque ambas evitam a resposta
+errada convincente:
 
-No Produto Mínimo Viável (MVP), o roteamento entre a busca vetorial (ChromaDB) e a busca exata era controlado por Expressões Regulares (Regex), como r"(todos os|lista de) professores". Embora funcional em escopos pequenos, essa abordagem apresentou-se insustentável a longo prazo.
+- **Ambiguidade é relatada, não resolvida.** "Silva" casa com dezenas de
+  docentes; a ferramenta devolve o total exato e lista até 15, em vez de
+  escolher o primeiro.
+- **Base vazia ≠ pessoa ausente.** Antes de dizer "não encontrei", a ferramenta
+  consulta `total_de_entidades`. Um banco vazio apresentado como ausência da
+  pessoa é a mentira mais convincente que este sistema sabe produzir.
 
-A linguagem natural humana é infinitamente variável. Mapear manualmente todas as formas que um aluno poderia formular uma pergunta sobre turmas, disciplinas, calendários e projetos resultaria num código frágil e acoplado.
+`agent.py` não sabe nada sobre CLI nem sobre rede: recebe a pergunta, devolve a
+resposta. É o que permite trocar a interface sem duplicar o laço de decisão.
 
-O abandono das Regex em prol do Tool Calling (Function Calling) representa a transição para o paradigma Agentic RAG. Ao registrar funções Python (como buscar_disciplinas_sqlite ou buscar_biografia_chroma) como ferramentas no Haystack, delega-se a interpretação da intenção ao próprio LLM. O modelo avalia a semântica da pergunta e decide autonomamente qual ferramenta invocar e quais parâmetros passar. Essa decisão garante escalabilidade irrestrita: novos scrapers do SIGAA podem ser adicionados ao sistema bastando acoplar uma nova ferramenta ao agente, sem a necessidade de reescrever lógicas de controle.
+O `pipelines.py` guarda as três abordagens que a avaliação compara —
+`1-vetorial`, `2-estruturado` e `3-agente`. Só a terceira é o sistema; as outras
+duas existem como termo de comparação. A do meio é **sem LLM por definição**, o
+que a obriga a sair da linguagem natural por um caminho determinístico: ela casa
+a pergunta contra os nomes reais de departamento com `rapidfuzz`
+(`fuzz.partial_ratio`, `LIMIAR_FUZZY = 70`,
+[`pipelines.py:95`](../modulo2_inferencia/pipelines.py#L95)). É deliberadamente
+burra — a graça é ver onde o caminho barato empata com o agente e onde quebra.
 
-3. Stack Tecnológica
+**Parâmetros em uso** (`.env.example` traz os valores e o porquê de cada um):
 
-O ecossistema do projeto foi construído utilizando tecnologias open-source, priorizando a modularidade, o processamento assíncrono e a privacidade dos dados da universidade.
+| variável | valor | nota |
+|---|---|---|
+| `MODELO_LLM` | `qwen2.5:32b-instruct-q4_K_M` | escolhido por medição, não por estimativa |
+| `MODELO_EMBEDDING` | `BAAI/bge-m3` | `EMBEDDING_DIM=1024` |
+| `TOP_K` | 10 | |
+| `LIMIAR_DISTANCIA` | 1.24 | **distância**, não similaridade: o filtro é `score <= limiar`, menor é mais parecido. Calibrado em [`calibracao_limiar.md`](calibracao_limiar.md); vazio desliga o filtro |
+| `NUM_CTX` | 8192 | o padrão do Ollama (4096) é apertado para `TOP_K=10` |
+| `MAX_RODADAS_TOOL` | 4 | |
 
-Haystack 2.x: Framework principal de orquestração do pipeline de Inteligência Artificial. Selecionado pela sua arquitetura moderna orientada a componentes, excelente suporte a Agentic RAG e Tool Calling.
+> ⚠️ O `config.py` traz outros *defaults* (`mistral`,
+> `paraphrase-multilingual-MiniLM-L12-v2`). Eles **não** são o que roda: o
+> `.env` sobrescreve. Rodar sem `.env` não dá erro — vetoriza com outro modelo,
+> em outra dimensão, em silêncio.
 
-ChromaDB: Banco de dados vetorial open-source. Escolhido por permitir armazenamento persistente local sem depender de APIs proprietárias em nuvem, garantindo baixa latência na recuperação de embeddings.
+### 2.3. Camada de entrega (`interfaces/`)
 
-SQLite: Banco de dados relacional leve e embutido. Utilizado como Document Store genérico graças ao seu suporte nativo robusto a funções JSON (como json_extract), permitindo armazenamento determinístico schema-less.
+| interface | estado |
+|---|---|
+| `cli.py` — REPL de terminal | funciona |
+| `rede/` — rede social **simulada**, local | funciona (`http://localhost:5000`) |
+| Mastodon / ActivityPub | **não existe** |
 
-Ollama (Mistral): Servidor de inferência local para Grandes Modelos de Linguagem (LLMs). Permite a execução de modelos avançados (como o Mistral) de forma parametrizada, isolada e sem custos de API externa, mantendo os dados da instituição privados.
+Este é o ponto onde a documentação anterior afirmava o que o projeto não faz.
+O pacote `interfaces/rede/` diz na própria docstring:
 
-BeautifulSoup4 & Asyncio/Httpx: Combinação utilizada na camada de extração (ETL). Enquanto o BeautifulSoup oferece parsing tolerante a falhas no HTML obsoleto do SIGAA, o httpx aliado ao asyncio (coroutines) permite concorrência em I/O, reduzindo drasticamente o tempo de scraping.
+> *"NÃO é o Módulo 3, e o nome do pacote evita de propósito a palavra
+> 'federação'. Aqui não há ActivityPub, não há instância remota e não há
+> federação nenhuma: há uma imitação local do formato de uma rede social."*
 
-Docker & Docker Compose: Infraestrutura como código (IaC). Garante a reprodutibilidade do ambiente, isolando o banco de dados, o orquestrador ETL e o Agente em contêineres separados, além de facilitar o pass-through de recursos de hardware (GPU NVIDIA) para aceleração de matrizes.
+O objetivo dela é metodológico: fazer o agente receber a pergunta do jeito que
+ele a receberia em produção — um post com menção, dentro de uma thread — em vez
+de um prompt limpo digitado num terminal. **A federação de verdade é escopo do
+TCC.**
 
-Mastodon API: Protocolo ActivityPub utilizado para a federação da aplicação, permitindo a interfaceamento via menções em uma rede social livre.
+---
 
-4. Guia de Operação e Deploy (DevOps)
+## 3. Decisões de projeto
 
-Toda a complexidade de orquestração do ambiente foi abstraída através de contêineres Docker e controlada por um shell script utilitário (rag.sh), garantindo facilidade na implantação em servidores institucionais ou máquinas locais.
+### 3.1. Por que o banco vetorial sozinho não basta
 
-Pré-requisitos: Docker, plugin Docker Compose V2 e, opcionalmente, Nvidia Container Toolkit para aceleração de GPU.
+O RAG clássico busca os *K* trechos mais próximos da pergunta. Isso é
+inadequado para **contagens e listagens exaustivas**, por construção: "liste
+todos os professores do Departamento de Computação" devolve no máximo `top_k`
+trechos, e não o departamento inteiro. Aumentar `top_k` para cobrir todo mundo
+esgota a janela de contexto — latência, VRAM, e o *lost in the middle*, em que
+o modelo ignora o que está no meio do prompt.
 
-4.1. Construção da Imagem
+O acoplamento do SQLite resolve: `COUNT` e filtragem com precisão exata, e ao
+LLM chega só o resultado consolidado.
 
-O comando de build constrói a imagem principal, resolvendo as dependências listadas no requirements.txt sem executar o código:
+Isso deixou de ser argumento teórico. Nas 16 perguntas objetivas da bateria, o
+RAG clássico acerta **25,0%**, o acesso determinístico ao banco **81,3%**, e o
+agente que escolhe entre os dois **95,8%**. Nos subtipos que dependem de
+exaustividade — contagem e listagem — o RAG clássico faz **0%**. Apuração e
+ressalvas em [`comparacao_abordagens.md`](comparacao_abordagens.md).
 
-./rag.sh build
+### 3.2. Por que Regex saiu e entrou Tool Calling
 
+No MVP, o roteamento entre busca vetorial e busca exata era uma expressão
+regular. Ela existiu de verdade, em `modulo1_etl/teste_llm.py:79`, commit
+`5221190` (16 jun 2026):
 
-4.2. Execução do Pipeline ETL
+```python
+padroes_exaustivos = r"(todos os|lista de|quais s[aã]o os) professores\s+(do|da|de)?\s*(.*)"
+match_intencao = re.search(padroes_exaustivos, pergunta_limpa)
+```
 
-O comando abaixo inicializa o banco vetorial (ChromaDB) em plano de fundo (background) e aciona o contêiner efêmero do ETL. O pipeline raspa os dados do SIGAA de forma assíncrona, gera os embeddings e persiste os dados em volume de disco local, encerrando o contêiner automaticamente ao término.
+Funciona até a primeira pergunta que ninguém previu. A linguagem natural é
+variável demais para ser enumerada à mão, e cada nova aba do SIGAA
+multiplicaria os padrões — código frágil e acoplado.
 
-./rag.sh etl
+O tool calling entrou no commit `0208ef9` (25 jun 2026): registram-se funções
+Python como ferramentas e delega-se a interpretação da intenção ao próprio LLM.
+Ele avalia a semântica e decide qual chamar e com que argumentos. O ganho é de
+escalabilidade: uma aba nova do SIGAA custa **uma ferramenta a mais**, não uma
+reescrita da lógica de controle.
 
+O custo dessa decisão também está medido, e não é zero — o agente perde do RAG
+puro na precisão das perguntas interpretativas. Ver `relatorio_ic.md` §6.3.
 
-4.3. Inicialização do Agente de Inferência
+---
 
-Com a base de dados populada (Módulo 1 concluído), o ambiente interativo de perguntas e respostas é iniciado acoplando-se ao servidor Ollama hospedeiro:
+## 4. Stack
 
-./rag.sh agente
+| tecnologia | papel | por quê |
+|---|---|---|
+| **Haystack 2.x** | orquestração do pipeline de IA | arquitetura por componentes; suporte a tool calling |
+| **ChromaDB** | banco vetorial | persistência local, sem API proprietária |
+| **SQLite** | document store genérico | embutido, sem servidor, JSON schema-less |
+| **Ollama** | inferência local do LLM | roda modelo grande sem custo de API e sem mandar dado da instituição para fora |
+| **BAAI/bge-m3** | embedding | multilíngue, 1024 dimensões |
+| **rapidfuzz** | casamento aproximado de nome de departamento | dá ao pipeline `2-estruturado` um caminho sem LLM da pergunta até o parâmetro de query |
+| **BeautifulSoup4** | parsing | tolerante ao HTML antigo do SIGAA |
+| **httpx + asyncio** | extração concorrente | corta o tempo de scraping |
+| **Docker Compose** | infra como código | reprodutibilidade; isola ChromaDB, ETL, agente e rede |
+| **pytest** | suíte de testes | 181 testes |
 
+---
 
-4.4. Gerenciamento e Limpeza
+## 5. Operação
 
-Para fins de manutenção e reestruturação da base de conhecimento, o ambiente possui um comando de teardown que paralisa os serviços e purga os volumes de dados locais de forma segura:
+Tudo passa pelo `rag.sh`. No Windows, `rag.cmd` é um invólucro que acha o Git
+Bash e delega ao mesmo script — os comandos são idênticos.
 
-./rag.sh limpar
+**Pré-requisitos:** Docker, plugin Docker Compose V2, e um `.env` preenchido
+(`cp .env.example .env`, depois preencher `DCC_USUARIO`).
+
+### 5.1. O túnel não é opcional
+
+O Ollama **não roda na sua máquina**: roda na máquina da faculdade, alcançada
+por túnel SSH. Sem o túnel, tudo que precisa do LLM falha — o agente sobe e não
+responde, e os pipelines 1 e 3 da bateria falham inteiros.
+
+```bash
+./rag.sh tunel up       # sobe   (também: status | down)
+```
+
+Os comandos `agente`, `comparar` e `rede` já tentam levantar o túnel sozinhos, e
+**não abortam** se ele falhar: avisam e seguem. A mensagem de erro do túnel é
+mais informativa que um timeout lá dentro.
+
+### 5.2. Ciclo normal
+
+```bash
+./rag.sh build          # constrói a imagem
+./rag.sh etl            # sobe o ChromaDB e roda o ETL completo
+./rag.sh agente         # abre o agente interativo no terminal
+```
+
+### 5.3. Comandos
+
+| comando | o que faz |
+|---|---|
+| `build` | constrói a imagem |
+| `etl` | sobe o ChromaDB e roda o pipeline ETL completo |
+| `agente` | sobe o ChromaDB, levanta o túnel e abre o REPL |
+| `comparar` | roda a bateria dos 3 pipelines nas 30 perguntas |
+| `testes` | **reconstrói a imagem** e roda o pytest |
+| `tunel up\|status\|down` | gerencia o túnel SSH até o Ollama |
+| `chroma` | sobe só o ChromaDB, em background |
+| `logs` | segue os logs do ETL |
+| `status` | mostra os containers rodando |
+| `limpar` | derruba tudo e **APAGA** o banco e os volumes (pede confirmação) |
+| `rede` | sobe a rede simulada → `http://localhost:5000` |
+| `rede-parar` | derruba a página e o bot; os posts ficam em `dados/rede.db` |
+| `rede-logs` | segue os logs do worker do bot |
+| `semear` | **APAGA** os posts da rede simulada e recria o cenário (pede confirmação) |
+
+### 5.4. Duas armadilhas que já custaram caro
+
+**O `testes` reconstrói a imagem, e isso não é zelo.** `testes/` e o código
+**não são volumes montados** — vêm do `COPY` da imagem. Rodar `pytest` sem
+rebuild executa a versão anterior à edição e devolve verde de código obsoleto.
+Aconteceu em 5 set 2026. Por isso o comando imprime o id da imagem: a saída diz
+de onde os testes vieram.
+
+**O `comparar` sobrescreve, se você deixar.** Por padrão ele escreve em
+`docs/avaliacao_fase3.md` e **acrescenta** ao `docs/avaliacao_fase3.jsonl`.
+Rodar duas baterias diferentes sem trocar os caminhos mistura execuções no
+mesmo registro. Use `--saida` e `--registro` para separar:
+
+```bash
+docker compose --profile agente run --rm agente python -m interfaces.comparar \
+    --saida docs/minha_bateria.md --registro docs/minha_bateria.jsonl
+```
+
+O comando avisa onde vai escrever e reclama se o registro já tem execuções.
+
+---
+
+## 6. Onde está cada coisa
+
+| quero | vou em |
+|---|---|
+| os resultados, o que fecha critério e o que não fecha | [`relatorio_ic.md`](relatorio_ic.md) |
+| a comparação das três abordagens nas 30 perguntas | [`comparacao_abordagens.md`](comparacao_abordagens.md) |
+| as previsões, commitadas antes de rodar | [`pre_registro_comparacao_30.md`](pre_registro_comparacao_30.md) |
+| como cada métrica é apurada, e o que ela não enxerga | [`criterios_avaliacao.md`](criterios_avaliacao.md) |
+| os defeitos conhecidos e não corrigidos | [`backlog_avaliacao.md`](backlog_avaliacao.md) |
+| a calibração do limiar de distância | [`calibracao_limiar.md`](calibracao_limiar.md) |
+| a qualidade dos perfis coletados | [`auditoria_perfis.md`](auditoria_perfis.md) |
+| convenções, armadilhas e estado de trabalho | [`../CLAUDE.md`](../CLAUDE.md) |
