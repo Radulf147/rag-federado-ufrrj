@@ -164,3 +164,115 @@ qualquer variante que passe nas duas ao mesmo tempo.
   antes de adotar qualquer uma, a bateria das 30 tem de rodar inteira.
 - **Não separa a contribuição do cabeçalho** `[NOME — DEPARTAMENTO]`. Se P2 se
   confirmar, esse vira o experimento seguinte.
+
+---
+---
+
+# EMENDA 1 — 14 set 2026, depois da bateria completa `ef4e60a`
+
+> **O que esta emenda faz e o que ela não faz.** Ela muda o **método** de
+> medição e declara o que já ficou respondido. **Nenhuma previsão do §4 foi
+> tocada** — P1 a P7 estão acima exatamente como foram commitadas em `12b75be`,
+> antes de qualquer resultado. Emenda que reescreve previsão não é emenda, é
+> apagar o erro.
+>
+> Escrita **antes** de rodar V2 e V3.
+
+## E1.1 O que mudou o quadro
+
+A bateria completa de 14 set (`docs/bateria_consultas_completa.jsonl`, 150
+execuções, 30 perguntas, sem abort) trouxe uma medida que não existia quando o
+pré-registro foi escrito: **o recall@10 do gabarito**, por pergunta e por
+pipeline. Quantos docentes do tema chegam a entrar nos 10 documentos
+recuperados.
+
+| pergunta | tema | RAG puro | agente (3 reps) | quem venceu na precisão |
+|---|---|---|---|---|
+| sem-01 | agroecologia | 2/12 | **4, 4, 4** | agente |
+| sem-08 | literatura | 6/33 | **7, 7, 7** | agente |
+| sem-07 | ecologia | 7/44 | 5, 7, 5 | empate |
+| sem-02 | movimentos sociais | 4/13 | 1, 1, 1 | RAG puro |
+| sem-03 | formação de professores | 4/33 | **0, 0, 0** | RAG puro |
+| sem-04 | segurança alimentar | 1/9 | **0, 0, 0** | RAG puro |
+| sem-09 | didática | 1/14 | **0, 0, 0** | RAG puro |
+
+A correlação é perfeita: quem recupera mais gabarito vence. E nas três piores o
+agente recupera **zero** — o `0/10` da `sem-03` **não é o LLM alucinando**, era
+aritmeticamente impossível acertar.
+
+**Consequência para o método:** a perda é de **recuperação**, não de geração. O
+`recall@10` é causalmente anterior à precisão, é determinístico, e **não precisa
+do LLM**. Medir a variante pelo `recall@10` é medir a causa; medir pela precisão
+é medir a causa através de um intermediário ruidoso e caro.
+
+Dois números de reprodutibilidade, para o registro. A apuração do grupo C
+reproduziu a de 10 set com a régua do projeto, e os 7 gabaritos bateram
+exatamente com os publicados (12, 13, 33, 9, 44, 33, 14 = 158):
+
+| | 10 set | 14 set |
+|---|---|---|
+| RAG puro | 21/29 — 72,4% | 20/28 — **71,4%** |
+| só banco | 3/18 — 16,7% | 3/18 — **16,7%** (idêntico) |
+| agente | 45/125 — 36,0% | 45/120 — **37,5%** |
+
+## E1.2 O que já está respondido, sem rodar nada
+
+**V1 é determinística e já foi medida.** Embutir a pergunta original é
+exatamente o que o `1-vetorial` faz. Logo o recall@10 de V1 **é** o do RAG puro,
+que a bateria de hoje mediu:
+
+| | recall@10 somado nas 7 |
+|---|---|
+| V0 (o de hoje, termo nu) | 17, 19, 17 de 158 |
+| **V1** (pergunta original) | **25 de 158** |
+
+V1 sobe a recuperação do agente em ~41%, e tira `sem-03`, `sem-04` e `sem-09`
+do zero. Isto **não** dispensa implementar V1 — dispensa *medir* a recuperação
+dela. A implementação ainda tem de ser verificada contra P1, que é justamente a
+checagem de que nenhum bug se meteu no caminho.
+
+## E1.3 O método revisado
+
+| | antes | agora |
+|---|---|---|
+| métrica primária | precisão e cobertura | **recall@10 do gabarito** |
+| métricas secundárias | — | precisão e cobertura, e a fração de perfis esparsos |
+| execuções do agente | 84 | **V2 e V3 apenas** — V0 e V1 saem dos dados de hoje |
+
+**A barra do §3 continua a mesma**, e continua sendo julgada em precisão e
+cobertura: *precisão acima de 72,4% sem cair abaixo de 13,3% de cobertura*.
+Recall@10 é o instrumento de diagnóstico, **não** o critério de vitória — uma
+variante que suba o recall e não mova a precisão não venceu nada.
+
+## E1.4 Previsões novas, só sobre o que ainda não rodou
+
+Escritas sem conhecer o resultado de V2 e V3, que não foram executadas.
+
+**P8 — V2 (união) terá recall@10 ≥ V1 em todas as 7.** Ela contém os documentos
+de V1 por construção, a menos do corte em `TOP_K`. *Me derruba:* uma pergunta em
+que V2 < V1 — e aí o corte está descartando o que importa, o que é achado.
+
+**P9 — V3 (só o schema) ficará entre V0 e V1, e será instável entre
+repetições.** Pedir por escrito não garante obediência. *Me derruba:* V3
+empatando com V1 nas 7, ou sendo estável nas 21 execuções.
+
+**P10 — nenhuma variante passa de 40/158 de recall@10 somado.** O teto não está
+na consulta: mesmo o RAG puro, que já usa a pergunta inteira, alcança 25/158 e
+deixa **84% do gabarito fora**. *Me derruba:* qualquer variante acima de 40.
+
+## E1.5 O que esta emenda torna mais provável, e não decide
+
+**P7 fica bem mais provável** — *"nenhuma das quatro variantes atinge a barra"*.
+Se o melhor recall possível mexendo só na consulta é 25/158, é difícil que a
+precisão passe de 72,4% com cobertura preservada. **Mas P7 não está decidida**:
+nenhuma variante rodou fim a fim, e precisão não é função só do recall.
+
+**P5 está em risco, e fica registrado agora.** Ela previa ganho concentrado em
+`sem-02`, `sem-03` e `sem-09`. O mapa do dano, que só hoje ficou visível, inclui
+também a **`sem-04`** — que eu não tinha listado. Se o ganho aparecer nas
+quatro, P5 errou por omissão. Anotado antes de medir o ganho, e não depois.
+
+**O item 3 do backlog é para onde isto aponta.** Os 84% do gabarito que ninguém
+recupera não são efeito da consulta — nenhuma das variantes toca no índice, e o
+nome do departamento continua dentro do texto de cada pessoa. Esse é o
+experimento seguinte, e é maior que este.
