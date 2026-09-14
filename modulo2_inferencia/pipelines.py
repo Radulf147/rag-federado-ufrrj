@@ -45,6 +45,23 @@ class ResultadoPipeline:
     # verificar isso seria ler resposta por resposta no olho — e a lição do
     # achado 08 é que inspeção no olho não pega o que importa.
     contexto: str = ""
+    # A CONSULTA EMITIDA — o que o pipeline mandou para a busca, e não a
+    # pergunta que o usuário fez. As duas coincidem no `1-vetorial` e podem
+    # não coincidir no `3-agente`, que decide sozinho o argumento da tool.
+    #
+    # POR QUE EXISTE (12 set 2026): `detalhe` registrava QUAL ferramenta foi
+    # chamada e nunca COM QUE argumento — e é no argumento que mora a perda do
+    # agente para o RAG puro nas 7 perguntas semânticas. Relendo a bateria de
+    # `main`: nas 7, o agente recuperou de 3 a 8 dos seus 10 documentos que o
+    # RAG puro NÃO viu, com o mesmo banco, o mesmo bge-m3, o mesmo top_k, na
+    # mesma execução e com uma única chamada de ferramenta. Disso só se conclui
+    # que a consulta foi outra — mas "foi outra qual?" era pergunta sem resposta
+    # possível, porque a string nunca foi gravada. Ela ia para o stdout do
+    # container e morria lá.
+    #
+    # ⚠️ Registrar não corrige: o agente continua escolhendo o argumento que
+    # escolhia. Este campo só torna a escolha legível.
+    consultas: list[dict] = field(default_factory=list)
 
 
 # --- Pipeline 1: busca semântica pura -------------------------------------
@@ -62,6 +79,12 @@ def responder_vetorial(componentes, pergunta: str) -> ResultadoPipeline:
     vetor = componentes.embedder.run(text=pergunta)["embedding"]
     docs = componentes.retriever.run(query_embedding=vetor)["documents"]
 
+    # Aqui a consulta emitida é a pergunta, sem intermediário: é literalmente
+    # `pergunta` que foi embutida na linha acima. Gravar isso parece redundante
+    # e não é — é o termo de comparação contra o qual se lê o argumento que o
+    # agente escolhe para a mesma pergunta.
+    consultas = [{"via": "retriever direto", "argumentos": {"pergunta": pergunta}}]
+
     if not docs:
         return ResultadoPipeline(
             pipeline="1-vetorial",
@@ -69,6 +92,7 @@ def responder_vetorial(componentes, pergunta: str) -> ResultadoPipeline:
             resposta="Nenhum documento relevante recuperado.",
             fontes=[],
             detalhe="retriever devolveu 0 documentos",
+            consultas=consultas,
         )
 
     contexto = "\n---\n".join(d.content for d in docs)
@@ -84,6 +108,7 @@ def responder_vetorial(componentes, pergunta: str) -> ResultadoPipeline:
         fontes=["chromadb"],
         detalhe=f"{len(docs)} chunks recuperados: {', '.join(nomes)}",
         contexto=contexto,
+        consultas=consultas,
     )
 
 
@@ -148,6 +173,10 @@ def responder_estruturado(componentes, pergunta: str) -> ResultadoPipeline:
             ),
             fontes=[],
             detalhe=f"melhor score fuzzy {score:.0f} < limiar {LIMIAR_FUZZY}",
+            # Nenhuma consulta chegou a ser emitida: o fuzzy não passou do
+            # limiar e o pipeline parou antes de tocar no banco. Lista vazia
+            # aqui é o fato, e é diferente de "consulta emitida e nada achado".
+            consultas=[],
         )
 
     docentes = buscar_entidades_por_campo("docente", "departamento", departamento)
@@ -165,6 +194,21 @@ def responder_estruturado(componentes, pergunta: str) -> ResultadoPipeline:
         fontes=["sqlite"],
         detalhe=f"departamento casado por fuzzy: '{departamento}' (score {score:.0f})",
         contexto=resposta,
+        # O que foi de fato consultado é o departamento que o fuzzy escolheu —
+        # e ele pode não ser o que a pergunta pedia. O score fica junto porque
+        # um casamento de 71 e um de 100 são coisas muito diferentes e o campo
+        # `detalhe` não é legível por máquina.
+        consultas=[
+            {
+                "via": "buscar_entidades_por_campo",
+                "argumentos": {
+                    "tipo_entidade": "docente",
+                    "campo": "departamento",
+                    "valor": departamento,
+                    "score_fuzzy": round(score, 1),
+                },
+            }
+        ],
     )
 
 
@@ -200,6 +244,19 @@ def responder_agente(componentes, pergunta: str) -> ResultadoPipeline:
     ]
     fontes = sorted({FONTE_POR_TOOL.get(t, t) for t in tools_usadas})
 
+    # O ARGUMENTO, e não só o nome da ferramenta. `resultado.origin` é o
+    # ToolCall que o modelo emitiu, e ele já carrega `arguments` — nada precisa
+    # mudar no `agent.py` para ler isto, o que importa: o laço de decisão fica
+    # intocado e a bateria nova continua comparável com a de 5 e 10 set.
+    #
+    # A ordem é a de execução, e a lista pode ter mais de uma entrada quando o
+    # agente encadeia rodadas (MAX_RODADAS_TOOL=4).
+    consultas = [
+        {"via": resultado.origin.tool_name, "argumentos": dict(resultado.origin.arguments or {})}
+        for msg in historico
+        for resultado in (msg.tool_call_results or [])
+    ]
+
     # Tudo que as ferramentas devolveram, na ordem. É contra isto que a
     # checagem de atribuição confere os nomes afirmados na resposta.
     contexto = "\n---\n".join(
@@ -219,6 +276,7 @@ def responder_agente(componentes, pergunta: str) -> ResultadoPipeline:
             else "nenhuma tool chamada — o LLM respondeu de cabeça"
         ),
         contexto=contexto,
+        consultas=consultas,
     )
 
 

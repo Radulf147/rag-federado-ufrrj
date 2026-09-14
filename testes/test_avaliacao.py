@@ -526,3 +526,187 @@ class TestRessalvaDoValorAutomatico:
         # funciona é logo abaixo dos números.
         texto = self._render()
         assert texto.index("Acurácia de roteamento") < texto.index("AUTOMÁTICOS")
+
+
+class TestConsultaEmitidaFicaRegistrada:
+    """
+    A consulta que vai para a busca, e não a pergunta que o usuário fez.
+
+    POR QUE (12 set 2026). Relendo a bateria de `main`, nas 7 perguntas
+    semânticas o agente recuperou de 3 a 8 dos seus 10 documentos que o
+    `1-vetorial` NÃO viu — mesmo ChromaDB, mesmo bge-m3, mesmo top_k=10, mesma
+    execução, uma única chamada de ferramenta. Só se conclui disso que a
+    consulta emitida foi outra. Qual, era impossível saber: o registro guardava
+    o NOME da ferramenta e jogava fora o ARGUMENTO.
+
+    ⚠️ Estes testes não verificam que o agente busca bem. Verificam que a
+    escolha dele fica legível — que é a condição para decidir a correção com
+    dado em vez de hipótese.
+    """
+
+    @staticmethod
+    def _resultado_de_tool(nome, argumentos, texto="ok"):
+        from types import SimpleNamespace
+
+        return SimpleNamespace(
+            origin=SimpleNamespace(tool_name=nome, arguments=argumentos),
+            result=texto,
+        )
+
+    def _agente_com_historico(self, monkeypatch, historico, pergunta="pergunta do usuário?"):
+        from types import SimpleNamespace
+
+        import modulo2_inferencia.pipelines as pipelines
+
+        monkeypatch.setattr(
+            pipelines, "processar_pergunta", lambda **kwargs: ("resposta", historico)
+        )
+        # Os três atributos são lidos na montagem da chamada, ANTES do
+        # `processar_pergunta` dublado rodar — um SimpleNamespace vazio quebra
+        # em AttributeError sem nunca chegar ao que se quer medir.
+        componentes = SimpleNamespace(chat_generator=None, embedder=None, retriever=None)
+        return pipelines.responder_agente(componentes, pergunta)
+
+    def test_o_argumento_do_agente_fica_gravado(self, monkeypatch):
+        from types import SimpleNamespace
+
+        historico = [
+            SimpleNamespace(
+                tool_call_results=[
+                    self._resultado_de_tool(
+                        "busca_vetorial_sigaa", {"pergunta": "formação docente currículo"}
+                    )
+                ]
+            )
+        ]
+        r = self._agente_com_historico(monkeypatch, historico)
+        assert r.consultas == [
+            {
+                "via": "busca_vetorial_sigaa",
+                "argumentos": {"pergunta": "formação docente currículo"},
+            }
+        ]
+
+    def test_o_que_fica_gravado_NAO_e_a_pergunta_do_usuario(self, monkeypatch):
+        """
+        A regressão que tornaria o campo inútil.
+
+        Um campo `consultas` preenchido com `pergunta` passaria em qualquer
+        teste de esquema, pareceria certo no JSONL, e apagaria exatamente o
+        fenômeno que ele existe para expor — a paráfrase. O caso abaixo é
+        construído para que os dois textos sejam diferentes de propósito.
+        """
+        from types import SimpleNamespace
+
+        historico = [
+            SimpleNamespace(
+                tool_call_results=[
+                    self._resultado_de_tool("busca_vetorial_sigaa", {"pergunta": "didática"})
+                ]
+            )
+        ]
+        r = self._agente_com_historico(
+            monkeypatch, historico, pergunta="Algum professor atua com didática?"
+        )
+        assert r.consultas[0]["argumentos"]["pergunta"] == "didática"
+        assert r.consultas[0]["argumentos"]["pergunta"] != r.pergunta
+
+    def test_varias_rodadas_viram_varias_consultas_na_ordem(self, monkeypatch):
+        from types import SimpleNamespace
+
+        historico = [
+            SimpleNamespace(
+                tool_call_results=[
+                    self._resultado_de_tool(
+                        "buscar_docentes_por_departamento", {"departamento": "MATEMÁTICA"}
+                    )
+                ]
+            ),
+            SimpleNamespace(
+                tool_call_results=[
+                    self._resultado_de_tool("busca_vetorial_sigaa", {"pergunta": "estatística"})
+                ]
+            ),
+        ]
+        r = self._agente_com_historico(monkeypatch, historico)
+        assert [c["via"] for c in r.consultas] == [
+            "buscar_docentes_por_departamento",
+            "busca_vetorial_sigaa",
+        ]
+
+    def test_sem_tool_nenhuma_a_lista_fica_vazia(self, monkeypatch):
+        from types import SimpleNamespace
+
+        historico = [SimpleNamespace(tool_call_results=None)]
+        r = self._agente_com_historico(monkeypatch, historico)
+        assert r.consultas == []
+
+    def test_argumento_ausente_nao_quebra(self, monkeypatch):
+        # Um modelo pode emitir tool call sem argumentos. Isso é dado — e não
+        # pode derrubar a bateria inteira na pergunta seguinte.
+        from types import SimpleNamespace
+
+        historico = [
+            SimpleNamespace(
+                tool_call_results=[self._resultado_de_tool("busca_vetorial_sigaa", None)]
+            )
+        ]
+        r = self._agente_com_historico(monkeypatch, historico)
+        assert r.consultas == [{"via": "busca_vetorial_sigaa", "argumentos": {}}]
+
+    def test_o_vetorial_grava_a_pergunta_literal(self):
+        """
+        No `1-vetorial` a consulta É a pergunta — é ela que vai ao embedder.
+
+        Registrar isso parece redundante e é o termo de comparação: sem a
+        linha do RAG puro no mesmo campo, "o agente perguntou outra coisa" não
+        tem contra o quê ser lido.
+        """
+        from types import SimpleNamespace
+
+        import modulo2_inferencia.pipelines as pipelines
+
+        doc = SimpleNamespace(content="Docente: FULANO.", meta={"nome_docente": "FULANO"})
+        componentes = SimpleNamespace(
+            embedder=SimpleNamespace(run=lambda text: {"embedding": [0.0]}),
+            retriever=SimpleNamespace(run=lambda query_embedding: {"documents": [doc]}),
+            chat_generator=SimpleNamespace(
+                run=lambda messages: {"replies": [SimpleNamespace(text="resposta")]}
+            ),
+        )
+        r = pipelines.responder_vetorial(componentes, "Quem pesquisa ecologia?")
+        assert r.consultas == [
+            {"via": "retriever direto", "argumentos": {"pergunta": "Quem pesquisa ecologia?"}}
+        ]
+
+    def test_o_campo_chega_ao_registro_jsonl(self, tmp_path):
+        # O campo só serve se sobreviver até o arquivo. `asdict` leva qualquer
+        # campo novo do dataclass, mas isso é consequência de um detalhe de
+        # implementação de `_gravar` — e detalhe de implementação muda.
+        from types import SimpleNamespace
+
+        import interfaces.comparar as comparar
+
+        alvo = tmp_path / "registro.jsonl"
+        original = comparar.REGISTRO
+        comparar.REGISTRO = alvo
+        try:
+            comparar._gravar(
+                "exec-teste",
+                SimpleNamespace(id="sem-09"),
+                1,
+                ResultadoPipeline(
+                    pipeline="3-agente",
+                    pergunta="Algum professor atua com didática?",
+                    resposta="r",
+                    consultas=[
+                        {"via": "busca_vetorial_sigaa", "argumentos": {"pergunta": "didática"}}
+                    ],
+                ),
+                {"ok": True},
+            )
+        finally:
+            comparar.REGISTRO = original
+
+        linha = json.loads(alvo.read_text(encoding="utf-8").strip())
+        assert linha["consultas"][0]["argumentos"]["pergunta"] == "didática"
