@@ -891,3 +891,75 @@ erra a resposta, citando duas pessoas que ela própria diz não terem o dado.
 
 São o mesmo par de cegueiras já pré-registrado para a fase 4. Fixar a medida
 **antes** de mexer no agente, como nos itens 7 e 9.
+
+## 12. A suspensão do item 7 pode ter sido causada pelo item 9 (14 set 2026)
+
+**Origem: observação do Raul**, ao ler a explicação do efeito colateral. Vale
+registrar de quem veio, porque reabre um caminho que estava dado como fechado.
+
+### A observação
+
+> *"Se a pessoa não coloca informações no perfil, é para dizer que não temos
+> informações sobre ele — mas ele é da Rural."*
+
+Está certa, e é exatamente o que o sistema **já faz hoje**: 3 de 3 na pergunta
+*"o que o professor Leandro Alvim pesquisa?"* — *ele existe, o SIGAA não tem a
+área dele, aqui está o e-mail*. Foi a reindexação do item 7 que quebrou isso.
+
+### A hipótese
+
+A pergunta certa não é *"aceitamos perder o Leandro para ganhar 13 pontos de
+recall?"*. É **por que o agente precisa do banco vetorial para saber que ele é
+da UFRRJ**. São duas perguntas com fontes diferentes:
+
+| pergunta | fonte certa | tem a resposta? |
+|---|---|---|
+| ele é docente da UFRRJ? | SQLite | **sim, sempre** — os 1302, com perfil ou sem |
+| o que ele pesquisa? | ChromaDB | só se ele escreveu |
+
+O vínculo não depende de ninguém preencher nada. Responder à primeira pergunta
+com a segunda base é erro de arquitetura, não consequência inevitável da
+reindexação.
+
+**Isto não contraria o princípio 1 nem a premissa do perfil obrigatório.** Não
+se trata de contornar perfil vazio: trata-se de responder corretamente sobre
+**vínculo**, que é dado que temos.
+
+### Por que o teste de 7 set não pôde ver isso
+
+A comparação de coleções mediu a reindexação **com o casamento de nome
+quebrado**. Verificado no corpus em 14 set:
+
+```
+buscar_docente_por_nome("Leandro Alvim")  ->  0 achados
+buscar_docente_por_nome("Alvim")          ->  4 achados, ele entre eles
+```
+
+O nome dele é `LEANDRO GUIMARAES MARQUES ALVIM` — há dois nomes no meio, e o
+casamento é por substring contígua (**item 9**). Ou seja: no momento do teste,
+a base que **sabia** que ele existe não foi consultada com sucesso. O agente
+ficou sem nenhuma fonte para desmentir a própria conclusão.
+
+E o perfil dele, medido: **147 caracteres indexados, 0 de texto descritivo** —
+é um dos **556 de 1302 (42,7%)** que somem do índice na reindexação.
+
+### Duas correções, e a ordem importa
+
+1. **Item 9** — casamento de nome que tolere nomes do meio.
+2. **Os "dois zeros" na ferramenta vetorial.** A ferramenta do SQLite chama
+   `total_de_entidades` antes de dizer "não achei", justamente para separar
+   *base vazia* de *pessoa ausente*. A vetorial devolve só *"Nenhuma informação
+   semântica relevante foi encontrada"* e deixa o LLM adivinhar se isso
+   significa "não escreveu" ou "não existe" — e ele adivinhou errado.
+
+### ⚠️ É hipótese, não medição
+
+Ninguém mediu a reindexação com essas duas correções no lugar. Se for por aqui,
+é **pré-registro novo**: consertar 9, consertar os dois zeros, e só então
+repetir a comparação de coleções do `pre_registro_troca_colecao.md`. Registrar
+a previsão antes, como sempre.
+
+**Quando.** Depois do experimento de `docs/pre_registro_consulta_semantica.md`.
+Se ele confirmar P7 e P10 — que mexer na consulta não basta —, este item passa
+a ser o caminho principal, porque ataca os 84% do gabarito que ninguém
+recupera, e não a fatia que a consulta move.
