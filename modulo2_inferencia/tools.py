@@ -18,6 +18,52 @@ from haystack.tools import Tool
 from modulo1_etl.db_manager import buscar_entidades_por_campo, total_de_entidades
 import config
 
+# --- VARIANTE DA CONSULTA SEMÂNTICA ---------------------------------------
+#
+# Qual texto é de fato embutido pelo recuperador. Experimento pré-registrado em
+# `docs/pre_registro_consulta_semantica.md`.
+#
+# POR QUE EXISTE. A bateria de 14 set mostrou que o agente NÃO manda a pergunta
+# do usuário ao recuperador: manda o termo nu — "didática" no lugar de "Algum
+# professor atua com didática?" — em 21 de 21 execuções das 7 perguntas
+# semânticas. E o termo nu recupera pior neste corpus, porque um perfil esparso
+# (nome + departamento + telefone) é curto e o nome do departamento domina o
+# vetor dele. Medido: perfis esparsos no top-10 passam de 21% para 49%, e em
+# sem-03, sem-04 e sem-09 o agente recupera ZERO docentes do gabarito — ali era
+# aritmeticamente impossível responder certo.
+#
+# A causa raiz é este arquivo: o parâmetro se chama `pergunta_semantica` e a
+# descrição manda "otimizar". O modelo obedece.
+#
+#   v0  o argumento do LLM — O COMPORTAMENTO DE HOJE, e o padrão
+#   v1  a pergunta original do usuário, ignorando o argumento do LLM
+#   v2  as duas, documentos unidos sem repetir, ordenados por distância
+#   v3  o argumento do LLM, mas com o schema pedindo a pergunta na íntegra
+#
+# ⚠️ O padrão é v0 DE PROPÓSITO: enquanto o experimento não decidir, nada muda
+# em produção sem alguém escrever a variável.
+VARIANTE_CONSULTA = os.getenv("VARIANTE_CONSULTA", "v0").strip().lower() or "v0"
+
+_VARIANTES_VALIDAS = {"v0", "v1", "v2", "v3"}
+if VARIANTE_CONSULTA not in _VARIANTES_VALIDAS:
+    # Falhar alto. Um nome errado de variante cairia silenciosamente no v0 e a
+    # bateria reportaria "v9 medida" tendo medido o controle — exatamente o
+    # número plausível e errado que este projeto trata como o inimigo.
+    raise ValueError(
+        f"VARIANTE_CONSULTA={VARIANTE_CONSULTA!r} é inválida. "
+        f"Use uma de: {', '.join(sorted(_VARIANTES_VALIDAS))}."
+    )
+
+# A descrição do parâmetro é a única coisa que a v3 muda. As outras três usam a
+# redação original — inclusive a v1 e a v2, porque nelas o que o LLM escreve já
+# não decide sozinho o que é embutido.
+_DESCRICAO_ARGUMENTO = {
+    "v3": (
+        "A pergunta do usuário na ÍNTEGRA, exatamente como ele escreveu, sem "
+        "resumir, sem extrair palavra-chave e sem reformular."
+    ),
+}.get(VARIANTE_CONSULTA, "A pergunta otimizada para buscar no banco de dados vetorial.")
+
 TOOLS_SCHEMA = [
     {
         "type": "function",
@@ -64,7 +110,7 @@ TOOLS_SCHEMA = [
                 "properties": {
                     "pergunta_semantica": {
                         "type": "string",
-                        "description": "A pergunta otimizada para buscar no banco de dados vetorial.",
+                        "description": _DESCRICAO_ARGUMENTO,
                     }
                 },
                 "required": ["pergunta_semantica"],
@@ -203,18 +249,84 @@ _limiar_bruto = os.getenv("LIMIAR_DISTANCIA", "").strip()
 LIMIAR_DISTANCIA = float(_limiar_bruto) if _limiar_bruto else None
 
 
-def busca_vetorial_sigaa(pergunta: str, embedder, retriever) -> str:
+def _textos_a_embutir(pergunta: str, pergunta_original: str | None) -> list[str]:
+    """
+    Qual texto vai ao embedder, segundo `VARIANTE_CONSULTA`.
+
+    `pergunta` é o argumento que o LLM escolheu; `pergunta_original` é o que o
+    usuário de fato perguntou. Quando a original não chega — CLI antigo, teste,
+    qualquer chamador que não a passe —, v1 e v2 caem de volta no argumento do
+    LLM. Cair de volta é melhor que estourar, mas não é silencioso: sem a
+    original, v1 É v0, e o registro em `registro_busca` mostra isso.
+    """
+    original = (pergunta_original or "").strip()
+
+    if VARIANTE_CONSULTA == "v1" and original:
+        return [original]
+    if VARIANTE_CONSULTA == "v2" and original and original != pergunta:
+        return [original, pergunta]
+    # v0, v3, e os casos sem pergunta original: o argumento do LLM.
+    return [pergunta]
+
+
+def busca_vetorial_sigaa(
+    pergunta: str,
+    embedder,
+    retriever,
+    pergunta_original: str | None = None,
+    registro_busca: list | None = None,
+) -> str:
     """
     Ferramenta semântica — consulta o ChromaDB (textos livres).
 
     Recebe embedder/retriever como parâmetros em vez de globais do módulo
     (como era em teste_llm.py) para poder ser testada com dublês/mocks sem
     precisar inicializar o Ollama ou o ChromaDB de verdade.
-    """
-    print(f"🧠 [TOOL EXECUTADA] Busca semântica em ChromaDB por: {pergunta}")
 
-    query_vec = embedder.run(text=pergunta)["embedding"]
-    docs = retriever.run(query_embedding=query_vec)["documents"]
+    `pergunta_original` e `registro_busca` são opcionais e o padrão preserva o
+    comportamento anterior: sem eles, e com VARIANTE_CONSULTA=v0, esta função
+    faz exatamente o que fazia antes de 14 set.
+    """
+    textos = _textos_a_embutir(pergunta, pergunta_original)
+
+    for t in textos:
+        print(f"🧠 [TOOL EXECUTADA] Busca semântica em ChromaDB por: {t}")
+
+    if len(textos) == 1:
+        query_vec = embedder.run(text=textos[0])["embedding"]
+        docs = retriever.run(query_embedding=query_vec)["documents"]
+    else:
+        # v2 — união. Cada consulta traz seus TOP_K; junta sem repetir e ordena
+        # por DISTÂNCIA (menor é mais parecido), cortando de novo em TOP_K.
+        #
+        # A chave de deduplicação é `d.id`, e não o nome: dois chunks da mesma
+        # pessoa são documentos distintos, e o nome funde pessoas homônimas.
+        #
+        # `score` None vai para o fim em vez de quebrar a ordenação — um
+        # documento sem distância não tem como competir por proximidade.
+        vistos, unidos = set(), []
+        for t in textos:
+            vec = embedder.run(text=t)["embedding"]
+            for d in retriever.run(query_embedding=vec)["documents"]:
+                if d.id not in vistos:
+                    vistos.add(d.id)
+                    unidos.append(d)
+        unidos.sort(key=lambda d: float("inf") if d.score is None else d.score)
+        docs = unidos[: config.TOP_K]
+
+    # O QUE FOI DE FATO EMBUTIDO. Sem isto a instrumentação de adfcc07 passaria
+    # a mentir: ela lê o argumento do ToolCall, que na v1 e na v2 não é o texto
+    # que chegou ao embedder. Um registro que descreve a intenção e não o ato é
+    # pior que nenhum.
+    if registro_busca is not None:
+        registro_busca.append(
+            {
+                "variante": VARIANTE_CONSULTA,
+                "argumento_do_llm": pergunta,
+                "embutido": textos,
+                "documentos": len(docs),
+            }
+        )
 
     if LIMIAR_DISTANCIA is not None:
         antes = len(docs)
@@ -298,13 +410,20 @@ def buscar_docente_por_nome(nome: str) -> str:
     )
 
 
-def criar_dispatcher(embedder, retriever) -> dict:
+def criar_dispatcher(
+    embedder, retriever, pergunta_original: str | None = None, registro_busca: list | None = None
+) -> dict:
     """
     Monta o dicionário nome_da_tool -> função executável.
 
     O agent.py não precisa conhecer a assinatura de cada tool — só chama
     dispatcher[nome](**argumentos_do_llm). Adicionar uma tool nova não exige
     tocar em agent.py, só registrar aqui.
+
+    `pergunta_original` e `registro_busca` entram pelo fecho (closure) e não
+    pelo schema — de propósito. O LLM não pode escolhê-los nem enxergá-los:
+    são contexto do sistema, não argumento de ferramenta. Ambos são opcionais,
+    e sem eles o dispatcher é o de antes.
     """
     return {
         "buscar_docente_por_nome": lambda nome="": buscar_docente_por_nome(nome),
@@ -312,12 +431,14 @@ def criar_dispatcher(embedder, retriever) -> dict:
             departamento
         ),
         "busca_vetorial_sigaa": lambda pergunta_semantica="": busca_vetorial_sigaa(
-            pergunta_semantica, embedder, retriever
+            pergunta_semantica, embedder, retriever, pergunta_original, registro_busca
         ),
     }
 
 
-def criar_tools(embedder, retriever) -> list[Tool]:
+def criar_tools(
+    embedder, retriever, pergunta_original: str | None = None, registro_busca: list | None = None
+) -> list[Tool]:
     """
     Converte TOOLS_SCHEMA em objetos Tool do Haystack, que é o formato que o
     OllamaChatGenerator aceita no parâmetro `tools=`.
@@ -336,7 +457,7 @@ def criar_tools(embedder, retriever) -> list[Tool]:
     então na prática esse callable não é invocado pelo Haystack — mas deixá-lo
     correto evita uma armadilha se algum dia um ToolInvoker entrar no caminho.
     """
-    dispatcher = criar_dispatcher(embedder, retriever)
+    dispatcher = criar_dispatcher(embedder, retriever, pergunta_original, registro_busca)
 
     return [
         Tool(

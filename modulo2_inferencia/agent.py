@@ -95,6 +95,7 @@ def processar_pergunta(
     retriever,
     chat_history: list[ChatMessage],
     pergunta_usuario: str,
+    registro_busca: list | None = None,
 ) -> tuple[str, list[ChatMessage]]:
     """
     Executa um turno completo do agente: decide, eventualmente aciona
@@ -103,9 +104,20 @@ def processar_pergunta(
     Retorna (texto_da_resposta, historico_atualizado) — sem imprimir nada e
     sem ler input nenhum, para ser chamável tanto pelo CLI quanto por um
     futuro listener do Mastodon.
+
+    `registro_busca`, se for uma lista, recebe um dicionário por busca
+    semântica executada, dizendo QUAL TEXTO foi de fato embutido. Existe porque
+    a instrumentação de `adfcc07` lê o argumento do ToolCall — e nas variantes
+    v1 e v2 esse argumento não é o texto que chega ao embedder. Deixar como
+    estava faria o registro descrever a intenção do modelo em vez do ato do
+    sistema. É observação pura: não altera nem uma decisão do laço abaixo.
     """
-    dispatcher = criar_dispatcher(embedder, retriever)
-    tools = criar_tools(embedder, retriever)
+    # A pergunta do usuário desce até as tools. Ela NÃO entra no schema: o LLM
+    # continua escolhendo o argumento que quiser, e quem decide o que fazer com
+    # os dois é `VARIANTE_CONSULTA`, em tools.py. Com o padrão v0 nada muda —
+    # o argumento do LLM continua sendo o que vai ao embedder.
+    dispatcher = criar_dispatcher(embedder, retriever, pergunta_usuario, registro_busca)
+    tools = criar_tools(embedder, retriever, pergunta_usuario, registro_busca)
 
     chat_history = [*chat_history, ChatMessage.from_user(pergunta_usuario)]
 

@@ -229,12 +229,14 @@ def responder_agente(componentes, pergunta: str) -> ResultadoPipeline:
     pergunta — sem histórico compartilhado, senão uma pergunta contaminaria a
     seguinte e a comparação deixaria de ser pergunta a pergunta.
     """
+    registro_busca: list[dict] = []
     texto, historico = processar_pergunta(
         chat_generator=componentes.chat_generator,
         embedder=componentes.embedder,
         retriever=componentes.retriever,
         chat_history=montar_historico_inicial(),
         pergunta_usuario=pergunta,
+        registro_busca=registro_busca,
     )
 
     tools_usadas = [
@@ -256,6 +258,16 @@ def responder_agente(componentes, pergunta: str) -> ResultadoPipeline:
         for msg in historico
         for resultado in (msg.tool_call_results or [])
     ]
+
+    # O QUE A BUSCA SEMÂNTICA DE FATO EMBUTIU, casado com a chamada que o
+    # modelo emitiu. Na v0 os dois coincidem; na v1 e na v2 não, e é exatamente
+    # essa diferença que o experimento mede. A ordem bate porque
+    # `registro_busca` é preenchido na execução da tool, na mesma sequência em
+    # que os resultados entram no histórico.
+    buscas = iter(registro_busca)
+    for c in consultas:
+        if c["via"] == "busca_vetorial_sigaa":
+            c["busca"] = next(buscas, None)
 
     # Tudo que as ferramentas devolveram, na ordem. É contra isto que a
     # checagem de atribuição confere os nomes afirmados na resposta.

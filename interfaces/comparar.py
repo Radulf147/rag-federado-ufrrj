@@ -54,6 +54,7 @@ from interfaces.conjunto_avaliacao import CHECAGEM, CONJUNTO, _docentes, validar
 from modulo2_inferencia.agent import SYSTEM_PROMPT
 from modulo2_inferencia.llm_setup import NUM_CTX, REASONING_EFFORT, montar_componentes
 from modulo2_inferencia.pipelines import PIPELINES, ResultadoPipeline
+from modulo2_inferencia.tools import VARIANTE_CONSULTA
 
 # ⚠️ OS CAMINHOS SÃO SOBREPONÍVEIS DESDE 10 SET 2026 — e antes disso NÃO ERAM.
 #
@@ -112,6 +113,11 @@ def _carimbo() -> dict:
         "limiar_distancia": os.getenv("LIMIAR_DISTANCIA", "") or None,
         "repeticoes": REPETICOES,
         "prompt_sha1": hashlib.sha1(SYSTEM_PROMPT.encode("utf-8")).hexdigest()[:12],
+        # Qual texto a busca semântica embutiu (experimento de
+        # `docs/pre_registro_consulta_semantica.md`). Sem isto, dois registros
+        # de variantes diferentes ficam indistinguíveis no disco e alguém os
+        # compara como se fossem a mesma coisa — ou pior, não compara.
+        "variante_consulta": VARIANTE_CONSULTA,
     }
 
 

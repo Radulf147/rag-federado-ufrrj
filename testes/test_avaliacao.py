@@ -580,12 +580,14 @@ class TestConsultaEmitidaFicaRegistrada:
             )
         ]
         r = self._agente_com_historico(monkeypatch, historico)
-        assert r.consultas == [
-            {
-                "via": "busca_vetorial_sigaa",
-                "argumentos": {"pergunta": "formação docente currículo"},
-            }
-        ]
+        # Campo a campo, e não o dicionário inteiro: a entrada de uma busca
+        # semântica ganhou a chave `busca` em 14 set, que diz o que foi de fato
+        # EMBUTIDO (ver TestVarianteDaConsultaSemantica). Igualdade exata aqui
+        # transformaria qualquer campo novo em falha, sem que nada tivesse
+        # quebrado — e o que este teste guarda é o argumento, não o formato.
+        assert len(r.consultas) == 1
+        assert r.consultas[0]["via"] == "busca_vetorial_sigaa"
+        assert r.consultas[0]["argumentos"] == {"pergunta": "formação docente currículo"}
 
     def test_o_que_fica_gravado_NAO_e_a_pergunta_do_usuario(self, monkeypatch):
         """
@@ -652,7 +654,9 @@ class TestConsultaEmitidaFicaRegistrada:
             )
         ]
         r = self._agente_com_historico(monkeypatch, historico)
-        assert r.consultas == [{"via": "busca_vetorial_sigaa", "argumentos": {}}]
+        assert len(r.consultas) == 1
+        assert r.consultas[0]["via"] == "busca_vetorial_sigaa"
+        assert r.consultas[0]["argumentos"] == {}
 
     def test_o_vetorial_grava_a_pergunta_literal(self):
         """
@@ -710,3 +714,220 @@ class TestConsultaEmitidaFicaRegistrada:
 
         linha = json.loads(alvo.read_text(encoding="utf-8").strip())
         assert linha["consultas"][0]["argumentos"]["pergunta"] == "didática"
+
+
+class TestVarianteDaConsultaSemantica:
+    """
+    Experimento de `docs/pre_registro_consulta_semantica.md`.
+
+    O agente reduz a pergunta ao termo nu — "didática" no lugar de "Algum
+    professor atua com didática?" — em 21 de 21 execuções, porque o schema
+    manda "otimizar". `VARIANTE_CONSULTA` decide qual texto é embutido.
+
+    ⚠️ O PADRÃO TEM DE SER v0. Enquanto o experimento não decidir, nada muda em
+    produção sem alguém escrever a variável. O primeiro teste desta classe é
+    esse, e não é formalidade: um padrão trocado por engano mudaria o
+    comportamento do agente em silêncio e invalidaria a comparação com as
+    baterias de 5, 10 e 14 set.
+    """
+
+    @staticmethod
+    def _componentes(docs_por_texto):
+        """Dublê que devolve documentos diferentes conforme o texto embutido."""
+        from types import SimpleNamespace
+
+        embutidos = []
+
+        def embed(text):
+            embutidos.append(text)
+            return {"embedding": text}
+
+        def recuperar(query_embedding):
+            return {"documents": docs_por_texto.get(query_embedding, [])}
+
+        return (
+            SimpleNamespace(run=embed),
+            SimpleNamespace(run=recuperar),
+            embutidos,
+        )
+
+    @staticmethod
+    def _doc(id_, conteudo, score, nome="FULANO", depto="DEP"):
+        from types import SimpleNamespace
+
+        return SimpleNamespace(
+            id=id_,
+            content=conteudo,
+            score=score,
+            meta={"nome_docente": nome, "departamento": depto},
+        )
+
+    def test_o_padrao_e_v0(self):
+        import modulo2_inferencia.tools as tools
+
+        assert tools.VARIANTE_CONSULTA == "v0"
+
+    def test_variante_invalida_estoura_em_vez_de_cair_no_v0(self, monkeypatch):
+        # Um nome errado cairia silenciosamente no controle, e a bateria
+        # reportaria "variante medida" tendo medido o de sempre.
+        import importlib
+
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setenv("VARIANTE_CONSULTA", "v9")
+        try:
+            import pytest
+
+            with pytest.raises(ValueError, match="VARIANTE_CONSULTA"):
+                importlib.reload(tools)
+        finally:
+            monkeypatch.delenv("VARIANTE_CONSULTA", raising=False)
+            importlib.reload(tools)
+        assert tools.VARIANTE_CONSULTA == "v0"
+
+    def test_v0_embute_o_argumento_do_llm(self, monkeypatch):
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setattr(tools, "VARIANTE_CONSULTA", "v0")
+        assert tools._textos_a_embutir("didática", "Algum professor atua com didática?") == [
+            "didática"
+        ]
+
+    def test_v1_embute_a_pergunta_do_usuario(self, monkeypatch):
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setattr(tools, "VARIANTE_CONSULTA", "v1")
+        assert tools._textos_a_embutir("didática", "Algum professor atua com didática?") == [
+            "Algum professor atua com didática?"
+        ]
+
+    def test_v1_sem_pergunta_original_cai_no_argumento(self, monkeypatch):
+        # Chamador antigo que não passa a original. Cair de volta é melhor que
+        # estourar — mas então v1 É v0, e o registro tem de deixar isso visível.
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setattr(tools, "VARIANTE_CONSULTA", "v1")
+        assert tools._textos_a_embutir("didática", None) == ["didática"]
+
+    def test_v2_embute_as_duas_com_a_original_primeiro(self, monkeypatch):
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setattr(tools, "VARIANTE_CONSULTA", "v2")
+        assert tools._textos_a_embutir("didática", "Algum professor atua com didática?") == [
+            "Algum professor atua com didática?",
+            "didática",
+        ]
+
+    def test_v2_nao_embute_duas_vezes_o_mesmo_texto(self, monkeypatch):
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setattr(tools, "VARIANTE_CONSULTA", "v2")
+        assert tools._textos_a_embutir("igual", "igual") == ["igual"]
+
+    def test_v3_embute_o_argumento_do_llm_como_o_v0(self, monkeypatch):
+        # A v3 só muda a DESCRIÇÃO do parâmetro; o caminho do dado é o do v0.
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setattr(tools, "VARIANTE_CONSULTA", "v3")
+        assert tools._textos_a_embutir("didática", "Algum professor atua com didática?") == [
+            "didática"
+        ]
+
+    def test_P1_v1_recupera_o_mesmo_que_o_pipeline_vetorial(self, monkeypatch):
+        """
+        **P1 do pré-registro**, verificada em código.
+
+        Se a v1 embute a pergunta do usuário e o `1-vetorial` também, os dois
+        TÊM de receber os mesmos documentos. Divergência aqui não é achado: é
+        bug, e foi para pegá-lo que a previsão foi escrita.
+        """
+        import modulo2_inferencia.pipelines as pipelines
+        import modulo2_inferencia.tools as tools
+        from types import SimpleNamespace
+
+        pergunta = "Algum professor atua com didática?"
+        ricos = [self._doc("d1", "Docente: ANA. Áreas: didática.", 0.5, "ANA")]
+        pobres = [self._doc("d2", "Docente: BIA. Telefone: 1.", 0.4, "BIA")]
+        mapa = {pergunta: ricos, "didática": pobres}
+
+        # 1-vetorial
+        emb, ret, _ = self._componentes(mapa)
+        comp = SimpleNamespace(
+            embedder=emb,
+            retriever=ret,
+            chat_generator=SimpleNamespace(
+                run=lambda messages: {"replies": [SimpleNamespace(text="r")]}
+            ),
+        )
+        do_vetorial = pipelines.responder_vetorial(comp, pergunta).contexto
+
+        # v1: o LLM manda "didática", mas a v1 embute a pergunta original
+        monkeypatch.setattr(tools, "VARIANTE_CONSULTA", "v1")
+        emb2, ret2, embutidos = self._componentes(mapa)
+        tools.busca_vetorial_sigaa("didática", emb2, ret2, pergunta)
+
+        assert embutidos == [pergunta], "a v1 não embutiu a pergunta do usuário"
+        assert "ANA" in do_vetorial and "BIA" not in do_vetorial
+
+    def test_v2_une_sem_repetir_e_ordena_por_distancia(self, monkeypatch):
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setattr(tools, "VARIANTE_CONSULTA", "v2")
+        monkeypatch.setattr(tools, "LIMIAR_DISTANCIA", None)
+        comum = self._doc("d1", "Docente: ANA.", 0.9, "ANA")
+        so_original = self._doc("d2", "Docente: BIA.", 0.1, "BIA")
+        so_termo = self._doc("d3", "Docente: CIA.", 0.5, "CIA")
+        emb, ret, _ = self._componentes(
+            {"pergunta inteira?": [comum, so_original], "termo": [comum, so_termo]}
+        )
+        saida = tools.busca_vetorial_sigaa("termo", emb, ret, "pergunta inteira?")
+
+        # os três aparecem, ANA uma vez só, e na ordem BIA(0.1) CIA(0.5) ANA(0.9)
+        assert saida.count("Docente: ANA") == 1
+        assert saida.index("BIA") < saida.index("CIA") < saida.index("ANA")
+
+    def test_o_registro_diz_o_que_foi_embutido_e_nao_o_que_o_llm_pediu(self, monkeypatch):
+        """
+        A regressão que faria a instrumentação mentir.
+
+        Na v1 o argumento do ToolCall é "didática" e o texto embutido é a
+        pergunta inteira. Um registro que guardasse só o argumento descreveria
+        a intenção do modelo, não o ato do sistema.
+        """
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setattr(tools, "VARIANTE_CONSULTA", "v1")
+        pergunta = "Algum professor atua com didática?"
+        emb, ret, _ = self._componentes({pergunta: [self._doc("d1", "Docente: ANA.", 0.2)]})
+        registro = []
+        tools.busca_vetorial_sigaa("didática", emb, ret, pergunta, registro)
+
+        assert registro[0]["embutido"] == [pergunta]
+        assert registro[0]["argumento_do_llm"] == "didática"
+        assert registro[0]["variante"] == "v1"
+
+    def test_v3_muda_a_descricao_do_parametro(self, monkeypatch):
+        import importlib
+
+        import modulo2_inferencia.tools as tools
+
+        monkeypatch.setenv("VARIANTE_CONSULTA", "v3")
+        try:
+            importlib.reload(tools)
+            desc = next(
+                s["function"]["parameters"]["properties"]["pergunta_semantica"]["description"]
+                for s in tools.TOOLS_SCHEMA
+                if s["function"]["name"] == "busca_vetorial_sigaa"
+            )
+            assert "ÍNTEGRA" in desc
+            assert "otimizada" not in desc
+        finally:
+            monkeypatch.delenv("VARIANTE_CONSULTA", raising=False)
+            importlib.reload(tools)
+
+    def test_o_carimbo_registra_a_variante(self):
+        # Sem isto dois registros de variantes diferentes são indistinguíveis
+        # no disco, e alguém os compara como se fossem a mesma coisa.
+        import interfaces.comparar as comparar
+
+        assert comparar._carimbo()["variante_consulta"] == "v0"
