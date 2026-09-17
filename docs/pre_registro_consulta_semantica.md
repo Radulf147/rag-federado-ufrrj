@@ -276,3 +276,79 @@ quatro, P5 errou por omissão. Anotado antes de medir o ganho, e não depois.
 recupera não são efeito da consulta — nenhuma das variantes toca no índice, e o
 nome do departamento continua dentro do texto de cada pessoa. Esse é o
 experimento seguinte, e é maior que este.
+
+---
+---
+
+# EMENDA 2 — 16 set 2026: o experimento é encerrado em V0 × V1
+
+> **Decisão do Raul**, registrada com o motivo. Escrita **antes** da bateria
+> que a decide, e **nenhuma previsão do §4 ou da Emenda 1 foi alterada** —
+> P1 a P10 continuam acima como foram commitadas.
+
+## E2.1 O que muda
+
+> *"Esqueça a ideia de tentar resolver o problema de melhorar o prompt e cair
+> acurácia. Foque em deixar o agente igual o RAG clássico."*
+
+**V2 e V3 saem do experimento.** O alvo passa a ser um só e é mais modesto do
+que a redação original: **fazer o agente recuperar o que o RAG clássico
+recupera** — nem mais, nem uma reformulação esperta. V1 é exatamente isso, e
+P1 já confirmou que ela recupera documento por documento o mesmo que o
+`1-vetorial`, em `3a11103`.
+
+**O resto continua.** Os critérios da §3 não mudam, o conjunto das 30 não muda,
+e as métricas de roteamento, estabilidade, objetivas e recusas seguem
+apuradas como sempre.
+
+## E2.2 Por que, e o que fica sem resposta
+
+Dois motivos, e é honesto separar o que é escolha do que é limitação.
+
+**Escolha.** A V2 mostrou o mecanismo que a condena antes de terminar. Ela une
+os dois conjuntos e ordena por distância, então quem vence depende da pergunta
+— e o termo nu vence justamente quando casa com o nome de um departamento,
+porque nome de departamento é curto e específico. Medido na `sem-08`: a
+pergunta inteira fica a 0,88–0,94 de distância e o termo nu a 1,03–1,09, e ali
+a V2 degeneraria na V1; na `sem-02` e na `sem-03` é o contrário, o termo nu
+toma as vagas e **arrasta a V1 para baixo**. A união não protege contra o item
+3 — ela premia o vizinho errado.
+
+**Limitação.** A bateria da V2 morreu em 4 das 7 perguntas e a da V3 não chegou
+a escrever uma linha. A causa não foi a nossa rede: o `/api/ps` da máquina da
+faculdade mostrava `gpt-oss:latest` ocupando 12,7 GB da VRAM, e o
+`qwen2.5:32b` tinha sido despejado por outro processo. O `/api/version`
+continuou respondendo o tempo todo, então o vigia do túnel não viu nada e a
+bateria só descobriu no timeout da geração.
+
+**Portanto:**
+
+| previsão | situação |
+|---|---|
+| **P1** | **CONFIRMADA** (`3a11103`, contra o ChromaDB real) |
+| P8 (V2 ≥ V1 em recall) | **em apuros, e NÃO apurada.** Perde em 2 das 4 perguntas que sobreviveram; o pré-registro exige as 7 |
+| P9 (V3 entre V0 e V1) | **NÃO APURADA** — nenhuma execução |
+| P10, P2–P7 | decididas pela bateria V0 × V1 das 30, quando ela fechar |
+
+P8 e P9 ficam **sem resposta por falha de infraestrutura**, e assim serão
+reportadas. Não vão ser respondidas por argumento.
+
+## E2.3 A bateria que decide
+
+Uma só: as **30 perguntas** com `VARIANTE_CONSULTA=v1`, contra a bateria V0
+completa de 14 set (`ef4e60a`), que tem as mesmas 30 e rodou sem abort.
+
+**Por que as 30, e não as 7.** Está no §5 desde o começo: a V1 muda a busca de
+**todo mundo**, inclusive das perguntas objetivas e das ambíguas, em que a
+consulta boa hoje é justamente o recorte que o agente faz. Adotar a V1 olhando
+só para o grupo C seria trocar um número por outro sem saber o que quebrou.
+
+**O que reprova a adoção da V1**, e isto é dito antes de ver o resultado:
+
+- qualquer queda na acurácia de **roteamento** abaixo dos 95% do critério;
+- qualquer queda nas **16 objetivas** — hoje 95,8% na V0;
+- qualquer **recusa perdida** no grupo B, hoje 100%.
+
+Se a V1 subir o grupo C e derrubar qualquer um dos três, ela **não é adotada** —
+e o achado passa a ser que a reformulação do agente é boa para as objetivas e
+ruim para as interpretativas, que é resultado, e não fracasso.
